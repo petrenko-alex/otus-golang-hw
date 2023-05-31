@@ -1,4 +1,4 @@
-module github.com/petrenko-alex/hw01_hello_otus
+module github.com/petrenko-alex/otus-golang-hw/hw01_hello_otus
 
 go 1.19
 
