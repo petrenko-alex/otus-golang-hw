@@ -20,6 +20,10 @@ const (
 	regexNumbers             = `.*\d\d.*`
 )
 
+func (e UnpackError) Error() string {
+	return string(e)
+}
+
 func Unpack(packedString string) (string, error) {
 	validationError := validateUnpackedString(packedString)
 	if validationError != nil {
@@ -31,29 +35,10 @@ func Unpack(packedString string) (string, error) {
 		return packedString, nil
 	}
 
-	var prevSymbol rune
 	var builder strings.Builder
-	for _, symbol := range packedString {
+	var unpackedString = buildUnpackedString(packedString, &builder)
 
-		if unicode.IsLetter(prevSymbol) {
-			count := 1
-			if unicode.IsDigit(symbol) {
-				count, _ = strconv.Atoi(string(symbol)) // error suppressed because symbol was checked before
-			}
-
-			builder.WriteString(strings.Repeat(string(prevSymbol), count))
-		}
-
-		prevSymbol = symbol
-	}
-
-	// process last
-	lastSymbol, _ := utf8.DecodeLastRuneInString(packedString)
-	if unicode.IsLetter(lastSymbol) {
-		builder.WriteRune(lastSymbol)
-	}
-
-	return builder.String(), nil
+	return unpackedString, nil
 }
 
 func validateUnpackedString(input string) error {
@@ -79,6 +64,30 @@ func validateUnpackedString(input string) error {
 	return nil
 }
 
-func (e UnpackError) Error() string {
-	return string(e)
+func buildUnpackedString(packedString string, builder *strings.Builder) string {
+	var prevSymbol rune
+	for _, symbol := range packedString {
+
+		if unicode.IsLetter(prevSymbol) {
+			count := 1
+			if unicode.IsDigit(symbol) {
+				count, _ = strconv.Atoi(string(symbol)) // error suppressed because symbol was checked before
+			}
+
+			builder.WriteString(strings.Repeat(string(prevSymbol), count))
+		}
+
+		prevSymbol = symbol
+	}
+
+	processLastSymbol(packedString, builder)
+
+	return builder.String()
+}
+
+func processLastSymbol(packedString string, builder *strings.Builder) {
+	lastSymbol, _ := utf8.DecodeLastRuneInString(packedString)
+	if unicode.IsLetter(lastSymbol) {
+		builder.WriteRune(lastSymbol)
+	}
 }
