@@ -3,9 +3,8 @@ package hw02unpackstring_test
 import (
 	"errors"
 	hw02unpackstring "github.com/petrenko-alex/otus-golang-hw/hw02_unpack_string"
-	"testing"
-
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 // TODO: Uncomment extra cases
@@ -35,6 +34,7 @@ func TestUnpack(t *testing.T) {
 		// complex
 		{desc: "Complex 1", input: "a4bc2d5e", expected: "aaaabccddddde"},
 		{desc: "Complex 2", input: "a4bc2d5e0f2", expected: "aaaabccdddddff"},
+		{desc: "Cyrillic", input: "а3п2орпz3", expected: "аааппорпzzz"},
 
 		// extra
 		// {input: `qwe\4\5`, expected: `qwe45`},
