@@ -2,9 +2,10 @@ package hw02unpackstring_test
 
 import (
 	"errors"
+	"testing"
+
 	hw02unpackstring "github.com/petrenko-alex/otus-golang-hw/hw02_unpack_string"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 // TODO: Uncomment extra cases
@@ -56,14 +57,15 @@ func TestUnpack(t *testing.T) {
 
 func TestUnpackInvalidString(t *testing.T) {
 	testCases := []struct {
-		desc  string
-		input string
+		desc          string
+		input         string
+		expectedError error
 	}{
-		{desc: "String starts with digit", input: "3abc"},
-		{desc: "String without letters", input: "45"},
-		{desc: "String with number instead of digit", input: "aaa10b"},
-		{desc: "String with non symbols", input: "a4d&"},
-		{desc: "String emojis", input: "😀"},
+		{desc: "String starts with digit", input: "3abc", expectedError: hw02unpackstring.ErrStartsWithDigits},
+		{desc: "String has only digit", input: "4", expectedError: hw02unpackstring.ErrStartsWithDigits},
+		{desc: "String with number instead of digit", input: "aaa10b", expectedError: hw02unpackstring.ErrHasNumbers},
+		{desc: "String with non symbols", input: "a4d&", expectedError: hw02unpackstring.ErrInvalidChars},
+		{desc: "String emojis", input: "😀", expectedError: hw02unpackstring.ErrInvalidChars},
 	}
 
 	for i := range testCases {
@@ -71,7 +73,7 @@ func TestUnpackInvalidString(t *testing.T) {
 		t.Run(testCase.desc, func(t *testing.T) {
 			_, err := hw02unpackstring.Unpack(testCase.input)
 
-			require.Truef(t, errors.Is(err, hw02unpackstring.ErrInvalidString), "actual error %q", err)
+			require.Truef(t, errors.Is(err, testCase.expectedError), "actual error %q", err)
 		})
 	}
 }

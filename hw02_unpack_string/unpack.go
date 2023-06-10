@@ -1,7 +1,6 @@
 package hw02unpackstring
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,18 +8,19 @@ import (
 	"unicode/utf8"
 )
 
-var ErrInvalidString = errors.New("invalid string")
+type UnpackError string
 
 const (
+	ErrStartsWithDigits = UnpackError("Not allowed to start with digits")
+	ErrHasNumbers       = UnpackError("Numbers are not allowed, only digits")
+	ErrInvalidChars     = UnpackError("Only digits and letters allowed")
+
 	regexNotLettersAndDigits = `[^a-zA-Zа-яА-Я0-9]`
 	regexNotStartWithDigit   = `^[^\d]`
 	regexNumbers             = `.*\d\d.*`
 )
 
 func Unpack(packedString string) (string, error) {
-	// todo: erase
-	// todo: ref split into func?
-
 	validationError := validateUnpackedString(packedString)
 	if validationError != nil {
 		return "", validationError
@@ -63,18 +63,22 @@ func validateUnpackedString(input string) error {
 
 	matched, err := regexp.MatchString(regexNotLettersAndDigits, input)
 	if matched || err != nil {
-		return ErrInvalidString
+		return ErrInvalidChars
 	}
 
 	matched, err = regexp.MatchString(regexNotStartWithDigit, input)
 	if !matched || err != nil {
-		return ErrInvalidString
+		return ErrStartsWithDigits
 	}
 
 	matched, err = regexp.MatchString(regexNumbers, input)
 	if matched || err != nil {
-		return ErrInvalidString
+		return ErrHasNumbers
 	}
 
-	return err
+	return nil
+}
+
+func (e UnpackError) Error() string {
+	return string(e)
 }
