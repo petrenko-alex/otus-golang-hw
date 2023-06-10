@@ -62,6 +62,8 @@ func TestUnpackInvalidString(t *testing.T) {
 		{desc: "String starts with digit", input: "3abc"},
 		{desc: "String without letters", input: "45"},
 		{desc: "String with number instead of digit", input: "aaa10b"},
+		{desc: "String with non symbols", input: "a4d&"},
+		{desc: "String emojis", input: "😀"},
 	}
 
 	for i := range testCases {

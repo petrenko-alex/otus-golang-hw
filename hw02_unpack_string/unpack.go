@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -10,13 +11,20 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+const (
+	regexNotLettersAndDigits = `[^a-zA-Zа-яА-Я0-9]`
+	regexNotStartWithDigit   = `^[^\d]`
+	regexNumbers             = `.*\d\d.*`
+)
+
 func Unpack(packedString string) (string, error) {
 	// todo: erase
-	// todo: validate input
 	// todo: ref split into func?
-	// todo: ref class ?
 
-	var builder strings.Builder
+	validationError := validateUnpackedString(packedString)
+	if validationError != nil {
+		return "", validationError
+	}
 
 	packedStringLength := utf8.RuneCountInString(packedString)
 	if packedStringLength == 1 {
@@ -24,6 +32,7 @@ func Unpack(packedString string) (string, error) {
 	}
 
 	var prevSymbol rune
+	var builder strings.Builder
 	for _, symbol := range packedString {
 
 		if unicode.IsLetter(prevSymbol) {
@@ -45,4 +54,27 @@ func Unpack(packedString string) (string, error) {
 	}
 
 	return builder.String(), nil
+}
+
+func validateUnpackedString(input string) error {
+	if len(input) == 0 {
+		return nil
+	}
+
+	matched, err := regexp.MatchString(regexNotLettersAndDigits, input)
+	if matched || err != nil {
+		return ErrInvalidString
+	}
+
+	matched, err = regexp.MatchString(regexNotStartWithDigit, input)
+	if !matched || err != nil {
+		return ErrInvalidString
+	}
+
+	matched, err = regexp.MatchString(regexNumbers, input)
+	if matched || err != nil {
+		return ErrInvalidString
+	}
+
+	return err
 }
