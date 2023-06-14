@@ -8,9 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TODO: Uncomment extra cases
-// TODO: run coverage
-
 func TestUnpack(t *testing.T) {
 	testCases := []struct {
 		desc     string
@@ -42,6 +39,7 @@ func TestUnpack(t *testing.T) {
 		// {input: `qwe\45`, expected: `qwe44444`},
 		// {input: `qwe\\5`, expected: `qwe\\\\\`},
 		// {input: `qwe\\\3`, expected: `qwe\3`},
+		// {input: `qwe\\\n`, expected: `qwe\3`},
 	}
 
 	for i := range testCases {
