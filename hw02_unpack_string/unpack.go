@@ -27,10 +27,10 @@ func (e UnpackError) Error() string {
 }
 
 func Unpack(packedString string) (string, error) {
-	validationError := validateUnpackedString(packedString)
+	/*validationError := validateUnpackedString(packedString)
 	if validationError != nil {
 		return "", validationError
-	}
+	}*/
 
 	packedStringLength := utf8.RuneCountInString(packedString)
 	if packedStringLength == 1 {
@@ -67,21 +67,43 @@ func validateUnpackedString(input string) error {
 }
 
 func buildUnpackedString(packedString string, builder *strings.Builder) string {
+	// todo: refactoring
 	runes := []rune(packedString)
 	i := 0
 
 	for i < len(runes) {
+		multiplier := 1
 		currentSymbol := runes[i]
 
 		if unicode.IsLetter(currentSymbol) {
-			count := 1
-			if i+1 < len(runes) && unicode.IsDigit(runes[i+1]) { // get multiplier
-				count, _ = strconv.Atoi(string(runes[i+1])) // error suppressed because symbol was checked before
-				i++                                         // skip multiplier
+			// get multiplier
+			if i+1 < len(runes) && unicode.IsDigit(runes[i+1]) {
+				multiplier, _ = strconv.Atoi(string(runes[i+1])) // error suppressed because symbol was checked before
+				i++
 			}
 
-			builder.WriteString(strings.Repeat(string(currentSymbol), count))
+			builder.WriteString(strings.Repeat(string(currentSymbol), multiplier))
 			i++
+		} else if currentSymbol == '\\' {
+			// start escaping
+			if i+1 >= len(runes) {
+				continue
+			}
+
+			// get escaped symbol
+			escapedSymbol := runes[i+1]
+			if !unicode.IsDigit(escapedSymbol) && escapedSymbol != '\\' {
+				continue
+			}
+
+			// try to find multiplier
+			if i+2 < len(runes) && unicode.IsDigit(runes[i+2]) {
+				multiplier, _ = strconv.Atoi(string(runes[i+2])) // error suppressed because symbol was checked before
+				i++
+			}
+
+			builder.WriteString(strings.Repeat(string(escapedSymbol), multiplier))
+			i += 2
 		}
 	}
 

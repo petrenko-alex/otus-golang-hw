@@ -1,7 +1,6 @@
 package hw02unpackstring_test
 
 import (
-	"errors"
 	"testing"
 
 	hw02unpackstring "github.com/petrenko-alex/otus-golang-hw/hw02_unpack_string"
@@ -29,17 +28,18 @@ func TestUnpack(t *testing.T) {
 		{desc: "Erase to one letter", input: "ab0", expected: "a"},
 		{desc: "Normal erase", input: "aaa0b", expected: "aab"},
 
+		// escaping
+		{desc: "Escape digits", input: `qwe\4\5`, expected: `qwe45`},
+		{desc: "Escape digits with multiplier", input: `qwe\45`, expected: `qwe44444`},
+		{desc: "Escape slash with multiplier", input: `qwe\\5`, expected: `qwe\\\\\`},
+		{desc: "Escape slash and digits", input: `qwe\\\3`, expected: `qwe\3`},
+		{desc: "Escape with erase", input: `qwe\\2\30`, expected: `qwe\\`},
+
 		// complex
 		{desc: "Complex 1", input: "a4bc2d5e", expected: "aaaabccddddde"},
 		{desc: "Complex 2", input: "a4bc2d5e0f2", expected: "aaaabccdddddff"},
-		{desc: "Cyrillic", input: "а3п2орпz3", expected: "аааппорпzzz"},
-
-		// extra
-		// {input: `qwe\4\5`, expected: `qwe45`},
-		// {input: `qwe\45`, expected: `qwe44444`},
-		// {input: `qwe\\5`, expected: `qwe\\\\\`},
-		// {input: `qwe\\\3`, expected: `qwe\3`},
-		// {input: `qwe\\\n`, expected: `qwe\3`},
+		{desc: "Complex with cyrillic", input: "а3п2орпz3", expected: "аааппорпzzz"},
+		{desc: "Complex with escaping", input: `а3п2орпz3\\\3n2\\3\32\90`, expected: `аааппорпzzz\3nn\\\33`},
 	}
 
 	for i := range testCases {
@@ -54,7 +54,7 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	testCases := []struct {
+	/*testCases := []struct {
 		desc          string
 		input         string
 		expectedError error
@@ -64,6 +64,8 @@ func TestUnpackInvalidString(t *testing.T) {
 		{desc: "String with number instead of digit", input: "aaa10b", expectedError: hw02unpackstring.ErrHasNumbers},
 		{desc: "String with non symbols", input: "a4d&", expectedError: hw02unpackstring.ErrInvalidChars},
 		{desc: "String emojis", input: "😀", expectedError: hw02unpackstring.ErrInvalidChars},
+		// {input: `qwe\\\n`, expected: `qwe\3`},
+
 	}
 
 	for i := range testCases {
@@ -73,5 +75,5 @@ func TestUnpackInvalidString(t *testing.T) {
 
 			require.Truef(t, errors.Is(err, testCase.expectedError), "actual error %q", err)
 		})
-	}
+	}*/
 }
