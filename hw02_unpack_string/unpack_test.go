@@ -30,6 +30,10 @@ func TestUnpack(t *testing.T) {
 		{desc: "Normal erase", input: "aaa0b", expected: "aab"},
 
 		// escaping
+		{desc: "Escape one digit", input: `\4`, expected: `4`},
+		{desc: "Escape one slash", input: `\\`, expected: `\`},
+		{desc: "Escape one digit and erase", input: `\40`, expected: ``},
+		{desc: "Escape one slash and erase", input: `\\0`, expected: ``},
 		{desc: "Escape digits", input: `qwe\4\5`, expected: `qwe45`},
 		{desc: "Escape digits with multiplier", input: `qwe\45`, expected: `qwe44444`},
 		{desc: "Escape slash with multiplier", input: `qwe\\5`, expected: `qwe\\\\\`},
