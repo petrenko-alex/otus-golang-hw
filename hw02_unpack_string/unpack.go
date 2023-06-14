@@ -17,9 +17,9 @@ const (
 	ErrHasNumbers       = UnpackError("Numbers are not allowed, only digits")
 	ErrInvalidChars     = UnpackError("Only digits and letters allowed")
 
-	regexNotLettersAndDigits = `[^a-zA-Zа-яА-Я0-9]`
-	regexNotStartWithDigit   = `^[^\d]`
-	regexNumbers             = `.*\d\d.*`
+	regexNotAllowedSymbols = `[^a-zA-Zа-яА-Я0-9\\]`
+	regexNotStartWithDigit = `^[^\d]`
+	regexNumbers           = `[^\\]+\d\d.*`
 )
 
 func (e UnpackError) Error() string {
@@ -27,10 +27,10 @@ func (e UnpackError) Error() string {
 }
 
 func Unpack(packedString string) (string, error) {
-	/*validationError := validateUnpackedString(packedString)
+	validationError := validateUnpackedString(packedString)
 	if validationError != nil {
 		return "", validationError
-	}*/
+	}
 
 	packedStringLength := utf8.RuneCountInString(packedString)
 	if packedStringLength == 1 {
@@ -48,7 +48,7 @@ func validateUnpackedString(input string) error {
 		return nil
 	}
 
-	matched, err := regexp.MatchString(regexNotLettersAndDigits, input)
+	matched, err := regexp.MatchString(regexNotAllowedSymbols, input)
 	if matched || err != nil {
 		return ErrInvalidChars
 	}

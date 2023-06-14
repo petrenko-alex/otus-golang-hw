@@ -1,6 +1,7 @@
 package hw02unpackstring_test
 
 import (
+	"errors"
 	"testing"
 
 	hw02unpackstring "github.com/petrenko-alex/otus-golang-hw/hw02_unpack_string"
@@ -54,7 +55,7 @@ func TestUnpack(t *testing.T) {
 }
 
 func TestUnpackInvalidString(t *testing.T) {
-	/*testCases := []struct {
+	testCases := []struct {
 		desc          string
 		input         string
 		expectedError error
@@ -75,5 +76,5 @@ func TestUnpackInvalidString(t *testing.T) {
 
 			require.Truef(t, errors.Is(err, testCase.expectedError), "actual error %q", err)
 		})
-	}*/
+	}
 }
