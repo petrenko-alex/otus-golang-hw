@@ -64,7 +64,10 @@ func validateUnpackedString(input string) error {
 		return ErrHasNumbers
 	}
 
-	// validate escaping
+	return validateEscaping(input)
+}
+
+func validateEscaping(input string) error {
 	runes := []rune(input)
 	for i := 0; i < len(runes); i++ {
 		if runes[i] != '\\' {
@@ -75,7 +78,7 @@ func validateUnpackedString(input string) error {
 			return ErrInvalidEscaping
 		}
 
-		if !unicode.IsDigit(runes[i+1]) && runes[i+1] != '\\' {
+		if !isValidEscapedSymbol(runes[i+1]) {
 			return ErrInvalidEscaping
 		}
 
@@ -85,8 +88,11 @@ func validateUnpackedString(input string) error {
 	return nil
 }
 
+func isValidEscapedSymbol(symbol rune) bool {
+	return unicode.IsDigit(symbol) || symbol == '\\'
+}
+
 func buildUnpackedString(packedString string, builder *strings.Builder) string {
-	// todo: refactoring
 	runes := []rune(packedString)
 	i := 0
 
@@ -97,7 +103,7 @@ func buildUnpackedString(packedString string, builder *strings.Builder) string {
 		if unicode.IsLetter(currentSymbol) {
 			// get multiplier
 			if i+1 < len(runes) && unicode.IsDigit(runes[i+1]) {
-				multiplier, _ = strconv.Atoi(string(runes[i+1])) // error suppressed because symbol was checked before
+				multiplier = AtoiRune(runes[i+1])
 				i++
 			}
 
@@ -111,13 +117,13 @@ func buildUnpackedString(packedString string, builder *strings.Builder) string {
 
 			// get escaped symbol
 			escapedSymbol := runes[i+1]
-			if !unicode.IsDigit(escapedSymbol) && escapedSymbol != '\\' {
+			if !isValidEscapedSymbol(escapedSymbol) {
 				break
 			}
 
 			// try to find multiplier
 			if i+2 < len(runes) && unicode.IsDigit(runes[i+2]) {
-				multiplier, _ = strconv.Atoi(string(runes[i+2])) // error suppressed because symbol was checked before
+				multiplier = AtoiRune(runes[i+2])
 				i++
 			}
 
@@ -127,4 +133,9 @@ func buildUnpackedString(packedString string, builder *strings.Builder) string {
 	}
 
 	return builder.String()
+}
+
+func AtoiRune(symbol rune) int {
+	num, _ := strconv.Atoi(string(symbol)) // error suppressed because we suppose symbol was checked before
+	return num
 }
