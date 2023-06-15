@@ -94,13 +94,13 @@ func buildUnpackedString(packedString string, builder *strings.Builder) string {
 		} else if currentSymbol == '\\' {
 			// start escaping
 			if i+1 >= len(runes) {
-				continue
+				break
 			}
 
 			// get escaped symbol
 			escapedSymbol := runes[i+1]
 			if !unicode.IsDigit(escapedSymbol) && escapedSymbol != '\\' {
-				continue
+				break
 			}
 
 			// try to find multiplier
