@@ -38,10 +38,7 @@ func Unpack(packedString string) (string, error) {
 		return packedString, nil
 	}
 
-	var builder strings.Builder
-	var unpackedString = buildUnpackedString(packedString, &builder)
-
-	return unpackedString, nil
+	return buildUnpackedString(packedString), nil
 }
 
 func validateUnpackedString(input string) error {
@@ -92,10 +89,11 @@ func isValidEscapedSymbol(symbol rune) bool {
 	return unicode.IsDigit(symbol) || symbol == '\\'
 }
 
-func buildUnpackedString(packedString string, builder *strings.Builder) string {
-	runes := []rune(packedString)
-	i := 0
+func buildUnpackedString(packedString string) string {
+	var builder strings.Builder
 
+	i := 0
+	runes := []rune(packedString)
 	for i < len(runes) {
 		multiplier := 1
 		currentSymbol := runes[i]
@@ -117,9 +115,6 @@ func buildUnpackedString(packedString string, builder *strings.Builder) string {
 
 			// get escaped symbol
 			escapedSymbol := runes[i+1]
-			if !isValidEscapedSymbol(escapedSymbol) {
-				break
-			}
 
 			// try to find multiplier
 			if i+2 < len(runes) && unicode.IsDigit(runes[i+2]) {
