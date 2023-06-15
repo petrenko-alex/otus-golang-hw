@@ -8,8 +8,6 @@ import (
 	"unicode/utf8"
 )
 
-// TODO: linter and styler
-
 type UnpackError string
 
 const (
