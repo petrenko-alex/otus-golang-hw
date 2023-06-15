@@ -21,7 +21,6 @@ const (
 	regexNotAllowedSymbols = `[^a-zA-Zа-яА-Я0-9\\]`
 	regexNotStartWithDigit = `^[^\d]`
 	regexNumbers           = `[^\\]+\d\d.*`
-	regexIncorrectEscaping = `\\[^\d\\]`
 )
 
 func (e UnpackError) Error() string {
@@ -65,9 +64,22 @@ func validateUnpackedString(input string) error {
 		return ErrHasNumbers
 	}
 
-	matched, err = regexp.MatchString(regexIncorrectEscaping, input)
-	if matched || err != nil {
-		return ErrInvalidEscaping
+	// validate escaping
+	runes := []rune(input)
+	for i := 0; i < len(runes); i++ {
+		if runes[i] != '\\' {
+			continue
+		}
+
+		if i+1 >= len(runes) {
+			return ErrInvalidEscaping
+		}
+
+		if !unicode.IsDigit(runes[i+1]) && runes[i+1] != '\\' {
+			return ErrInvalidEscaping
+		}
+
+		i++ // skip escaped symbol
 	}
 
 	return nil
