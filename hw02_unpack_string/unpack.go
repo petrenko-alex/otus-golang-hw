@@ -16,10 +16,12 @@ const (
 	ErrStartsWithDigits = UnpackError("Not allowed to start with digits")
 	ErrHasNumbers       = UnpackError("Numbers are not allowed, only digits")
 	ErrInvalidChars     = UnpackError("Only digits and letters allowed")
+	ErrInvalidEscaping  = UnpackError("Only digits and slash symbol can be escaped")
 
 	regexNotAllowedSymbols = `[^a-zA-Zа-яА-Я0-9\\]`
 	regexNotStartWithDigit = `^[^\d]`
 	regexNumbers           = `[^\\]+\d\d.*`
+	regexIncorrectEscaping = `\\[^\d\\]`
 )
 
 func (e UnpackError) Error() string {
@@ -61,6 +63,11 @@ func validateUnpackedString(input string) error {
 	matched, err = regexp.MatchString(regexNumbers, input)
 	if matched || err != nil {
 		return ErrHasNumbers
+	}
+
+	matched, err = regexp.MatchString(regexIncorrectEscaping, input)
+	if matched || err != nil {
+		return ErrInvalidEscaping
 	}
 
 	return nil

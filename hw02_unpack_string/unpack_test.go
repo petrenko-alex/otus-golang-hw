@@ -69,8 +69,7 @@ func TestUnpackInvalidString(t *testing.T) {
 		{desc: "String with number instead of digit", input: "aaa10b", expectedError: hw02unpackstring.ErrHasNumbers},
 		{desc: "String with non symbols", input: "a4d&", expectedError: hw02unpackstring.ErrInvalidChars},
 		{desc: "String emojis", input: "😀", expectedError: hw02unpackstring.ErrInvalidChars},
-		// {input: `qwe\\\n`, expected: `qwe\3`},
-
+		{desc: "Invalid escaped symbol", input: `qwe\\\n`, expectedError: hw02unpackstring.ErrInvalidEscaping},
 	}
 
 	for i := range testCases {
