@@ -70,7 +70,7 @@ func TestTop10Positive(t *testing.T) {
 		},
 		{
 			desc:   "mixed digit word string",
-			input:  "3 3 cat 3 cat 2 dog 2",
+			input:  "3 3 cat 3 cat 2 dog 2 cat",
 			output: []string{"3", "cat", "2", "dog"}, // correct sort ?
 		},
 		{
@@ -81,7 +81,7 @@ func TestTop10Positive(t *testing.T) {
 		{
 			desc:   "one word repeated",
 			input:  "cat cat cat cat",
-			output: []string{},
+			output: []string{"cat"},
 		},
 		{
 			desc:   "equal frequency, sorting",
@@ -121,12 +121,12 @@ func TestTop10Positive(t *testing.T) {
 		{
 			desc:   "symbols and emojis",
 			input:  "",
-			output: []string{},
+			output: []string{"<todo>"},
 		},
 		{
 			desc:   "different whitespaces, whitespace with escape",
 			input:  "",
-			output: []string{},
+			output: []string{"<todo>"},
 		},
 		{
 			desc:  "complex text",
