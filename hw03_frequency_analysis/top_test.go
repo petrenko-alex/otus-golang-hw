@@ -164,7 +164,7 @@ func TestTop10Errors(t *testing.T) {
 	}{
 		{
 			desc:          "Invalid UTF-8",
-			input:         `é um cãozinho`,
+			input:         "\xe0 \xe1 \xe2 \xe3 \xe9",
 			expectedError: hw03frequencyanalysis.InvalidUtf8StringError,
 		},
 	}
