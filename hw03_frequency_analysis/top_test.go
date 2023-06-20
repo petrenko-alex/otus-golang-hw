@@ -115,8 +115,8 @@ func TestTop10Positive(t *testing.T) {
 		},
 		{
 			desc:   "more than top 10",
-			input:  "1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 15 16",
-			output: []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+			input:  "a a b b c c d d e e f f g g h h i i j j k k l l m m n o p",
+			output: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
 		},
 		{
 			desc:   "symbols and emojis",
