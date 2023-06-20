@@ -16,6 +16,7 @@ func Top10(text string) ([]string, error) {
 		return []string{}, nil
 	}
 
+	const frequencyLimit = 10
 	frequency := map[string]int{}
 
 	// split
@@ -37,6 +38,11 @@ func Top10(text string) ([]string, error) {
 
 		return frequency[uniqueWords[i]] > frequency[uniqueWords[j]]
 	})
+
+	// cut off more than 10
+	if len(uniqueWords) > frequencyLimit {
+		uniqueWords = uniqueWords[:frequencyLimit]
+	}
 
 	return uniqueWords, nil
 }
