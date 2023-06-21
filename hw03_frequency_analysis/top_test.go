@@ -110,8 +110,8 @@ func TestTop10Positive(t *testing.T) {
 		},
 		{
 			desc:   "punctuation, dash",
-			input:  "cat-dog cat. man-",
-			output: []string{"-", "cat", "cat.", "dog"}, // correct case ?
+			input:  "cat - dog cat. man -",
+			output: []string{"-", "cat", "cat.", "dog", "man"},
 		},
 		{
 			desc:   "more than top 10",
