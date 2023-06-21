@@ -120,13 +120,13 @@ func TestTop10Positive(t *testing.T) {
 		},
 		{
 			desc:   "symbols and emojis",
-			input:  "",
-			output: []string{"<todo>"},
+			input:  "😀 a 😀 🤣 a a",
+			output: []string{"a", "😀", "🤣"},
 		},
 		{
-			desc:   "different whitespaces, whitespace with escape",
-			input:  "",
-			output: []string{"<todo>"},
+			desc:   "different whitespaces",
+			input:  "a  a		b\tc",
+			output: []string{"a", "b", "c"},
 		},
 		{
 			desc:  "complex text",
