@@ -101,17 +101,17 @@ func TestTop10Positive(t *testing.T) {
 		{
 			desc:   "capital letters",
 			input:  "Cat dog Cat cat cat Cat",
-			output: []string{"Cat", "cat", "dog"},
+			output: []string{"cat", "dog"},
 		},
 		{
 			desc:   "punctuation, commas",
-			input:  "cat and dog, one dog,two cats and one man",
-			output: []string{"and", "one", "cat", "cats", "dog,", "dog,two", "man"},
+			input:  "cat and dog, one dog, two cats and one man",
+			output: []string{"and", "dog", "one", "cat", "cats", "man", "two"},
 		},
 		{
 			desc:   "punctuation, dash",
 			input:  "cat - dog cat. man -",
-			output: []string{"-", "cat", "cat.", "dog", "man"},
+			output: []string{"cat", "dog", "man"},
 		},
 		{
 			desc:   "more than top 10",
@@ -132,16 +132,16 @@ func TestTop10Positive(t *testing.T) {
 			desc:  "complex text",
 			input: text,
 			output: []string{
+				"а",         // 8
 				"он",        // 8
-				"а",         // 6
 				"и",         // 6
 				"ты",        // 5
 				"что",       // 5
-				"-",         // 4
-				"Кристофер", // 4
+				"в",         // 4
+				"его",       // 4
 				"если",      // 4
+				"кристофер", // 4
 				"не",        // 4
-				"то",        // 4
 			},
 		},
 	}

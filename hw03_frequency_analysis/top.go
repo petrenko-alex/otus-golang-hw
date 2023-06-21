@@ -3,6 +3,7 @@ package hw03frequencyanalysis
 import (
 	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -22,6 +23,14 @@ func Top10(text string) ([]string, error) {
 	// split
 	words := strings.Fields(text)
 	for _, word := range words {
+		if word == "-" {
+			continue
+		}
+
+		word = strings.ToLower(word)
+		word = strings.TrimFunc(word, func(r rune) bool {
+			return unicode.IsPunct(r)
+		})
 		frequency[word] += 1
 	}
 
