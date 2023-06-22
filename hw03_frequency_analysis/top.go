@@ -2,12 +2,10 @@ package hw03frequencyanalysis
 
 import (
 	"sort"
-	"strings"
-	"unicode"
 	"unicode/utf8"
 )
 
-func Top10(text string) ([]string, error) {
+func Top10(text string, freqCounter FrequencyCounter) ([]string, error) {
 	validationError := validateText(text)
 	if validationError != nil {
 		return nil, validationError
@@ -17,7 +15,7 @@ func Top10(text string) ([]string, error) {
 		return []string{}, nil
 	}
 
-	frequency := calcWordsFrequency(text)
+	frequency := freqCounter.calcWordsFrequency(text)
 	uniqueWords := calcMostFrequentWords(frequency)
 	uniqueWords = getTopFrequentWords(uniqueWords, 10)
 
@@ -30,27 +28,6 @@ func validateText(textToValidate string) error {
 	}
 
 	return nil
-}
-
-func calcWordsFrequency(text string) map[string]int {
-	frequency := map[string]int{}
-
-	words := strings.Fields(text)
-
-	for _, word := range words {
-		if word == "-" {
-			continue
-		}
-
-		word = strings.ToLower(word)
-		word = strings.TrimFunc(word, func(r rune) bool {
-			return unicode.IsPunct(r)
-		})
-
-		frequency[word] += 1
-	}
-
-	return frequency
 }
 
 func calcMostFrequentWords(frequency map[string]int) []string {
