@@ -2,9 +2,9 @@ package hw03frequencyanalysis_test
 
 import (
 	"errors"
-	hw03frequencyanalysis "github.com/petrenko-alex/otus-golang-hw/hw03_frequency_analysis"
 	"testing"
 
+	hw03frequencyanalysis "github.com/petrenko-alex/otus-golang-hw/hw03_frequency_analysis"
 	"github.com/stretchr/testify/require"
 )
 
@@ -53,8 +53,9 @@ var commonTestCases = []struct {
 		output: []string{},
 	},
 	{
-		desc:   "simple digit string",
-		input:  "10 10 10 10 10 10 10 10 10 10 9 9 9 9 9 9 9 9 9 8 8 8 8 8 8 8 8 7 7 7 7 7 7 7 6 6 6 6 6 6 5 5 5 5 5 4 4 4 4 3 3 3 2 2 1",
+		desc: "simple digit string",
+		input: `10 10 10 10 10 10 10 10 10 10 9 9 9 9 9 9 9 9 9 8 8 8 8 8 8 8 8 
+					7 7 7 7 7 7 7 6 6 6 6 6 6 5 5 5 5 5 4 4 4 4 3 3 3 2 2 1`,
 		output: []string{"10", "9", "8", "7", "6", "5", "4", "3", "2", "1"},
 	},
 	{
@@ -237,7 +238,7 @@ func TestTop10Errors(t *testing.T) {
 		},
 	}
 
-	for i, _ := range testCases {
+	for i := range testCases {
 		testCase := testCases[i]
 		t.Run(testCase.desc, func(t *testing.T) {
 			_, err := testCase.executor.Top(testCase.input)

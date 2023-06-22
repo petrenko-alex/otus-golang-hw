@@ -49,7 +49,7 @@ func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
 		return nil, validationError
 	}
 
-	if len(text) <= 0 {
+	if len(text) == 0 {
 		return []string{}, nil
 	}
 

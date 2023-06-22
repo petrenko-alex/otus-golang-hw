@@ -4,8 +4,10 @@ import "unicode/utf8"
 
 const InvalidUtf8TextError = TextValidationError("Text should be valid utf8")
 
-type Utf8Validator struct{}
-type TextValidationError string
+type (
+	Utf8Validator       struct{}
+	TextValidationError string
+)
 
 type TextValidator interface {
 	ValidateText(text string) error
