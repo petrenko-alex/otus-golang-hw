@@ -153,12 +153,7 @@ func TestTop10PositivePunctuation(t *testing.T) {
 		},
 	}
 	testCases = append(commonTestCases, testCases...)
-	top10 := hw03frequencyanalysis.GeneralTextWordFrequency{
-		TextValidator:    hw03frequencyanalysis.Utf8Validator{},
-		FrequencyCounter: hw03frequencyanalysis.PunctuationFrequencyCounter{},
-		FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
-		FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
-	}
+	top10 := hw03frequencyanalysis.NewPunctuationTextWordFrequency()
 
 	for i := range testCases {
 		testCase := testCases[i]
@@ -209,12 +204,7 @@ func TestTop10PositiveNonPunctuation(t *testing.T) {
 		},
 	}
 	testCases = append(commonTestCases, testCases...)
-	top10 := hw03frequencyanalysis.GeneralTextWordFrequency{
-		TextValidator:    hw03frequencyanalysis.Utf8Validator{},
-		FrequencyCounter: hw03frequencyanalysis.NonPunctuationFrequencyCounter{},
-		FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
-		FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
-	}
+	top10 := hw03frequencyanalysis.NewNonPunctuationTextWordFrequency()
 
 	for i := range testCases {
 		testCase := testCases[i]
@@ -234,25 +224,15 @@ func TestTop10Errors(t *testing.T) {
 		expectedError error
 	}{
 		{
-			desc:  "PunctuationFrequencyCounter: Invalid UTF-8",
-			input: "\xe0 \xe1 \xe2 \xe3 \xe9",
-			executor: hw03frequencyanalysis.GeneralTextWordFrequency{
-				TextValidator:    hw03frequencyanalysis.Utf8Validator{},
-				FrequencyCounter: hw03frequencyanalysis.PunctuationFrequencyCounter{},
-				FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
-				FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
-			},
+			desc:          "PunctuationFrequencyCounter: Invalid UTF-8",
+			input:         "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor:      hw03frequencyanalysis.NewPunctuationTextWordFrequency(),
 			expectedError: hw03frequencyanalysis.InvalidUtf8TextError,
 		},
 		{
-			desc:  "NonPunctuationFrequencyCounter: Invalid UTF-8",
-			input: "\xe0 \xe1 \xe2 \xe3 \xe9",
-			executor: hw03frequencyanalysis.GeneralTextWordFrequency{
-				TextValidator:    hw03frequencyanalysis.Utf8Validator{},
-				FrequencyCounter: hw03frequencyanalysis.NonPunctuationFrequencyCounter{},
-				FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
-				FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
-			},
+			desc:          "NonPunctuationFrequencyCounter: Invalid UTF-8",
+			input:         "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor:      hw03frequencyanalysis.NewNonPunctuationTextWordFrequency(),
 			expectedError: hw03frequencyanalysis.InvalidUtf8TextError,
 		},
 	}

@@ -5,14 +5,46 @@ type TextWordFrequency interface {
 }
 
 type GeneralTextWordFrequency struct {
-	TextValidator    TextValidator
-	FrequencyCounter FrequencyCounter
-	FrequencySorter  FrequencySorter
-	FrequencyLimiter FrequencyLimiter
+	textValidator    TextValidator
+	frequencyCounter FrequencyCounter
+	frequencySorter  FrequencySorter
+	frequencyLimiter FrequencyLimiter
+}
+
+func NewGeneralTextWordFrequency(
+	validator TextValidator,
+	counter FrequencyCounter,
+	sorter FrequencySorter,
+	limiter FrequencyLimiter,
+) TextWordFrequency {
+	return GeneralTextWordFrequency{
+		textValidator:    validator,
+		frequencyCounter: counter,
+		frequencySorter:  sorter,
+		frequencyLimiter: limiter,
+	}
+}
+
+func NewPunctuationTextWordFrequency() TextWordFrequency {
+	return GeneralTextWordFrequency{
+		textValidator:    Utf8Validator{},
+		frequencyCounter: PunctuationFrequencyCounter{},
+		frequencySorter:  DescendingFrequencySorter{},
+		frequencyLimiter: SimpleFrequencyLimiter{Limit: 10},
+	}
+}
+
+func NewNonPunctuationTextWordFrequency() TextWordFrequency {
+	return GeneralTextWordFrequency{
+		textValidator:    Utf8Validator{},
+		frequencyCounter: NonPunctuationFrequencyCounter{},
+		frequencySorter:  DescendingFrequencySorter{},
+		frequencyLimiter: SimpleFrequencyLimiter{Limit: 10},
+	}
 }
 
 func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
-	validationError := f.TextValidator.ValidateText(text)
+	validationError := f.textValidator.ValidateText(text)
 	if validationError != nil {
 		return nil, validationError
 	}
@@ -21,9 +53,9 @@ func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
 		return []string{}, nil
 	}
 
-	frequency := f.FrequencyCounter.CalcFrequency(text)
-	top := f.FrequencySorter.SortFrequency(frequency)
-	top = f.FrequencyLimiter.LimitFrequency(top)
+	frequency := f.frequencyCounter.CalcFrequency(text)
+	top := f.frequencySorter.SortFrequency(frequency)
+	top = f.frequencyLimiter.LimitFrequency(top)
 
 	return top, nil
 }
