@@ -115,7 +115,6 @@ var commonTestCases = []struct {
 }
 
 func TestTop10PositivePunctuation(t *testing.T) {
-	frequencyCounter := hw03frequencyanalysis.PunctuationFrequencyCounter{}
 	testCases := []struct {
 		desc   string
 		input  string
@@ -154,11 +153,16 @@ func TestTop10PositivePunctuation(t *testing.T) {
 		},
 	}
 	testCases = append(commonTestCases, testCases...)
+	top10 := hw03frequencyanalysis.GeneralTextWordFrequency{
+		FrequencyCounter: hw03frequencyanalysis.PunctuationFrequencyCounter{},
+		FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
+		FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
+	}
 
 	for i := range testCases {
 		testCase := testCases[i]
 		t.Run(testCase.desc, func(t *testing.T) {
-			res, _ := hw03frequencyanalysis.Top10(testCase.input, frequencyCounter)
+			res, _ := top10.Top(testCase.input)
 
 			require.Equal(t, testCase.output, res)
 		})
@@ -166,7 +170,6 @@ func TestTop10PositivePunctuation(t *testing.T) {
 }
 
 func TestTop10PositiveNonPunctuation(t *testing.T) {
-	frequencyCounter := hw03frequencyanalysis.NonPunctuationFrequencyCounter{}
 	testCases := []struct {
 		desc   string
 		input  string
@@ -205,11 +208,16 @@ func TestTop10PositiveNonPunctuation(t *testing.T) {
 		},
 	}
 	testCases = append(commonTestCases, testCases...)
+	top10 := hw03frequencyanalysis.GeneralTextWordFrequency{
+		FrequencyCounter: hw03frequencyanalysis.NonPunctuationFrequencyCounter{},
+		FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
+		FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
+	}
 
 	for i := range testCases {
 		testCase := testCases[i]
 		t.Run(testCase.desc, func(t *testing.T) {
-			res, _ := hw03frequencyanalysis.Top10(testCase.input, frequencyCounter)
+			res, _ := top10.Top(testCase.input)
 
 			require.Equal(t, testCase.output, res)
 		})
@@ -218,29 +226,37 @@ func TestTop10PositiveNonPunctuation(t *testing.T) {
 
 func TestTop10Errors(t *testing.T) {
 	testCases := []struct {
-		desc             string
-		input            string
-		frequencyCounter hw03frequencyanalysis.FrequencyCounter
-		expectedError    error
+		desc          string
+		input         string
+		executor      hw03frequencyanalysis.TextWordFrequency
+		expectedError error
 	}{
 		{
-			desc:             "PunctuationFrequencyCounter: Invalid UTF-8",
-			input:            "\xe0 \xe1 \xe2 \xe3 \xe9",
-			frequencyCounter: hw03frequencyanalysis.PunctuationFrequencyCounter{},
-			expectedError:    hw03frequencyanalysis.InvalidUtf8StringError,
+			desc:  "PunctuationFrequencyCounter: Invalid UTF-8",
+			input: "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor: hw03frequencyanalysis.GeneralTextWordFrequency{
+				FrequencyCounter: hw03frequencyanalysis.PunctuationFrequencyCounter{},
+				FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
+				FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
+			},
+			expectedError: hw03frequencyanalysis.InvalidUtf8StringError,
 		},
 		{
-			desc:             "NonPunctuationFrequencyCounter: Invalid UTF-8",
-			input:            "\xe0 \xe1 \xe2 \xe3 \xe9",
-			frequencyCounter: hw03frequencyanalysis.NonPunctuationFrequencyCounter{},
-			expectedError:    hw03frequencyanalysis.InvalidUtf8StringError,
+			desc:  "NonPunctuationFrequencyCounter: Invalid UTF-8",
+			input: "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor: hw03frequencyanalysis.GeneralTextWordFrequency{
+				FrequencyCounter: hw03frequencyanalysis.NonPunctuationFrequencyCounter{},
+				FrequencySorter:  hw03frequencyanalysis.DescendingFrequencySorter{},
+				FrequencyLimiter: hw03frequencyanalysis.SimpleFrequencyLimiter{Limit: 10},
+			},
+			expectedError: hw03frequencyanalysis.InvalidUtf8StringError,
 		},
 	}
 
 	for i, _ := range testCases {
 		testCase := testCases[i]
 		t.Run(testCase.desc, func(t *testing.T) {
-			_, err := hw03frequencyanalysis.Top10(testCase.input, testCase.frequencyCounter)
+			_, err := testCase.executor.Top(testCase.input)
 
 			require.Truef(t, errors.Is(err, testCase.expectedError), "actual error %q", err)
 		})

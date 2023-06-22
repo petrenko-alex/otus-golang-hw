@@ -6,14 +6,14 @@ import (
 )
 
 type FrequencyCounter interface {
-	calcWordsFrequency(text string) map[string]int
+	CalcFrequency(text string) Frequency
 }
 
 type PunctuationFrequencyCounter struct{}
 type NonPunctuationFrequencyCounter struct{}
 
-func (PunctuationFrequencyCounter) calcWordsFrequency(text string) map[string]int {
-	frequency := map[string]int{}
+func (PunctuationFrequencyCounter) CalcFrequency(text string) Frequency {
+	frequency := Frequency{}
 
 	words := strings.Fields(text)
 
@@ -33,8 +33,8 @@ func (PunctuationFrequencyCounter) calcWordsFrequency(text string) map[string]in
 	return frequency
 }
 
-func (NonPunctuationFrequencyCounter) calcWordsFrequency(text string) map[string]int {
-	frequency := map[string]int{}
+func (NonPunctuationFrequencyCounter) CalcFrequency(text string) Frequency {
+	frequency := Frequency{}
 
 	words := strings.Fields(text)
 

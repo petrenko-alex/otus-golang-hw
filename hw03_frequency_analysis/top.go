@@ -1,11 +1,20 @@
 package hw03frequencyanalysis
 
 import (
-	"sort"
 	"unicode/utf8"
 )
 
-func Top10(text string, freqCounter FrequencyCounter) ([]string, error) {
+type TextWordFrequency interface {
+	Top(text string) ([]string, error)
+}
+
+type GeneralTextWordFrequency struct {
+	FrequencyCounter FrequencyCounter
+	FrequencySorter  FrequencySorter
+	FrequencyLimiter FrequencyLimiter
+}
+
+func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
 	validationError := validateText(text)
 	if validationError != nil {
 		return nil, validationError
@@ -15,11 +24,11 @@ func Top10(text string, freqCounter FrequencyCounter) ([]string, error) {
 		return []string{}, nil
 	}
 
-	frequency := freqCounter.calcWordsFrequency(text)
-	uniqueWords := calcMostFrequentWords(frequency)
-	uniqueWords = getTopFrequentWords(uniqueWords, 10)
+	frequency := f.FrequencyCounter.CalcFrequency(text)
+	top := f.FrequencySorter.SortFrequency(frequency)
+	top = f.FrequencyLimiter.LimitFrequency(top)
 
-	return uniqueWords, nil
+	return top, nil
 }
 
 func validateText(textToValidate string) error {
@@ -28,31 +37,4 @@ func validateText(textToValidate string) error {
 	}
 
 	return nil
-}
-
-func calcMostFrequentWords(frequency map[string]int) []string {
-	uniqueWords := make([]string, 0, len(frequency))
-	for word := range frequency {
-		uniqueWords = append(uniqueWords, word)
-	}
-
-	sort.SliceStable(uniqueWords, func(i, j int) bool {
-		wordI, wordJ := uniqueWords[i], uniqueWords[j]
-
-		if frequency[wordI] == frequency[wordJ] {
-			return wordI < wordJ
-		}
-
-		return frequency[wordI] > frequency[wordJ]
-	})
-
-	return uniqueWords
-}
-
-func getTopFrequentWords(words []string, limit int) []string {
-	if len(words) > limit {
-		words = words[:limit]
-	}
-
-	return words
 }
