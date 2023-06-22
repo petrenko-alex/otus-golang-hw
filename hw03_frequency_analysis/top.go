@@ -1,21 +1,18 @@
 package hw03frequencyanalysis
 
-import (
-	"unicode/utf8"
-)
-
 type TextWordFrequency interface {
 	Top(text string) ([]string, error)
 }
 
 type GeneralTextWordFrequency struct {
+	TextValidator    TextValidator
 	FrequencyCounter FrequencyCounter
 	FrequencySorter  FrequencySorter
 	FrequencyLimiter FrequencyLimiter
 }
 
 func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
-	validationError := validateText(text)
+	validationError := f.TextValidator.ValidateText(text)
 	if validationError != nil {
 		return nil, validationError
 	}
@@ -29,12 +26,4 @@ func (f GeneralTextWordFrequency) Top(text string) ([]string, error) {
 	top = f.FrequencyLimiter.LimitFrequency(top)
 
 	return top, nil
-}
-
-func validateText(textToValidate string) error {
-	if !utf8.ValidString(textToValidate) {
-		return InvalidUtf8StringError
-	}
-
-	return nil
 }
