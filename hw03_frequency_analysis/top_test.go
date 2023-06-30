@@ -1,13 +1,12 @@
-package hw03frequencyanalysis
+package hw03frequencyanalysis_test
 
 import (
+	"errors"
 	"testing"
 
+	hw03frequencyanalysis "github.com/petrenko-alex/otus-golang-hw/hw03_frequency_analysis"
 	"github.com/stretchr/testify/require"
 )
-
-// Change to true if needed.
-var taskWithAsteriskIsCompleted = false
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -43,14 +42,104 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
-func TestTop10(t *testing.T) {
-	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top10(""), 0)
-	})
+var commonTestCases = []struct {
+	desc   string
+	input  string
+	output []string
+}{
+	{
+		desc:   "empty string",
+		input:  "",
+		output: []string{},
+	},
+	{
+		desc: "simple digit string",
+		input: `10 10 10 10 10 10 10 10 10 10 9 9 9 9 9 9 9 9 9 8 8 8 8 8 8 8 8 
+					7 7 7 7 7 7 7 6 6 6 6 6 6 5 5 5 5 5 4 4 4 4 3 3 3 2 2 1`,
+		output: []string{"10", "9", "8", "7", "6", "5", "4", "3", "2", "1"},
+	},
+	{
+		desc:   "simple digit string, not enough for top 10",
+		input:  "3 3 3 2 2 1",
+		output: []string{"3", "2", "1"},
+	},
+	{
+		desc:   "simple word string",
+		input:  "cat dog bird dog cat cat cat",
+		output: []string{"cat", "dog", "bird"},
+	},
+	{
+		desc:   "mixed digit word string",
+		input:  "3 3 cat 3 cat 2 dog 2 cat",
+		output: []string{"3", "cat", "2", "dog"},
+	},
+	{
+		desc:   "one word string",
+		input:  "cat",
+		output: []string{"cat"},
+	},
+	{
+		desc:   "one word repeated",
+		input:  "cat cat cat cat",
+		output: []string{"cat"},
+	},
+	{
+		desc:   "equal frequency, sorting",
+		input:  "man cat bird dog",
+		output: []string{"bird", "cat", "dog", "man"},
+	},
+	{
+		desc:   "cyrillic string",
+		input:  "кошка собака птица кошка кошка собака",
+		output: []string{"кошка", "собака", "птица"},
+	},
+	{
+		desc:   "word form",
+		input:  "кошка кошкой кошка кошке кошкой кошка",
+		output: []string{"кошка", "кошкой", "кошке"},
+	},
+	{
+		desc:   "more than top 10",
+		input:  "a a b b c c d d e e f f g g h h i i j j k k l l m m n o p",
+		output: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
+	},
+	{
+		desc:   "symbols and emojis",
+		input:  "😀 a 😀 🤣 a a",
+		output: []string{"a", "😀", "🤣"},
+	},
+	{
+		desc:   "different whitespaces",
+		input:  "a  a		b\tc",
+		output: []string{"a", "b", "c"},
+	},
+}
 
-	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
-			expected := []string{
+func TestTop10PositivePunctuation(t *testing.T) {
+	testCases := []struct {
+		desc   string
+		input  string
+		output []string
+	}{
+		{
+			desc:   "capital letters",
+			input:  "Cat dog Cat cat cat Cat",
+			output: []string{"cat", "dog"},
+		},
+		{
+			desc:   "punctuation, commas",
+			input:  "cat and dog, one dog, two cats and one man",
+			output: []string{"and", "dog", "one", "cat", "cats", "man", "two"},
+		},
+		{
+			desc:   "punctuation, dash",
+			input:  "cat - dog cat. man -",
+			output: []string{"cat", "dog", "man"},
+		},
+		{
+			desc:  "complex text",
+			input: text,
+			output: []string{
 				"а",         // 8
 				"он",        // 8
 				"и",         // 6
@@ -61,10 +150,47 @@ func TestTop10(t *testing.T) {
 				"если",      // 4
 				"кристофер", // 4
 				"не",        // 4
-			}
-			require.Equal(t, expected, Top10(text))
-		} else {
-			expected := []string{
+			},
+		},
+	}
+	testCases = append(commonTestCases, testCases...)
+	top10 := hw03frequencyanalysis.NewPunctuationTextWordFrequency()
+
+	for i := range testCases {
+		testCase := testCases[i]
+		t.Run(testCase.desc, func(t *testing.T) {
+			res, _ := top10.Top(testCase.input)
+
+			require.Equal(t, testCase.output, res)
+		})
+	}
+}
+
+func TestTop10PositiveNonPunctuation(t *testing.T) {
+	testCases := []struct {
+		desc   string
+		input  string
+		output []string
+	}{
+		{
+			desc:   "capital letters",
+			input:  "Cat dog Cat cat cat Cat",
+			output: []string{"Cat", "cat", "dog"},
+		},
+		{
+			desc:   "punctuation, commas",
+			input:  "cat and dog, one dog,two cats and one man",
+			output: []string{"and", "one", "cat", "cats", "dog,", "dog,two", "man"},
+		},
+		{
+			desc:   "punctuation, dash",
+			input:  "cat - dog cat. man -",
+			output: []string{"-", "cat", "cat.", "dog", "man"},
+		},
+		{
+			desc:  "complex text",
+			input: text,
+			output: []string{
 				"он",        // 8
 				"а",         // 6
 				"и",         // 6
@@ -75,8 +201,49 @@ func TestTop10(t *testing.T) {
 				"если",      // 4
 				"не",        // 4
 				"то",        // 4
-			}
-			require.Equal(t, expected, Top10(text))
-		}
-	})
+			},
+		},
+	}
+	testCases = append(commonTestCases, testCases...)
+	top10 := hw03frequencyanalysis.NewNonPunctuationTextWordFrequency()
+
+	for i := range testCases {
+		testCase := testCases[i]
+		t.Run(testCase.desc, func(t *testing.T) {
+			res, _ := top10.Top(testCase.input)
+
+			require.Equal(t, testCase.output, res)
+		})
+	}
+}
+
+func TestTop10Errors(t *testing.T) {
+	testCases := []struct {
+		desc          string
+		input         string
+		executor      hw03frequencyanalysis.TextWordFrequency
+		expectedError error
+	}{
+		{
+			desc:          "PunctuationFrequencyCounter: Invalid UTF-8",
+			input:         "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor:      hw03frequencyanalysis.NewPunctuationTextWordFrequency(),
+			expectedError: hw03frequencyanalysis.InvalidUtf8TextError,
+		},
+		{
+			desc:          "NonPunctuationFrequencyCounter: Invalid UTF-8",
+			input:         "\xe0 \xe1 \xe2 \xe3 \xe9",
+			executor:      hw03frequencyanalysis.NewNonPunctuationTextWordFrequency(),
+			expectedError: hw03frequencyanalysis.InvalidUtf8TextError,
+		},
+	}
+
+	for i := range testCases {
+		testCase := testCases[i]
+		t.Run(testCase.desc, func(t *testing.T) {
+			_, err := testCase.executor.Top(testCase.input)
+
+			require.Truef(t, errors.Is(err, testCase.expectedError), "actual error %q", err)
+		})
+	}
 }
