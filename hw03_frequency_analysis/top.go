@@ -11,20 +11,6 @@ type GeneralTextWordFrequency struct {
 	frequencyLimiter FrequencyLimiter
 }
 
-func NewGeneralTextWordFrequency(
-	validator TextValidator,
-	counter FrequencyCounter,
-	sorter FrequencySorter,
-	limiter FrequencyLimiter,
-) TextWordFrequency {
-	return GeneralTextWordFrequency{
-		textValidator:    validator,
-		frequencyCounter: counter,
-		frequencySorter:  sorter,
-		frequencyLimiter: limiter,
-	}
-}
-
 func NewPunctuationTextWordFrequency() TextWordFrequency {
 	return GeneralTextWordFrequency{
 		textValidator:    Utf8Validator{},
