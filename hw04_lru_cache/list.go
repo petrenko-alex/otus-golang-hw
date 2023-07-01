@@ -24,3 +24,7 @@ type list struct {
 func NewList() List {
 	return new(list)
 }
+
+func NewFilledList(elems ...[]interface{}) List {
+	return new(list)
+}

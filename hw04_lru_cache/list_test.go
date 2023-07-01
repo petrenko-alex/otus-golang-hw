@@ -6,6 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// todo: can be cycle?
+// todo: test for nill
+// todo: test errors?
+// todo: test for other types
+
 func TestList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		l := NewList()
@@ -48,4 +53,289 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
+}
+
+func TestNewFilledList(t *testing.T) {
+	tests := []struct {
+		name        string
+		elems       []interface{}
+		expectedLen int
+	}{
+		{
+			name:        "new empty list",
+			elems:       []interface{}{},
+			expectedLen: 0,
+		},
+		{
+			name:        "new one element list",
+			elems:       []interface{}{1},
+			expectedLen: 1,
+		},
+		{
+			name:        "new filled list",
+			elems:       []interface{}{1, 2, 3, 4, 5},
+			expectedLen: 5,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			list := NewFilledList(test.elems)
+
+			require.Len(t, list, test.expectedLen)
+			require.True(t, compareElements(test.elems, list))
+		})
+	}
+}
+
+func TestLen(t *testing.T) {
+	tests := []struct {
+		name     string
+		list     List
+		expected int
+	}{
+		{
+			name:     "len of empty list",
+			list:     NewFilledList(), // todo: need to pass emoty slice?
+			expected: 0,
+		},
+		{
+			name:     "len of one element list",
+			list:     NewFilledList([]interface{}{1}),
+			expected: 1,
+		},
+		{
+			name:     "len of normal list",
+			list:     NewFilledList([]interface{}{1, 2, 3}),
+			expected: 5,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, test.list.Len())
+		})
+	}
+}
+
+func TestFront(t *testing.T) {
+	tests := []struct {
+		name     string
+		list     List
+		expected int
+	}{
+		{
+			name:     "front from empty list",
+			list:     NewFilledList(),
+			expected: 0, // todo: what to expect?
+		},
+		{
+			name:     "front from one element list",
+			list:     NewFilledList([]interface{}{1}),
+			expected: 1,
+		},
+		{
+			name:     "front from normal list",
+			list:     NewFilledList([]interface{}{5, 4, 3, 2, 1}),
+			expected: 5,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, test.list.Front().Value)
+		})
+	}
+}
+
+func TestBack(t *testing.T) {
+	tests := []struct {
+		name     string
+		list     List
+		expected int
+	}{
+		{
+			name:     "back from empty list",
+			list:     NewFilledList(), // todo: what to expect
+			expected: 0,
+		},
+		{
+			name:     "back from one element list",
+			list:     NewFilledList([]interface{}{1}),
+			expected: 1,
+		},
+		{
+			name:     "back from normal list",
+			list:     NewFilledList([]interface{}{1, 2, 3, 4, 5}),
+			expected: 5,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, test.list.Back().Value)
+		})
+	}
+}
+
+func TestPushFront(t *testing.T) {
+	tests := []struct {
+		name          string
+		list          List
+		pushValue     int
+		expectedLen   int
+		expectedFront int
+		expectedBack  int
+	}{
+		{
+			name:          "push front to empty list",
+			list:          NewFilledList(),
+			pushValue:     1,
+			expectedLen:   1,
+			expectedFront: 1,
+			expectedBack:  1,
+		},
+		{
+			name:          "push front to normal list",
+			list:          NewFilledList([]interface{}{1, 2, 3}),
+			pushValue:     0,
+			expectedLen:   4,
+			expectedFront: 0,
+			expectedBack:  3,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.list.PushFront(test.pushValue)
+
+			require.Equal(t, test.expectedLen, test.list.Len())
+			require.Equal(t, test.expectedFront, test.list.Front().Value)
+			require.Equal(t, test.expectedBack, test.list.Back().Value)
+		})
+	}
+}
+
+func TestPushBack(t *testing.T) {
+	tests := []struct {
+		name          string
+		list          List
+		pushValue     int
+		expectedLen   int
+		expectedFront int
+		expectedBack  int
+	}{
+		{
+			name:          "push back to empty list",
+			list:          NewFilledList(),
+			pushValue:     1,
+			expectedLen:   1,
+			expectedFront: 1,
+			expectedBack:  1,
+		},
+		{
+			name:          "push back to normal list",
+			list:          NewFilledList([]interface{}{1, 2, 3}),
+			pushValue:     4,
+			expectedLen:   4,
+			expectedFront: 1,
+			expectedBack:  4,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.list.PushBack(test.pushValue)
+
+			require.Equal(t, test.expectedLen, test.list.Len())
+			require.Equal(t, test.expectedFront, test.list.Front().Value)
+			require.Equal(t, test.expectedBack, test.list.Back().Value)
+		})
+	}
+}
+
+func TestRemove(t *testing.T) {
+	t.Run("remove from normal list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1, 2, 3})
+		elementToRemove := list.Back()
+
+		list.Remove(elementToRemove)
+
+		require.Equal(t, 1, list.Front().Value)
+		require.Equal(t, 2, list.Back().Value)
+	})
+
+	t.Run("remove only element", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1})
+		elementToRemove := list.Back()
+
+		list.Remove(elementToRemove)
+
+		require.Equal(t, 0, list.Len())
+		require.Nil(t, list.Front())
+		require.Nil(t, list.Back())
+	})
+
+	t.Run("remove from empty list", func(t *testing.T) {
+		list := NewFilledList()
+		elementToRemove := list.Back()
+
+		list.Remove(elementToRemove)
+
+		require.Equal(t, 0, list.Len())
+		require.Nil(t, list.Front())
+		require.Nil(t, list.Back())
+	})
+}
+
+func TestMoveToFront(t *testing.T) {
+	t.Run("Move on empty list", func(t *testing.T) {
+		list := NewFilledList()
+		elementToMove := list.Back()
+
+		list.MoveToFront(elementToMove) // todo: expect error
+
+	})
+	t.Run("Move in one element list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1})
+		elementToMove := list.Back()
+
+		list.MoveToFront(elementToMove)
+
+		require.Equal(t, 1, list.Front().Value)
+		require.Equal(t, 1, list.Back().Value)
+	})
+	t.Run("Move from middle", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1, 2, 3})
+		elementToMove := list.Front().Next
+
+		list.MoveToFront(elementToMove)
+
+		require.Equal(t, 2, list.Front().Value)
+		require.Equal(t, 1, list.Front().Next.Value)
+		require.Equal(t, 3, list.Back().Value)
+	})
+	t.Run("Move from tail", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1, 2, 3})
+		elementToMove := list.Back()
+
+		list.MoveToFront(elementToMove)
+
+		require.Equal(t, 3, list.Front().Value)
+		require.Equal(t, 1, list.Front().Next.Value)
+		require.Equal(t, 2, list.Back().Value)
+	})
+}
+
+func compareElements(elems []interface{}, list List) bool {
+	if len(elems) != list.Len() {
+		return false
+	}
+
+	listItem := list.Front()
+
+	for _, val := range elems {
+		if listItem != nil && listItem.Value == val {
+			return false
+		}
+
+		listItem = listItem.Next
+	}
+
+	return true
 }
