@@ -7,7 +7,7 @@ import (
 )
 
 // todo: can be cycle?
-// todo: test for nill
+// todo: test for nil
 // todo: test errors?
 // todo: test for other types
 
@@ -77,14 +77,62 @@ func TestNewFilledList(t *testing.T) {
 			expectedLen: 5,
 		},
 	}
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			list := NewFilledList(test.elems)
 
-			require.Len(t, list, test.expectedLen)
+			require.Equal(t, test.expectedLen, list.Len())
 			require.True(t, compareElements(test.elems, list))
+			require.True(t, checkAddresses(list))
 		})
 	}
+}
+
+func compareElements(elems []interface{}, list List) bool {
+	if len(elems) != list.Len() {
+		return false
+	}
+
+	listItem := list.Front()
+	if listItem != nil && len(elems) == 0 {
+		return false
+	}
+
+	for _, val := range elems {
+		if listItem != nil && listItem.Value != val {
+			return false
+		}
+
+		listItem = listItem.Next
+	}
+
+	return true
+}
+
+func checkAddresses(l List) bool {
+	if l.Len() == 0 && l.Front() != nil && l.Back() != nil {
+		return false
+	}
+
+	if l.Front() != nil && l.Front().Prev != nil { // no prev element for head
+		return false
+	}
+
+	if l.Back() != nil && l.Back().Next != nil { // no next element for tail
+		return false
+	}
+
+	el := l.Front()
+	for el != nil {
+		if el.Next != nil && el != el.Next.Prev {
+			return false
+		}
+
+		el = el.Next
+	}
+
+	return true
 }
 
 func TestLen(t *testing.T) {
@@ -95,7 +143,7 @@ func TestLen(t *testing.T) {
 	}{
 		{
 			name:     "len of empty list",
-			list:     NewFilledList(), // todo: need to pass emoty slice?
+			list:     NewFilledList([]interface{}{}), // todo: need to pass emoty slice?
 			expected: 0,
 		},
 		{
@@ -125,7 +173,7 @@ func TestFront(t *testing.T) {
 	}{
 		{
 			name:     "front from empty list",
-			list:     NewFilledList(),
+			list:     NewFilledList([]interface{}{}),
 			expected: 0, // todo: what to expect?
 		},
 		{
@@ -154,7 +202,7 @@ func TestBack(t *testing.T) {
 	}{
 		{
 			name:     "back from empty list",
-			list:     NewFilledList(), // todo: what to expect
+			list:     NewFilledList([]interface{}{}), // todo: what to expect
 			expected: 0,
 		},
 		{
@@ -186,7 +234,7 @@ func TestPushFront(t *testing.T) {
 	}{
 		{
 			name:          "push front to empty list",
-			list:          NewFilledList(),
+			list:          NewFilledList([]interface{}{}),
 			pushValue:     1,
 			expectedLen:   1,
 			expectedFront: 1,
@@ -223,7 +271,7 @@ func TestPushBack(t *testing.T) {
 	}{
 		{
 			name:          "push back to empty list",
-			list:          NewFilledList(),
+			list:          NewFilledList([]interface{}{}),
 			pushValue:     1,
 			expectedLen:   1,
 			expectedFront: 1,
@@ -272,7 +320,7 @@ func TestRemove(t *testing.T) {
 	})
 
 	t.Run("remove from empty list", func(t *testing.T) {
-		list := NewFilledList()
+		list := NewFilledList([]interface{}{})
 		elementToRemove := list.Back()
 
 		list.Remove(elementToRemove)
@@ -285,7 +333,7 @@ func TestRemove(t *testing.T) {
 
 func TestMoveToFront(t *testing.T) {
 	t.Run("Move on empty list", func(t *testing.T) {
-		list := NewFilledList()
+		list := NewFilledList([]interface{}{})
 		elementToMove := list.Back()
 
 		list.MoveToFront(elementToMove) // todo: expect error
@@ -320,22 +368,4 @@ func TestMoveToFront(t *testing.T) {
 		require.Equal(t, 1, list.Front().Next.Value)
 		require.Equal(t, 2, list.Back().Value)
 	})
-}
-
-func compareElements(elems []interface{}, list List) bool {
-	if len(elems) != list.Len() {
-		return false
-	}
-
-	listItem := list.Front()
-
-	for _, val := range elems {
-		if listItem != nil && listItem.Value == val {
-			return false
-		}
-
-		listItem = listItem.Next
-	}
-
-	return true
 }
