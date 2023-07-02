@@ -143,7 +143,7 @@ func TestLen(t *testing.T) {
 	}{
 		{
 			name:     "len of empty list",
-			list:     NewFilledList([]interface{}{}), // todo: need to pass emoty slice?
+			list:     NewFilledList([]interface{}{}),
 			expected: 0,
 		},
 		{
@@ -154,7 +154,7 @@ func TestLen(t *testing.T) {
 		{
 			name:     "len of normal list",
 			list:     NewFilledList([]interface{}{1, 2, 3}),
-			expected: 5,
+			expected: 3,
 		},
 	}
 
@@ -166,61 +166,57 @@ func TestLen(t *testing.T) {
 }
 
 func TestFront(t *testing.T) {
-	tests := []struct {
-		name     string
-		list     List
-		expected int
-	}{
-		{
-			name:     "front from empty list",
-			list:     NewFilledList([]interface{}{}),
-			expected: 0, // todo: what to expect?
-		},
-		{
-			name:     "front from one element list",
-			list:     NewFilledList([]interface{}{1}),
-			expected: 1,
-		},
-		{
-			name:     "front from normal list",
-			list:     NewFilledList([]interface{}{5, 4, 3, 2, 1}),
-			expected: 5,
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.expected, test.list.Front().Value)
-		})
-	}
+	t.Run("front from empty list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{})
+
+		require.Nil(t, list.Front())
+	})
+
+	t.Run("front from one element list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1})
+
+		head := list.Front()
+
+		require.NotNil(t, head)
+		require.Equal(t, 1, head.Value)
+		require.Equal(t, head, list.Back())
+	})
+
+	t.Run("front from normal list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{5, 4, 3, 2, 1})
+
+		head := list.Front()
+
+		require.NotNil(t, head)
+		require.Equal(t, 5, head.Value)
+	})
 }
 
 func TestBack(t *testing.T) {
-	tests := []struct {
-		name     string
-		list     List
-		expected int
-	}{
-		{
-			name:     "back from empty list",
-			list:     NewFilledList([]interface{}{}), // todo: what to expect
-			expected: 0,
-		},
-		{
-			name:     "back from one element list",
-			list:     NewFilledList([]interface{}{1}),
-			expected: 1,
-		},
-		{
-			name:     "back from normal list",
-			list:     NewFilledList([]interface{}{1, 2, 3, 4, 5}),
-			expected: 5,
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			require.Equal(t, test.expected, test.list.Back().Value)
-		})
-	}
+	t.Run("back from empty list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{})
+
+		require.Nil(t, list.Back())
+	})
+
+	t.Run("back from one element list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1})
+
+		tail := list.Back()
+
+		require.NotNil(t, tail)
+		require.Equal(t, 1, tail.Value)
+		require.Equal(t, tail, list.Front())
+	})
+
+	t.Run("back from normal list", func(t *testing.T) {
+		list := NewFilledList([]interface{}{1, 2, 3, 4, 5})
+
+		tail := list.Back()
+
+		require.NotNil(t, tail)
+		require.Equal(t, 5, tail.Value)
+	})
 }
 
 func TestPushFront(t *testing.T) {
