@@ -247,11 +247,12 @@ func TestPushFront(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.list.PushFront(test.pushValue)
+			pushedEl := test.list.PushFront(test.pushValue)
 
 			require.Equal(t, test.expectedLen, test.list.Len())
-			require.Equal(t, test.expectedFront, test.list.Front().Value)
+			require.Equal(t, test.expectedFront, pushedEl.Value)
 			require.Equal(t, test.expectedBack, test.list.Back().Value)
+			require.True(t, checkAddresses(test.list))
 		})
 	}
 }

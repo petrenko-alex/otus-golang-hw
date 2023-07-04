@@ -21,35 +21,57 @@ type list struct {
 	head *ListItem
 	tail *ListItem
 
-	List // Remove me after realization.
+	// List // Remove me after realization.
 	// Place your code here.
 }
 
-func (l list) Len() int {
+func (l *list) Len() int {
 	return l.len
 }
 
-func (l list) Front() *ListItem {
+func (l *list) Front() *ListItem {
 	return l.head
 }
 
-func (l list) Back() *ListItem {
+func (l *list) Back() *ListItem {
 	return l.tail
 }
 
-func (l list) PushFront(v interface{}) *ListItem {
+func (l *list) PushFront(v interface{}) *ListItem {
+	newListItem := &ListItem{
+		Value: v,
+		Prev:  nil,
+		Next:  nil,
+	}
+
+	// connect with previous head
+	if l.Front() != nil {
+		newListItem.Next = l.Front()
+		l.Front().Prev = newListItem
+	}
+
+	// set new head
+	l.head = newListItem
+
+	// set new tail in case of empty list
+	if l.Back() == nil {
+		l.tail = newListItem
+	}
+
+	l.len++
+
+	return newListItem
+}
+
+func (l *list) PushBack(v interface{}) *ListItem {
 	return nil
 }
 
-func (l list) PushBack(v interface{}) *ListItem {
-	return nil
-}
-
-func (l list) Remove(i *ListItem) {
+func (l *list) Remove(i *ListItem) {
 
 }
 
-func (l list) MoveToFront(i *ListItem) {
+func (l *list) MoveToFront(i *ListItem) {
 
 }
 
@@ -60,7 +82,7 @@ func NewList() List {
 
 func NewFilledList(elems []interface{}) List {
 	if len(elems) == 0 {
-		return list{}
+		return &list{}
 	}
 
 	var cur, prev, next *ListItem = &ListItem{Value: elems[0]}, nil, nil
