@@ -64,7 +64,29 @@ func (l *list) PushFront(v interface{}) *ListItem {
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
-	return nil
+	newListItem := &ListItem{
+		Value: v,
+		Prev:  nil,
+		Next:  nil,
+	}
+
+	// connect with previous tail
+	if l.Back() != nil {
+		newListItem.Prev = l.Back()
+		l.Back().Next = newListItem
+	}
+
+	// set new tail
+	l.tail = newListItem
+
+	// set new head in case of empty list
+	if l.Front() == nil {
+		l.head = newListItem
+	}
+
+	l.len++
+
+	return newListItem
 }
 
 func (l *list) Remove(i *ListItem) {
