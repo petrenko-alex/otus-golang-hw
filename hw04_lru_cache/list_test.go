@@ -304,6 +304,7 @@ func TestRemove(t *testing.T) {
 
 		require.Equal(t, 1, list.Front().Value)
 		require.Equal(t, 2, list.Back().Value)
+		require.True(t, checkAddresses(list))
 	})
 
 	t.Run("remove only element", func(t *testing.T) {
@@ -315,6 +316,7 @@ func TestRemove(t *testing.T) {
 		require.Equal(t, 0, list.Len())
 		require.Nil(t, list.Front())
 		require.Nil(t, list.Back())
+		require.True(t, checkAddresses(list))
 	})
 
 	t.Run("remove from empty list", func(t *testing.T) {
@@ -326,6 +328,7 @@ func TestRemove(t *testing.T) {
 		require.Equal(t, 0, list.Len())
 		require.Nil(t, list.Front())
 		require.Nil(t, list.Back())
+		require.True(t, checkAddresses(list))
 	})
 }
 
