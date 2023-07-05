@@ -20,9 +20,6 @@ type list struct {
 	len  int
 	head *ListItem
 	tail *ListItem
-
-	// List // Remove me after realization.
-	// Place your code here.
 }
 
 func (l *list) Len() int {
