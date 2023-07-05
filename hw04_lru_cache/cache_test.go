@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// todo: cases with zero capacity?
+
 func TestCache(t *testing.T) {
 	t.Run("empty cache", func(t *testing.T) {
 		c := NewCache(10)
@@ -49,8 +51,55 @@ func TestCache(t *testing.T) {
 		require.Nil(t, val)
 	})
 
-	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+	t.Run("purge logic for first element", func(t *testing.T) {
+		cache := NewCache(3)
+		cache.Set("a1", 100)
+		cache.Set("a2", 200)
+		cache.Set("a3", 300)
+
+		cache.Set("a4", 400)
+		val, ok := cache.Get("a1")
+
+		require.Nil(t, val)
+		require.False(t, ok)
+	})
+
+	t.Run("purge logic for unused element", func(t *testing.T) {
+		cache := NewCache(3)
+		cache.Set("a1", 100)
+		cache.Set("a2", 200)
+		cache.Set("a3", 300)
+
+		cache.Set("a3", 350)
+		cache.Get("a1")
+		cache.Set("a1", 150)
+		cache.Get("a2")
+		cache.Set("a4", 400)
+		val, ok := cache.Get("a3")
+
+		require.Nil(t, val)
+		require.False(t, ok)
+	})
+
+	t.Run("clear cache", func(t *testing.T) {
+		cache := NewCache(3)
+		cache.Set("a1", 100)
+		cache.Set("a2", 200)
+		cache.Set("a3", 300)
+
+		cache.Clear()
+
+		val, ok := cache.Get("a1")
+		require.Nil(t, val)
+		require.False(t, ok)
+
+		val, ok = cache.Get("a2")
+		require.Nil(t, val)
+		require.False(t, ok)
+
+		val, ok = cache.Get("a3")
+		require.Nil(t, val)
+		require.False(t, ok)
 	})
 }
 
