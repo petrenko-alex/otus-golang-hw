@@ -59,12 +59,7 @@ func NewCache(capacity int) Cache {
 }
 
 func (c *lruCache) getCacheItem(listItem *ListItem) *CacheItem {
-	cacheItem, ok := listItem.Value.(*CacheItem)
-	if !ok {
-		// todo: panic or error
-	}
-
-	return cacheItem
+	return listItem.Value.(*CacheItem)
 }
 
 func (c *lruCache) hitListItem(key Key) (*ListItem, bool) {
