@@ -20,49 +20,24 @@ type CacheItem struct {
 }
 
 func (c *lruCache) Set(key Key, value interface{}) bool {
-	listItem, ok := c.items[key]
+	listItem, ok := c.hitListItem(key)
 	if ok {
-		// update
-		cacheItem, ok := listItem.Value.(*CacheItem)
-		if !ok {
-			// todo: panic ?
-		}
-
-		cacheItem.CacheItemVal = value
-		c.queue.MoveToFront(listItem)
-
-		return true
+		c.updateListItem(listItem, value)
 	} else {
-		newCacheItem := &CacheItem{CacheItemKey: key, CacheItemVal: value}
-		newListItem := c.queue.PushFront(newCacheItem)
-		c.items[key] = newListItem
+		c.addListItem(key, value)
 
-		if c.queue.Len() > c.capacity {
-			lastListItem := c.queue.Back()
-			cacheItem, ok := lastListItem.Value.(*CacheItem)
-			if !ok {
-				// todo: panic ?
-			}
-
-			c.queue.Remove(lastListItem)
-			delete(c.items, cacheItem.CacheItemKey)
+		if c.needToPurgeCache() {
+			c.purgeCache()
 		}
 	}
 
 	return ok
 }
 
-// todo: make GetItem func
-
 func (c *lruCache) Get(key Key) (interface{}, bool) {
-	listItem, ok := c.items[key]
+	listItem, ok := c.hitListItem(key)
 	if ok {
-		c.queue.MoveToFront(listItem)
-
-		cacheItem, ok := listItem.Value.(*CacheItem)
-		if !ok {
-			// todo: panic
-		}
+		cacheItem := c.getCacheItem(listItem)
 
 		return cacheItem.CacheItemVal, true
 	}
@@ -81,4 +56,46 @@ func NewCache(capacity int) Cache {
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
 	}
+}
+
+func (c *lruCache) getCacheItem(listItem *ListItem) *CacheItem {
+	cacheItem, ok := listItem.Value.(*CacheItem)
+	if !ok {
+		// todo: panic or error
+	}
+
+	return cacheItem
+}
+
+func (c *lruCache) hitListItem(key Key) (*ListItem, bool) {
+	listItem, ok := c.items[key]
+	if ok {
+		c.queue.MoveToFront(listItem)
+	}
+
+	return listItem, ok
+}
+
+func (c *lruCache) updateListItem(listItem *ListItem, value interface{}) {
+	cacheItem := c.getCacheItem(listItem)
+	cacheItem.CacheItemVal = value
+}
+
+func (c *lruCache) addListItem(key Key, value interface{}) {
+	newCacheItem := &CacheItem{CacheItemKey: key, CacheItemVal: value}
+	newListItem := c.queue.PushFront(newCacheItem)
+
+	c.items[key] = newListItem
+}
+
+func (c *lruCache) needToPurgeCache() bool {
+	return c.queue.Len() > c.capacity
+}
+
+func (c *lruCache) purgeCache() {
+	lastListItem := c.queue.Back()
+	cacheItem := c.getCacheItem(lastListItem)
+
+	c.queue.Remove(lastListItem)
+	delete(c.items, cacheItem.CacheItemKey)
 }
