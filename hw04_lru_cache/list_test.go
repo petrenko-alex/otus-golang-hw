@@ -6,10 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// todo: can be cycle?
 // todo: test for nil
-// todo: test errors?
-// todo: test for other types
+// todo: switch to blackbox
 
 func TestList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
@@ -53,6 +51,41 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
+
+	t.Run("complex with strings", func(t *testing.T) {
+		l := NewList()
+
+		l.PushFront("a") // [a]
+		l.PushBack("b")  // [a, b]
+		l.PushBack("c")  // [a, b, c]
+		require.Equal(t, 3, l.Len())
+
+		middle := l.Front().Next // b
+		l.Remove(middle)         // [a, c]
+		require.Equal(t, 2, l.Len())
+
+		for i, v := range [...]string{"d", "e", "f", "g", "h"} {
+			if i%2 == 0 {
+				l.PushFront(v)
+			} else {
+				l.PushBack(v)
+			}
+		} // [h, f, d, a, c, e, g]
+
+		require.Equal(t, 7, l.Len())
+		require.Equal(t, "h", l.Front().Value)
+		require.Equal(t, "g", l.Back().Value)
+
+		l.MoveToFront(l.Front()) // [h, f, d, a, c, e, g]
+		l.MoveToFront(l.Back())  // [g, h, f, d, a, c, e]
+
+		elems := make([]string, 0, l.Len())
+		for i := l.Front(); i != nil; i = i.Next {
+			elems = append(elems, i.Value.(string))
+		}
+		require.Equal(t, []string{"g", "h", "f", "d", "a", "c", "e"}, elems)
+	})
+
 }
 
 func TestNewFilledList(t *testing.T) {
