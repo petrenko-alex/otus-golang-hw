@@ -337,8 +337,12 @@ func TestMoveToFront(t *testing.T) {
 		list := NewFilledList([]interface{}{})
 		elementToMove := list.Back()
 
-		list.MoveToFront(elementToMove) // todo: expect error
+		list.MoveToFront(elementToMove)
 
+		require.Equal(t, 0, list.Len())
+		require.Nil(t, list.Front())
+		require.Nil(t, list.Back())
+		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move in one element list", func(t *testing.T) {
 		list := NewFilledList([]interface{}{1})
@@ -348,6 +352,7 @@ func TestMoveToFront(t *testing.T) {
 
 		require.Equal(t, 1, list.Front().Value)
 		require.Equal(t, 1, list.Back().Value)
+		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move from middle", func(t *testing.T) {
 		list := NewFilledList([]interface{}{1, 2, 3})
@@ -358,6 +363,7 @@ func TestMoveToFront(t *testing.T) {
 		require.Equal(t, 2, list.Front().Value)
 		require.Equal(t, 1, list.Front().Next.Value)
 		require.Equal(t, 3, list.Back().Value)
+		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move from tail", func(t *testing.T) {
 		list := NewFilledList([]interface{}{1, 2, 3})
@@ -368,5 +374,6 @@ func TestMoveToFront(t *testing.T) {
 		require.Equal(t, 3, list.Front().Value)
 		require.Equal(t, 1, list.Front().Next.Value)
 		require.Equal(t, 2, list.Back().Value)
+		require.True(t, checkAddresses(list))
 	})
 }

@@ -38,55 +38,59 @@ func (l *list) Back() *ListItem {
 }
 
 func (l *list) PushFront(v interface{}) *ListItem {
-	newListItem := &ListItem{
+	l.pushItemToFront(&ListItem{
 		Value: v,
 		Prev:  nil,
 		Next:  nil,
-	}
+	})
 
+	return l.Front()
+}
+
+func (l *list) pushItemToFront(i *ListItem) {
 	// connect with previous head
 	if l.Front() != nil {
-		newListItem.Next = l.Front()
-		l.Front().Prev = newListItem
+		i.Next = l.Front()
+		l.Front().Prev = i
 	}
 
 	// set new head
-	l.head = newListItem
+	l.head = i
 
 	// set new tail in case of empty list
 	if l.Back() == nil {
-		l.tail = newListItem
+		l.tail = i
 	}
 
 	l.len++
-
-	return newListItem
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
-	newListItem := &ListItem{
+	l.pushItemToBack(&ListItem{
 		Value: v,
 		Prev:  nil,
 		Next:  nil,
-	}
+	})
 
+	return l.Back()
+}
+
+func (l *list) pushItemToBack(i *ListItem) {
 	// connect with previous tail
 	if l.Back() != nil {
-		newListItem.Prev = l.Back()
-		l.Back().Next = newListItem
+		i.Prev = l.Back()
+		l.Back().Next = i
 	}
 
 	// set new tail
-	l.tail = newListItem
+	l.tail = i
 
 	// set new head in case of empty list
 	if l.Front() == nil {
-		l.head = newListItem
+		l.head = i
 	}
 
 	l.len++
-
-	return newListItem
 }
 
 func (l *list) Remove(i *ListItem) {
@@ -119,7 +123,12 @@ func (l *list) Remove(i *ListItem) {
 }
 
 func (l *list) MoveToFront(i *ListItem) {
+	if i == nil || l.len == 0 {
+		return
+	}
 
+	l.Remove(i)
+	l.pushItemToFront(i)
 }
 
 func NewList() List {
