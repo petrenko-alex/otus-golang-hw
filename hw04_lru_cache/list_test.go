@@ -285,11 +285,11 @@ func TestPushBack(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.list.PushBack(test.pushValue)
+			pushedEl := test.list.PushBack(test.pushValue)
 
 			require.Equal(t, test.expectedLen, test.list.Len())
 			require.Equal(t, test.expectedFront, test.list.Front().Value)
-			require.Equal(t, test.expectedBack, test.list.Back().Value)
+			require.Equal(t, test.expectedBack, pushedEl.Value)
 			require.True(t, checkAddresses(test.list))
 		})
 	}
