@@ -69,16 +69,21 @@ func TestCache(t *testing.T) {
 		cache.Set("a1", 100)
 		cache.Set("a2", 200)
 		cache.Set("a3", 300)
-
 		cache.Set("a3", 350)
 		cache.Get("a1")
 		cache.Set("a1", 150)
 		cache.Get("a2")
-		cache.Set("a4", 400)
-		val, ok := cache.Get("a3")
 
+		cache.Set("a4", 400)
+
+		val, ok := cache.Get("a4")
+		require.Equal(t, 400, val)
+		require.True(t, ok)
+
+		val, ok = cache.Get("a3")
 		require.Nil(t, val)
 		require.False(t, ok)
+
 	})
 
 	t.Run("clear cache", func(t *testing.T) {
