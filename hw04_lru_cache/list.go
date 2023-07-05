@@ -132,8 +132,7 @@ func (l *list) MoveToFront(i *ListItem) {
 }
 
 func NewList() List {
-	// todo: re-use NewFilledList ?
-	return new(list)
+	return NewFilledList([]interface{}{})
 }
 
 func NewFilledList(elems []interface{}) List {
