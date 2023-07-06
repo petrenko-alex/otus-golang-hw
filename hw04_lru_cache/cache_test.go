@@ -1,6 +1,7 @@
-package hw04lrucache
+package hw04lrucache_test
 
 import (
+	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -9,11 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// todo: cases with zero capacity?
-
 func TestCache(t *testing.T) {
 	t.Run("empty cache", func(t *testing.T) {
-		c := NewCache(10)
+		c := hw04lrucache.NewCache(10)
 
 		_, ok := c.Get("aaa")
 		require.False(t, ok)
@@ -23,7 +22,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("simple", func(t *testing.T) {
-		c := NewCache(5)
+		c := hw04lrucache.NewCache(5)
 
 		wasInCache := c.Set("aaa", 100)
 		require.False(t, wasInCache)
@@ -52,7 +51,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic for first element", func(t *testing.T) {
-		cache := NewCache(3)
+		cache := hw04lrucache.NewCache(3)
 		cache.Set("a1", 100)
 		cache.Set("a2", 200)
 		cache.Set("a3", 300)
@@ -65,7 +64,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic for unused element", func(t *testing.T) {
-		cache := NewCache(3)
+		cache := hw04lrucache.NewCache(3)
 		cache.Set("a1", 100)
 		cache.Set("a2", 200)
 		cache.Set("a3", 300)
@@ -87,7 +86,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("clear cache", func(t *testing.T) {
-		cache := NewCache(3)
+		cache := hw04lrucache.NewCache(3)
 		cache.Set("a1", 100)
 		cache.Set("a2", 200)
 		cache.Set("a3", 300)
@@ -121,7 +120,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("zero capacity", func(t *testing.T) {
-		c := NewCache(0)
+		c := hw04lrucache.NewCache(0)
 
 		wasInCache := c.Set("a1", 100)
 		require.False(t, wasInCache)
@@ -135,21 +134,21 @@ func TestCache(t *testing.T) {
 func TestCacheMultithreading(t *testing.T) {
 	t.Skip() // Remove me if task with asterisk completed.
 
-	c := NewCache(10)
+	c := hw04lrucache.NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1_000_000; i++ {
-			c.Set(Key(strconv.Itoa(i)), i)
+			c.Set(hw04lrucache.Key(strconv.Itoa(i)), i)
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1_000_000; i++ {
-			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+			c.Get(hw04lrucache.Key(strconv.Itoa(rand.Intn(1_000_000))))
 		}
 	}()
 
