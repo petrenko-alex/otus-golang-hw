@@ -1,12 +1,12 @@
 package hw04lrucache_test
 
 import (
-	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"math/rand"
 	"strconv"
 	"sync"
 	"testing"
 
+	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"github.com/stretchr/testify/require"
 )
 
@@ -82,7 +82,6 @@ func TestCache(t *testing.T) {
 		val, ok = cache.Get("a3")
 		require.Nil(t, val)
 		require.False(t, ok)
-
 	})
 
 	t.Run("clear cache", func(t *testing.T) {
@@ -131,7 +130,7 @@ func TestCache(t *testing.T) {
 	})
 }
 
-func TestCacheMultithreading(t *testing.T) {
+func TestCacheMultithreading(_ *testing.T) {
 	c := hw04lrucache.NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)

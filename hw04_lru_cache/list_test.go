@@ -1,9 +1,9 @@
 package hw04lrucache_test
 
 import (
-	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"testing"
 
+	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"github.com/stretchr/testify/require"
 )
 
@@ -83,7 +83,6 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []string{"g", "h", "f", "d", "a", "c", "e"}, elems)
 	})
-
 }
 
 func TestNewFilledList(t *testing.T) {
