@@ -20,6 +20,10 @@ type CacheItem struct {
 }
 
 func (c *lruCache) Set(key Key, value interface{}) bool {
+	if c.capacity <= 0 {
+		return false
+	}
+
 	listItem, ok := c.hitListItem(key)
 	if ok {
 		c.updateListItem(listItem, value)
@@ -35,6 +39,10 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
+	if c.capacity <= 0 {
+		return nil, false
+	}
+
 	listItem, ok := c.hitListItem(key)
 	if ok {
 		cacheItem := c.getCacheItem(listItem)
