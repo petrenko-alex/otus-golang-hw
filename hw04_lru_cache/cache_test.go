@@ -94,6 +94,7 @@ func TestCache(t *testing.T) {
 
 		cache.Clear()
 
+		// check clear results
 		val, ok := cache.Get("a1")
 		require.Nil(t, val)
 		require.False(t, ok)
@@ -105,6 +106,18 @@ func TestCache(t *testing.T) {
 		val, ok = cache.Get("a3")
 		require.Nil(t, val)
 		require.False(t, ok)
+
+		// check normal work after clear
+		cache.Set("b1", 500)
+		cache.Set("b2", 600)
+
+		val, ok = cache.Get("b1")
+		require.True(t, ok)
+		require.Equal(t, val, 500)
+
+		val, ok = cache.Get("b2")
+		require.True(t, ok)
+		require.Equal(t, 600, val)
 	})
 }
 
