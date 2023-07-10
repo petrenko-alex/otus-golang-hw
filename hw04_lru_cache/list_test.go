@@ -3,13 +3,13 @@ package hw04lrucache_test
 import (
 	"testing"
 
-	hw04lrucache "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
+	. "github.com/petrenko-alex/otus-golang-hw/hw04_lru_cache"
 	"github.com/stretchr/testify/require"
 )
 
 func TestList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
-		l := hw04lrucache.NewList()
+		l := NewList()
 
 		require.Equal(t, 0, l.Len())
 		require.Nil(t, l.Front())
@@ -17,7 +17,7 @@ func TestList(t *testing.T) {
 	})
 
 	t.Run("complex", func(t *testing.T) {
-		l := hw04lrucache.NewList()
+		l := NewList()
 
 		l.PushFront(10) // [10]
 		l.PushBack(20)  // [10, 20]
@@ -51,7 +51,7 @@ func TestList(t *testing.T) {
 	})
 
 	t.Run("complex with strings", func(t *testing.T) {
-		l := hw04lrucache.NewList()
+		l := NewList()
 
 		l.PushFront("a") // [a]
 		l.PushBack("b")  // [a, b]
@@ -110,7 +110,7 @@ func TestNewFilledList(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			list := hw04lrucache.NewFilledList(test.elems)
+			list := NewFilledList(test.elems)
 
 			require.Equal(t, test.expectedLen, list.Len())
 			require.True(t, compareElements(test.elems, list))
@@ -119,7 +119,7 @@ func TestNewFilledList(t *testing.T) {
 	}
 }
 
-func compareElements(elems []interface{}, list hw04lrucache.List) bool {
+func compareElements(elems []interface{}, list List) bool {
 	if len(elems) != list.Len() {
 		return false
 	}
@@ -140,7 +140,7 @@ func compareElements(elems []interface{}, list hw04lrucache.List) bool {
 	return true
 }
 
-func checkAddresses(l hw04lrucache.List) bool {
+func checkAddresses(l List) bool {
 	if l.Len() == 0 && l.Front() != nil && l.Back() != nil {
 		return false
 	}
@@ -168,22 +168,22 @@ func checkAddresses(l hw04lrucache.List) bool {
 func TestLen(t *testing.T) {
 	tests := []struct {
 		name     string
-		list     hw04lrucache.List
+		list     List
 		expected int
 	}{
 		{
 			name:     "len of empty list",
-			list:     hw04lrucache.NewFilledList([]interface{}{}),
+			list:     NewFilledList([]interface{}{}),
 			expected: 0,
 		},
 		{
 			name:     "len of one element list",
-			list:     hw04lrucache.NewFilledList([]interface{}{1}),
+			list:     NewFilledList([]interface{}{1}),
 			expected: 1,
 		},
 		{
 			name:     "len of normal list",
-			list:     hw04lrucache.NewFilledList([]interface{}{1, 2, 3}),
+			list:     NewFilledList([]interface{}{1, 2, 3}),
 			expected: 3,
 		},
 	}
@@ -197,13 +197,13 @@ func TestLen(t *testing.T) {
 
 func TestFront(t *testing.T) {
 	t.Run("front from empty list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{})
+		list := NewFilledList([]interface{}{})
 
 		require.Nil(t, list.Front())
 	})
 
 	t.Run("front from one element list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1})
+		list := NewFilledList([]interface{}{1})
 
 		head := list.Front()
 
@@ -213,7 +213,7 @@ func TestFront(t *testing.T) {
 	})
 
 	t.Run("front from normal list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{5, 4, 3, 2, 1})
+		list := NewFilledList([]interface{}{5, 4, 3, 2, 1})
 
 		head := list.Front()
 
@@ -224,13 +224,13 @@ func TestFront(t *testing.T) {
 
 func TestBack(t *testing.T) {
 	t.Run("back from empty list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{})
+		list := NewFilledList([]interface{}{})
 
 		require.Nil(t, list.Back())
 	})
 
 	t.Run("back from one element list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1})
+		list := NewFilledList([]interface{}{1})
 
 		tail := list.Back()
 
@@ -240,7 +240,7 @@ func TestBack(t *testing.T) {
 	})
 
 	t.Run("back from normal list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1, 2, 3, 4, 5})
+		list := NewFilledList([]interface{}{1, 2, 3, 4, 5})
 
 		tail := list.Back()
 
@@ -252,7 +252,7 @@ func TestBack(t *testing.T) {
 func TestPushFront(t *testing.T) {
 	tests := []struct {
 		name          string
-		list          hw04lrucache.List
+		list          List
 		pushValue     int
 		expectedLen   int
 		expectedFront int
@@ -260,7 +260,7 @@ func TestPushFront(t *testing.T) {
 	}{
 		{
 			name:          "push front to empty list",
-			list:          hw04lrucache.NewFilledList([]interface{}{}),
+			list:          NewFilledList([]interface{}{}),
 			pushValue:     1,
 			expectedLen:   1,
 			expectedFront: 1,
@@ -268,7 +268,7 @@ func TestPushFront(t *testing.T) {
 		},
 		{
 			name:          "push front to normal list",
-			list:          hw04lrucache.NewFilledList([]interface{}{1, 2, 3}),
+			list:          NewFilledList([]interface{}{1, 2, 3}),
 			pushValue:     0,
 			expectedLen:   4,
 			expectedFront: 0,
@@ -290,7 +290,7 @@ func TestPushFront(t *testing.T) {
 func TestPushBack(t *testing.T) {
 	tests := []struct {
 		name          string
-		list          hw04lrucache.List
+		list          List
 		pushValue     int
 		expectedLen   int
 		expectedFront int
@@ -298,7 +298,7 @@ func TestPushBack(t *testing.T) {
 	}{
 		{
 			name:          "push back to empty list",
-			list:          hw04lrucache.NewFilledList([]interface{}{}),
+			list:          NewFilledList([]interface{}{}),
 			pushValue:     1,
 			expectedLen:   1,
 			expectedFront: 1,
@@ -306,7 +306,7 @@ func TestPushBack(t *testing.T) {
 		},
 		{
 			name:          "push back to normal list",
-			list:          hw04lrucache.NewFilledList([]interface{}{1, 2, 3}),
+			list:          NewFilledList([]interface{}{1, 2, 3}),
 			pushValue:     4,
 			expectedLen:   4,
 			expectedFront: 1,
@@ -327,7 +327,7 @@ func TestPushBack(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	t.Run("remove from normal list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1, 2, 3})
+		list := NewFilledList([]interface{}{1, 2, 3})
 		elementToRemove := list.Back()
 
 		list.Remove(elementToRemove)
@@ -338,7 +338,7 @@ func TestRemove(t *testing.T) {
 	})
 
 	t.Run("remove only element", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1})
+		list := NewFilledList([]interface{}{1})
 		elementToRemove := list.Back()
 
 		list.Remove(elementToRemove)
@@ -350,7 +350,7 @@ func TestRemove(t *testing.T) {
 	})
 
 	t.Run("remove from empty list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{})
+		list := NewFilledList([]interface{}{})
 		elementToRemove := list.Back()
 
 		list.Remove(elementToRemove)
@@ -364,7 +364,7 @@ func TestRemove(t *testing.T) {
 
 func TestMoveToFront(t *testing.T) {
 	t.Run("Move on empty list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{})
+		list := NewFilledList([]interface{}{})
 		elementToMove := list.Back()
 
 		list.MoveToFront(elementToMove)
@@ -375,7 +375,7 @@ func TestMoveToFront(t *testing.T) {
 		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move in one element list", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1})
+		list := NewFilledList([]interface{}{1})
 		elementToMove := list.Back()
 
 		list.MoveToFront(elementToMove)
@@ -385,7 +385,7 @@ func TestMoveToFront(t *testing.T) {
 		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move from middle", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1, 2, 3})
+		list := NewFilledList([]interface{}{1, 2, 3})
 		elementToMove := list.Front().Next
 
 		list.MoveToFront(elementToMove)
@@ -396,7 +396,7 @@ func TestMoveToFront(t *testing.T) {
 		require.True(t, checkAddresses(list))
 	})
 	t.Run("Move from tail", func(t *testing.T) {
-		list := hw04lrucache.NewFilledList([]interface{}{1, 2, 3})
+		list := NewFilledList([]interface{}{1, 2, 3})
 		elementToMove := list.Back()
 
 		list.MoveToFront(elementToMove)
