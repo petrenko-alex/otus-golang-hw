@@ -38,7 +38,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 	} else {
 		c.addListItem(key, value)
 
-		if c.needToPurgeCache() {
+		if c.queue.Len() > c.capacity {
 			c.purgeCache()
 		}
 	}
@@ -92,10 +92,6 @@ func (c *lruCache) addListItem(key Key, value interface{}) {
 	newListItem := c.queue.PushFront(newCacheItem)
 
 	c.items[key] = newListItem
-}
-
-func (c *lruCache) needToPurgeCache() bool {
-	return c.queue.Len() > c.capacity
 }
 
 func (c *lruCache) purgeCache() {
