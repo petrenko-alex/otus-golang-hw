@@ -31,8 +31,9 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		return false
 	}
 
-	listItem, ok := c.hitListItem(key)
+	listItem, ok := c.items[key]
 	if ok {
+		c.queue.MoveToFront(listItem)
 		c.updateListItem(listItem, value)
 	} else {
 		c.addListItem(key, value)
@@ -53,8 +54,9 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 		return nil, false
 	}
 
-	listItem, ok := c.hitListItem(key)
+	listItem, ok := c.items[key]
 	if ok {
+		c.queue.MoveToFront(listItem)
 		cacheItem := c.getCacheItem(listItem)
 
 		return cacheItem.CacheItemVal, true
@@ -82,15 +84,6 @@ func NewCache(capacity int) Cache {
 
 func (c *lruCache) getCacheItem(listItem *ListItem) *CacheItem {
 	return listItem.Value.(*CacheItem)
-}
-
-func (c *lruCache) hitListItem(key Key) (*ListItem, bool) {
-	listItem, ok := c.items[key]
-	if ok {
-		c.queue.MoveToFront(listItem)
-	}
-
-	return listItem, ok
 }
 
 func (c *lruCache) updateListItem(listItem *ListItem, value interface{}) {
