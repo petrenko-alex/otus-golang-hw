@@ -57,7 +57,7 @@ func (c *lruCache) Get(key Key) (interface{}, bool) {
 	listItem, ok := c.items[key]
 	if ok {
 		c.queue.MoveToFront(listItem)
-		cacheItem := c.getCacheItem(listItem)
+		cacheItem := listItem.Value.(*CacheItem)
 
 		return cacheItem.CacheItemVal, true
 	}
@@ -82,12 +82,8 @@ func NewCache(capacity int) Cache {
 	}
 }
 
-func (c *lruCache) getCacheItem(listItem *ListItem) *CacheItem {
-	return listItem.Value.(*CacheItem)
-}
-
 func (c *lruCache) updateListItem(listItem *ListItem, value interface{}) {
-	cacheItem := c.getCacheItem(listItem)
+	cacheItem := listItem.Value.(*CacheItem)
 	cacheItem.CacheItemVal = value
 }
 
@@ -104,7 +100,7 @@ func (c *lruCache) needToPurgeCache() bool {
 
 func (c *lruCache) purgeCache() {
 	lastListItem := c.queue.Back()
-	cacheItem := c.getCacheItem(lastListItem)
+	cacheItem := lastListItem.Value.(*CacheItem)
 
 	c.queue.Remove(lastListItem)
 	delete(c.items, cacheItem.CacheItemKey)
