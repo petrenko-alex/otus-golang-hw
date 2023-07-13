@@ -67,4 +67,40 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
+
+	t.Run("process all tasks, have some errors", func(t *testing.T) {
+		// Повседневный сценарий: есть какие-то ошибки, но лимит не превышен, все задачи выполнены
+	})
+
+	t.Run("no more than N goroutines run", func(t *testing.T) {
+		// Проверка, что запускается не более N горутин
+	})
+
+	t.Run("stop on M errors", func(t *testing.T) {
+		// Проверка, что выполнится ровно M задач при 1 воркере
+	})
+
+	t.Run("all goroutines stopped", func(t *testing.T) {
+		// Проверка, что не осталось запущенных горутин
+	})
+
+	t.Run("all tasks have same exec time", func(t *testing.T) {
+		// Тест на случай, когда все таски выполняются одинаковое время
+	})
+
+	t.Run("tasks count lass than workers count", func(t *testing.T) {
+		// Количество задач, меньше количества воркеров
+	})
+
+	t.Run("tasks count equals workers count", func(t *testing.T) {
+		// Количество задач равно количеству воркеров
+	})
+
+	t.Run("No errors allowed (M equals zero)", func(t *testing.T) {
+
+	})
+
+	t.Run("Errors ignored (M less than zero)", func(t *testing.T) {
+
+	})
 }
