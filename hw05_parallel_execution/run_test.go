@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"fmt"
 	"github.com/stretchr/testify/mock"
 	"math/rand"
 	"testing"
@@ -30,7 +29,7 @@ func TestRun(t *testing.T) {
 
 	t.Run("if were errors in first M tasks, than finished not more N+M tasks", func(t *testing.T) {
 		tasksCount := 50
-		tasks := generateFailedTasks(tasksCount)
+		tasks := generateFailedTasks(tasksCount, 100)
 		workersCount := 10
 		maxErrorsCount := 23
 
@@ -68,8 +67,16 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("process all tasks, have some errors", func(t *testing.T) {
-		// Повседневный сценарий: есть какие-то ошибки, но лимит не превышен, все задачи выполнены
+		taskCount := 10
+		workersCount := 4
+		maxErrorsCount := 10
+		tasks := generateFailedTasks(taskCount, 20)
 
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		mock.AssertExpectationsForObjects(t, tasks)
 	})
 
 	t.Run("no more than N goroutines run", func(t *testing.T) {
@@ -103,6 +110,10 @@ func TestRun(t *testing.T) {
 	t.Run("Errors ignored (M less than zero)", func(t *testing.T) {
 
 	})
+
+	t.Run("Test concurrency", func(t *testing.T) {
+
+	})
 }
 
 func generateSuccessTasks(tasksCount int) []ExecutableTask {
@@ -119,7 +130,7 @@ func generateSuccessTasks(tasksCount int) []ExecutableTask {
 	return tasks
 }
 
-func generateFailedTasks(tasksCount int) []ExecutableTask {
+func generateFailedTasks(tasksCount int, errorRate uint8) []ExecutableTask {
 	tasks := make([]ExecutableTask, 0, tasksCount)
 
 	for i := 0; i < tasksCount; i++ {
@@ -127,7 +138,8 @@ func generateFailedTasks(tasksCount int) []ExecutableTask {
 			TaskDuration: time.Millisecond * time.Duration(rand.Intn(100)),
 		}
 
-		task.On("exec").Return(fmt.Errorf("error from task %d", i))
+		err := generateErrorWithErrorRate(errorRate)
+		task.On("exec").Return(err)
 	}
 
 	return tasks
@@ -161,4 +173,17 @@ func getMockTasksDuration(tasks []ExecutableTask) time.Duration {
 	}
 
 	return tasksDuration
+}
+
+func generateErrorWithErrorRate(errorRate uint8) error {
+	if errorRate > 100 {
+		errorRate = 100
+	}
+
+	var err error
+	if rand.Float32() < float32(errorRate/100) {
+		err = errors.New("error")
+	}
+
+	return err
 }
