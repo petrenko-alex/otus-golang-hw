@@ -124,7 +124,7 @@ func generateSuccessTasks(tasksCount int) []ExecutableTask {
 			TaskDuration: time.Millisecond * time.Duration(rand.Intn(100)),
 		}
 		task.On("exec").Return(nil)
-		tasks = append(tasks)
+		tasks = append(tasks, task)
 	}
 
 	return tasks
@@ -140,6 +140,7 @@ func generateFailedTasks(tasksCount int, errorRate uint8) []ExecutableTask {
 
 		err := generateErrorWithErrorRate(errorRate)
 		task.On("exec").Return(err)
+		tasks = append(tasks, task)
 	}
 
 	return tasks
@@ -181,7 +182,7 @@ func generateErrorWithErrorRate(errorRate uint8) error {
 	}
 
 	var err error
-	if rand.Float32() < float32(errorRate/100) {
+	if rand.Float32() < float32(errorRate)/100.0 {
 		err = errors.New("error")
 	}
 
