@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/mock"
 	"math/rand"
+	"runtime"
 	"testing"
 	"time"
 
@@ -14,11 +15,13 @@ import (
 type MockTask struct {
 	mock.Mock
 
-	TaskDuration time.Duration
+	TaskDuration      time.Duration
+	GoroutinesCounter int
 }
 
 func (m *MockTask) exec() error {
 	time.Sleep(m.TaskDuration)
+	m.GoroutinesCounter = runtime.NumGoroutine()
 
 	args := m.Called()
 	return args.Error(0)
@@ -29,7 +32,7 @@ func TestRun(t *testing.T) {
 
 	t.Run("if were errors in first M tasks, than finished not more N+M tasks", func(t *testing.T) {
 		tasksCount := 50
-		tasks := generateFailedTasks(tasksCount, 100)
+		tasks := generateFailedTasksWithRandomDuration(tasksCount, 100)
 		workersCount := 10
 		maxErrorsCount := 23
 
@@ -46,7 +49,7 @@ func TestRun(t *testing.T) {
 
 	t.Run("tasks without errors", func(t *testing.T) {
 		taskCount := 50
-		tasks := generateSuccessTasks(taskCount)
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
 		workersCount := 5
 		maxErrorsCount := 1
 
@@ -62,15 +65,13 @@ func TestRun(t *testing.T) {
 			int64(getMockTasksDuration(tasks)/2),
 			"tasks were run sequentially?",
 		)
-
-		// TODO: fix time suggestion assert
 	})
 
 	t.Run("process all tasks, have some errors", func(t *testing.T) {
 		taskCount := 10
 		workersCount := 4
 		maxErrorsCount := 10
-		tasks := generateFailedTasks(taskCount, 20)
+		tasks := generateFailedTasksWithRandomDuration(taskCount, 20)
 
 		err := Run(tasks, workersCount, maxErrorsCount)
 
@@ -81,48 +82,111 @@ func TestRun(t *testing.T) {
 
 	t.Run("no more than N goroutines run", func(t *testing.T) {
 		// Проверка, что запускается не более N горутин
+		taskCount := 10
+		workersCount := 2
+		maxErrorsCount := 50
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
+
+		_ = Run(tasks, workersCount, maxErrorsCount)
+		mockTask, ok := tasks[0].(*MockTask)
+		if !ok {
+			panic("tasks should be MockTask")
+		}
+		require.NotZero(t, mockTask.GoroutinesCounter)
+		require.LessOrEqual(t, mockTask.GoroutinesCounter, workersCount)
 	})
 
 	t.Run("stop on M errors", func(t *testing.T) {
 		// Проверка, что выполнится ровно M задач при 1 воркере
-	})
+		taskCount := 5
+		workersCount := 1
+		maxErrorsCount := 2
+		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
-	t.Run("all goroutines stopped", func(t *testing.T) {
-		// Проверка, что не осталось запущенных горутин
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.Error(t, err)
+		require.Equal(t, maxErrorsCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 	})
 
 	t.Run("all tasks have same exec time", func(t *testing.T) {
 		// Тест на случай, когда все таски выполняются одинаковое время
+		taskCount := 10
+		workersCount := 4
+		maxErrorsCount := 10
+		tasks := generateFailedTasks(taskCount, time.Millisecond, 50)
+
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		mock.AssertExpectationsForObjects(t, tasks)
 	})
 
 	t.Run("tasks count lass than workers count", func(t *testing.T) {
 		// Количество задач, меньше количества воркеров
+		taskCount := 1
+		workersCount := 10
+		maxErrorsCount := 10
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
+
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		mock.AssertExpectationsForObjects(t, tasks)
 	})
 
 	t.Run("tasks count equals workers count", func(t *testing.T) {
 		// Количество задач равно количеству воркеров
+		taskCount := 3
+		workersCount := 3
+		maxErrorsCount := 10
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
+
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		mock.AssertExpectationsForObjects(t, tasks)
 	})
 
 	t.Run("No errors allowed (M equals zero)", func(t *testing.T) {
+		taskCount := 10
+		workersCount := 4
+		maxErrorsCount := 0
+		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.Error(t, err)
+		require.Equal(t, 1, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 	})
 
 	t.Run("Errors ignored (M less than zero)", func(t *testing.T) {
+		taskCount := 30
+		workersCount := 4
+		maxErrorsCount := -1
+		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
+		err := Run(tasks, workersCount, maxErrorsCount)
+
+		require.NoError(t, err)
+		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		mock.AssertExpectationsForObjects(t, tasks)
 	})
 
 	t.Run("Test concurrency", func(t *testing.T) {
-
+		// TODO: extra task - concurrency w/o time.Sleep
+		require.Fail(t, "Not realized")
 	})
 }
 
-func generateSuccessTasks(tasksCount int) []ExecutableTask {
+func generateSuccessTasks(tasksCount int, duration time.Duration) []ExecutableTask {
 	tasks := make([]ExecutableTask, 0, tasksCount)
 
 	for i := 0; i < tasksCount; i++ {
-		task := &MockTask{
-			TaskDuration: time.Millisecond * time.Duration(rand.Intn(100)),
-		}
+		task := &MockTask{TaskDuration: duration}
 		task.On("exec").Return(nil)
 		tasks = append(tasks, task)
 	}
@@ -130,13 +194,15 @@ func generateSuccessTasks(tasksCount int) []ExecutableTask {
 	return tasks
 }
 
-func generateFailedTasks(tasksCount int, errorRate uint8) []ExecutableTask {
+func generateSuccessTasksWithRandomDuration(tasksCount int) []ExecutableTask {
+	return generateSuccessTasks(tasksCount, time.Millisecond*time.Duration(rand.Intn(100)))
+}
+
+func generateFailedTasks(tasksCount int, duration time.Duration, errorRate uint8) []ExecutableTask {
 	tasks := make([]ExecutableTask, 0, tasksCount)
 
 	for i := 0; i < tasksCount; i++ {
-		task := &MockTask{
-			TaskDuration: time.Millisecond * time.Duration(rand.Intn(100)),
-		}
+		task := &MockTask{TaskDuration: duration}
 
 		err := generateErrorWithErrorRate(errorRate)
 		task.On("exec").Return(err)
@@ -144,6 +210,10 @@ func generateFailedTasks(tasksCount int, errorRate uint8) []ExecutableTask {
 	}
 
 	return tasks
+}
+
+func generateFailedTasksWithRandomDuration(tasksCount int, errorRate uint8) []ExecutableTask {
+	return generateFailedTasks(tasksCount, time.Millisecond*time.Duration(rand.Intn(100)), errorRate)
 }
 
 func getFinishedMockTaskCount(tasks []ExecutableTask) int {
