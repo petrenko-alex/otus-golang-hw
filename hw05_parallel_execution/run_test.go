@@ -27,6 +27,16 @@ func (m *MockTask) exec() error {
 	return args.Error(0)
 }
 
+func NewMockTask() *MockTask {
+	return &MockTask{
+		TaskDuration: time.Millisecond * time.Duration(rand.Intn(100)),
+	}
+}
+
+func NewMockTaskWithDuration(duration time.Duration) *MockTask {
+	return &MockTask{TaskDuration: duration}
+}
+
 func TestRun(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
@@ -186,7 +196,7 @@ func generateSuccessTasks(tasksCount int, duration time.Duration) []ExecutableTa
 	tasks := make([]ExecutableTask, 0, tasksCount)
 
 	for i := 0; i < tasksCount; i++ {
-		task := &MockTask{TaskDuration: duration}
+		task := NewMockTaskWithDuration(duration)
 		task.On("exec").Return(nil)
 		tasks = append(tasks, task)
 	}
@@ -195,14 +205,22 @@ func generateSuccessTasks(tasksCount int, duration time.Duration) []ExecutableTa
 }
 
 func generateSuccessTasksWithRandomDuration(tasksCount int) []ExecutableTask {
-	return generateSuccessTasks(tasksCount, time.Millisecond*time.Duration(rand.Intn(100)))
+	tasks := make([]ExecutableTask, 0, tasksCount)
+
+	for i := 0; i < tasksCount; i++ {
+		task := NewMockTask()
+		task.On("exec").Return(nil)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
 }
 
 func generateFailedTasks(tasksCount int, duration time.Duration, errorRate uint8) []ExecutableTask {
 	tasks := make([]ExecutableTask, 0, tasksCount)
 
 	for i := 0; i < tasksCount; i++ {
-		task := &MockTask{TaskDuration: duration}
+		task := NewMockTaskWithDuration(duration)
 
 		err := generateErrorWithErrorRate(errorRate)
 		task.On("exec").Return(err)
@@ -213,7 +231,17 @@ func generateFailedTasks(tasksCount int, duration time.Duration, errorRate uint8
 }
 
 func generateFailedTasksWithRandomDuration(tasksCount int, errorRate uint8) []ExecutableTask {
-	return generateFailedTasks(tasksCount, time.Millisecond*time.Duration(rand.Intn(100)), errorRate)
+	tasks := make([]ExecutableTask, 0, tasksCount)
+
+	for i := 0; i < tasksCount; i++ {
+		task := NewMockTask()
+
+		err := generateErrorWithErrorRate(errorRate)
+		task.On("exec").Return(err)
+		tasks = append(tasks, task)
+	}
+
+	return tasks
 }
 
 func getFinishedMockTaskCount(tasks []ExecutableTask) int {
