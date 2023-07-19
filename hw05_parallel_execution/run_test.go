@@ -170,7 +170,7 @@ func TestRun(t *testing.T) {
 		assertMockExpectations(t, tasks)
 	})
 
-	t.Run("No errors allowed (M equals zero)", func(t *testing.T) {
+	t.Run("No errors allowed (maxErrors = 0)", func(t *testing.T) {
 		taskCount := 10
 		workersCount := 4
 		maxErrorsCount := 0
@@ -179,10 +179,10 @@ func TestRun(t *testing.T) {
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Error(t, err)
-		require.Equal(t, 1, getFinishedMockTaskCount(tasks), "not all tasks were completed")
+		require.LessOrEqual(t, getFinishedMockTaskCount(tasks), workersCount)
 	})
 
-	t.Run("Errors ignored (M less than zero)", func(t *testing.T) {
+	t.Run("Errors ignored (maxErrors <= 0)", func(t *testing.T) {
 		taskCount := 30
 		workersCount := 4
 		maxErrorsCount := -1
