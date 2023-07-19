@@ -13,6 +13,7 @@ import (
 )
 
 // todo: test suite?
+// todo: better ways of goroutine counting in test?
 
 type MockTask struct {
 	mock.Mock
@@ -108,8 +109,10 @@ func TestRun(t *testing.T) {
 		if !ok {
 			panic("tasks should be MockTask")
 		}
+
+		runnerGoroutines := mockTask.GoroutinesCounter - runtime.NumGoroutine()
 		require.NotZero(t, mockTask.GoroutinesCounter)
-		require.LessOrEqual(t, mockTask.GoroutinesCounter, workersCount)
+		require.LessOrEqual(t, runnerGoroutines, workersCount)
 	})
 
 	t.Run("stop on M errors", func(t *testing.T) {
