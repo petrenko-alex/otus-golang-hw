@@ -21,7 +21,13 @@ func (t Task) exec() error {
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
-	taskChannel := make(chan ExecutableTask) // todo: need buffer ?
+	// todo: need buffer channel ?
+	// todo: stop by signal from goroutine
+
+	var errorsCounter int
+	mutex := sync.Mutex{}
+	taskChannel := make(chan ExecutableTask, len(tasks))
+
 	wg := sync.WaitGroup{}
 	wg.Add(workersCount)
 
@@ -30,6 +36,13 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 			defer wg.Done()
 
 			for {
+				mutex.Lock()
+				eCnt := errorsCounter
+				mutex.Unlock()
+				if eCnt >= maxErrors {
+					break
+				}
+
 				task, continueWork := <-taskChannel
 				if !continueWork {
 					break
@@ -37,7 +50,9 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 
 				taskError := task.exec()
 				if taskError != nil {
-					// todo:
+					mutex.Lock()
+					errorsCounter++
+					mutex.Unlock()
 				}
 			}
 		}()
@@ -49,6 +64,10 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 	close(taskChannel)
 
 	wg.Wait()
+
+	if errorsCounter >= maxErrors {
+		return ErrErrorsLimitExceeded
+	}
 
 	return nil
 }

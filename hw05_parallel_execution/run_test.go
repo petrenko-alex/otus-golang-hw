@@ -12,6 +12,8 @@ import (
 	"go.uber.org/goleak"
 )
 
+// todo: test suite?
+
 type MockTask struct {
 	mock.Mock
 
@@ -48,11 +50,15 @@ func TestRun(t *testing.T) {
 
 		err := Run(tasks, workersCount, maxErrorsCount)
 
-		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
+		require.Truef(
+			t,
+			errors.Is(err, ErrErrorsLimitExceeded),
+			"actual err - %v", err,
+		)
 		require.LessOrEqual(
 			t,
 			getFinishedMockTaskCount(tasks),
-			int32(workersCount+maxErrorsCount),
+			workersCount+maxErrorsCount,
 			"extra tasks were started",
 		)
 	})
@@ -71,8 +77,8 @@ func TestRun(t *testing.T) {
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 		require.LessOrEqual(
 			t,
-			int64(elapsedTime),
-			int64(getMockTasksDuration(tasks)/2),
+			elapsedTime.Milliseconds(),
+			getMockTasksDuration(tasks).Milliseconds()/2,
 			"tasks were run sequentially?",
 		)
 	})
@@ -87,7 +93,7 @@ func TestRun(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
-		mock.AssertExpectationsForObjects(t, tasks)
+		assertMockExpectations(t, tasks)
 	})
 
 	t.Run("no more than N goroutines run", func(t *testing.T) {
@@ -130,7 +136,7 @@ func TestRun(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
-		mock.AssertExpectationsForObjects(t, tasks)
+		assertMockExpectations(t, tasks)
 	})
 
 	t.Run("tasks count lass than workers count", func(t *testing.T) {
@@ -144,7 +150,7 @@ func TestRun(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
-		mock.AssertExpectationsForObjects(t, tasks)
+		assertMockExpectations(t, tasks)
 	})
 
 	t.Run("tasks count equals workers count", func(t *testing.T) {
@@ -158,7 +164,7 @@ func TestRun(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
-		mock.AssertExpectationsForObjects(t, tasks)
+		assertMockExpectations(t, tasks)
 	})
 
 	t.Run("No errors allowed (M equals zero)", func(t *testing.T) {
@@ -183,7 +189,7 @@ func TestRun(t *testing.T) {
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
-		mock.AssertExpectationsForObjects(t, tasks)
+		assertMockExpectations(t, tasks)
 	})
 
 	t.Run("Test concurrency", func(t *testing.T) {
@@ -272,6 +278,17 @@ func getMockTasksDuration(tasks []ExecutableTask) time.Duration {
 	}
 
 	return tasksDuration
+}
+
+func assertMockExpectations(t *testing.T, tasks []ExecutableTask) {
+	for _, task := range tasks {
+		mockTask, ok := task.(*MockTask)
+		if !ok {
+			panic("tasks should be MockTask")
+		}
+
+		mockTask.AssertExpectations(t)
+	}
 }
 
 func generateErrorWithErrorRate(errorRate uint8) error {
