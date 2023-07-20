@@ -23,7 +23,6 @@ func (t Task) exec() error {
 func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 	// todo: need buffer channel ?
 	// todo: stop by signal from goroutine
-
 	var errorsCounter int
 	mutex := sync.Mutex{}
 	taskChannel := make(chan ExecutableTask, len(tasks))
@@ -39,7 +38,7 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 				mutex.Lock()
 				eCnt := errorsCounter
 				mutex.Unlock()
-				if eCnt >= maxErrors {
+				if maxErrors >= 0 && eCnt >= maxErrors {
 					break
 				}
 
@@ -65,7 +64,7 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 
 	wg.Wait()
 
-	if errorsCounter >= maxErrors {
+	if maxErrors >= 0 && errorsCounter >= maxErrors {
 		return ErrErrorsLimitExceeded
 	}
 
