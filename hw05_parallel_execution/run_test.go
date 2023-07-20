@@ -1,7 +1,8 @@
-package hw05parallelexecution
+package hw05parallelexecution_test
 
 import (
 	"errors"
+	. "github.com/petrenko-alex/otus-golang-hw/hw05_parallel_execution"
 	"github.com/stretchr/testify/mock"
 	"math/rand"
 	"runtime"
@@ -23,7 +24,7 @@ type MockTask struct {
 	GoroutinesCounter int
 }
 
-func (m *MockTask) exec() error {
+func (m *MockTask) Exec() error {
 	time.Sleep(m.TaskDuration)
 	m.GoroutinesCounter = runtime.NumGoroutine()
 
@@ -129,7 +130,7 @@ func TestRun(t *testing.T) {
 		require.Equal(t, maxErrorsCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 	})
 
-	t.Run("all tasks have same exec time", func(t *testing.T) {
+	t.Run("all tasks have same Exec time", func(t *testing.T) {
 		// Тест на случай, когда все таски выполняются одинаковое время
 		taskCount := 10
 		workersCount := 4
@@ -218,7 +219,7 @@ func generateSuccessTasksWithRandomDuration(tasksCount int) []ExecutableTask {
 
 	for i := 0; i < tasksCount; i++ {
 		task := NewMockTask()
-		task.On("exec").Return(nil)
+		task.On("Exec").Return(nil)
 		tasks = append(tasks, task)
 	}
 
@@ -232,7 +233,7 @@ func generateFailedTasks(tasksCount int, duration time.Duration, errorRate uint8
 		task := NewMockTaskWithDuration(duration)
 
 		err := generateErrorWithErrorRate(errorRate)
-		task.On("exec").Return(err)
+		task.On("Exec").Return(err)
 		tasks = append(tasks, task)
 	}
 
@@ -246,7 +247,7 @@ func generateFailedTasksWithRandomDuration(tasksCount int, errorRate uint8) []Ex
 		task := NewMockTask()
 
 		err := generateErrorWithErrorRate(errorRate)
-		task.On("exec").Return(err)
+		task.On("Exec").Return(err)
 		tasks = append(tasks, task)
 	}
 

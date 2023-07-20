@@ -8,14 +8,14 @@ import (
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type ExecutableTask interface {
-	exec() error
+	Exec() error
 }
 
 type Task struct {
 	task func() error
 }
 
-func (t Task) exec() error {
+func (t Task) Exec() error {
 	return t.task()
 }
 
@@ -45,7 +45,7 @@ func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
 					break
 				}
 
-				taskError := task.exec()
+				taskError := task.Exec()
 				if taskError != nil {
 					mutex.Lock()
 					errorsCounter++
