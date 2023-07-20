@@ -12,6 +12,10 @@ import (
 	"go.uber.org/goleak"
 )
 
+// todo: refactor code
+// todo: better ways of goroutine counting in test?
+// todo: different package
+
 type MockTask struct {
 	mock.Mock
 
@@ -193,8 +197,19 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("Test concurrency", func(t *testing.T) {
-		// TODO: extra task - concurrency w/o time.Sleep
-		require.Fail(t, "Not realized")
+		taskCount := 50
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
+		workersCount := 5
+		maxErrorsCount := 1
+
+		require.Eventually(
+			t,
+			func() bool {
+				return Run(tasks, workersCount, maxErrorsCount) == nil
+			},
+			getMockTasksDuration(tasks)/2,
+			time.Millisecond,
+		)
 	})
 }
 
