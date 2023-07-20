@@ -21,8 +21,6 @@ func (t Task) exec() error {
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
-	// todo: need buffer channel ?
-	// todo: stop by signal from goroutine
 	var errorsCounter int
 	mutex := sync.Mutex{}
 	taskChannel := make(chan ExecutableTask, len(tasks))
