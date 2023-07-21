@@ -13,10 +13,6 @@ import (
 	"go.uber.org/goleak"
 )
 
-// todo: refactor code
-// todo: better ways of goroutine counting in test?
-// todo: different package
-
 type MockTask struct {
 	mock.Mock
 
@@ -51,7 +47,8 @@ func TestRun(t *testing.T) {
 		workersCount := 10
 		maxErrorsCount := 23
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.Truef(
 			t,
@@ -73,7 +70,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 1
 
 		start := time.Now()
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 		elapsedTime := time.Since(start)
 
 		require.NoError(t, err)
@@ -92,7 +90,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 10
 		tasks := generateFailedTasksWithRandomDuration(taskCount, 20)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -106,7 +105,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 50
 		tasks := generateSuccessTasksWithRandomDuration(taskCount)
 
-		_ = Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		_ = runner.Run()
 		mockTask, ok := tasks[0].(*MockTask)
 		if !ok {
 			panic("tasks should be MockTask")
@@ -124,7 +124,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 2
 		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.Error(t, err)
 		require.Equal(t, maxErrorsCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -137,7 +138,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 10
 		tasks := generateFailedTasks(taskCount, time.Millisecond, 50)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -151,7 +153,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 10
 		tasks := generateSuccessTasksWithRandomDuration(taskCount)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -165,7 +168,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 10
 		tasks := generateSuccessTasksWithRandomDuration(taskCount)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -178,7 +182,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := 0
 		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.Error(t, err)
 		require.LessOrEqual(t, getFinishedMockTaskCount(tasks), workersCount)
@@ -190,7 +195,8 @@ func TestRun(t *testing.T) {
 		maxErrorsCount := -1
 		tasks := generateFailedTasksWithRandomDuration(taskCount, 100)
 
-		err := Run(tasks, workersCount, maxErrorsCount)
+		runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+		err := runner.Run()
 
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
@@ -206,7 +212,8 @@ func TestRun(t *testing.T) {
 		require.Eventually(
 			t,
 			func() bool {
-				return Run(tasks, workersCount, maxErrorsCount) == nil
+				runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+				return runner.Run() == nil
 			},
 			getMockTasksDuration(tasks)/2,
 			time.Millisecond,

@@ -19,52 +19,90 @@ func (t Task) Exec() error {
 	return t.task()
 }
 
+type TaskRunner struct {
+	maxErrors     int
+	workersCount  int
+	errorsCounter int
+
+	tasks       []ExecutableTask
+	taskChannel chan ExecutableTask
+
+	sync.WaitGroup
+	sync.Mutex
+}
+
+func NewTaskRunner(tasks []ExecutableTask, workersCount, maxErrors int) *TaskRunner {
+	return &TaskRunner{
+		maxErrors:    maxErrors,
+		workersCount: workersCount,
+		tasks:        tasks,
+
+		taskChannel: make(chan ExecutableTask, len(tasks)),
+	}
+}
+
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
-func Run(tasks []ExecutableTask, workersCount, maxErrors int) error {
-	var errorsCounter int
-	mutex := sync.Mutex{}
-	taskChannel := make(chan ExecutableTask, len(tasks))
+func (r *TaskRunner) Run() error {
+	r.Add(r.workersCount)
 
-	wg := sync.WaitGroup{}
-	wg.Add(workersCount)
+	r.runWorkers()
+	r.sendTasks()
 
-	for i := 0; i < workersCount; i++ {
-		go func() {
-			defer wg.Done()
+	close(r.taskChannel)
+	r.Wait()
 
-			for {
-				mutex.Lock()
-				eCnt := errorsCounter
-				mutex.Unlock()
-				if maxErrors >= 0 && eCnt >= maxErrors {
-					break
-				}
-
-				task, continueWork := <-taskChannel
-				if !continueWork {
-					break
-				}
-
-				taskError := task.Exec()
-				if taskError != nil {
-					mutex.Lock()
-					errorsCounter++
-					mutex.Unlock()
-				}
-			}
-		}()
-	}
-
-	for _, task := range tasks {
-		taskChannel <- task
-	}
-	close(taskChannel)
-
-	wg.Wait()
-
-	if maxErrors >= 0 && errorsCounter >= maxErrors {
+	if r.errorLimitExceeded() {
 		return ErrErrorsLimitExceeded
 	}
 
 	return nil
+}
+
+func (r *TaskRunner) getErrorsCounter() int {
+	r.Lock()
+	defer r.Unlock()
+
+	return r.errorsCounter
+}
+
+func (r *TaskRunner) incErrorsCounter() {
+	r.Lock()
+	r.errorsCounter++
+	r.Unlock()
+}
+
+func (r *TaskRunner) runWorkers() {
+	for i := 0; i < r.workersCount; i++ {
+		go func() { r.runWorker() }()
+	}
+}
+
+func (r *TaskRunner) runWorker() {
+	defer r.Done()
+
+	for {
+		if r.maxErrors >= 0 && r.getErrorsCounter() >= r.maxErrors {
+			break
+		}
+
+		task, continueWork := <-r.taskChannel
+		if !continueWork {
+			break
+		}
+
+		taskError := task.Exec()
+		if taskError != nil {
+			r.incErrorsCounter()
+		}
+	}
+}
+
+func (r *TaskRunner) sendTasks() {
+	for _, task := range r.tasks {
+		r.taskChannel <- task
+	}
+}
+
+func (r *TaskRunner) errorLimitExceeded() bool {
+	return r.maxErrors >= 0 && r.getErrorsCounter() >= r.maxErrors
 }
