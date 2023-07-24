@@ -2,13 +2,13 @@ package hw05parallelexecution_test
 
 import (
 	"errors"
-	. "github.com/petrenko-alex/otus-golang-hw/hw05_parallel_execution"
-	"github.com/stretchr/testify/mock"
 	"math/rand"
 	"runtime"
 	"testing"
 	"time"
 
+	. "github.com/petrenko-alex/otus-golang-hw/hw05_parallel_execution"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 )
@@ -292,6 +292,8 @@ func getMockTasksDuration(tasks []ExecutableTask) time.Duration {
 }
 
 func assertMockExpectations(t *testing.T, tasks []ExecutableTask) {
+	t.Helper()
+
 	for _, task := range tasks {
 		mockTask, ok := task.(*MockTask)
 		if !ok {
