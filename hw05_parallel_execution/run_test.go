@@ -131,6 +131,27 @@ func TestRun(t *testing.T) {
 		require.Equal(t, maxErrorsCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 	})
 
+	t.Run("Test concurrency", func(t *testing.T) {
+		taskCount := 50
+		tasks := generateSuccessTasksWithRandomDuration(taskCount)
+		workersCount := 5
+		maxErrorsCount := 1
+
+		require.Eventually(
+			t,
+			func() bool {
+				runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
+				return runner.Run() == nil
+			},
+			getMockTasksDuration(tasks)/2,
+			time.Millisecond,
+		)
+	})
+}
+
+func TestRunEdgeCases(t *testing.T) {
+	defer goleak.VerifyNone(t)
+
 	t.Run("all tasks have same Exec time", func(t *testing.T) {
 		// Тест на случай, когда все таски выполняются одинаковое время
 		taskCount := 10
@@ -146,7 +167,7 @@ func TestRun(t *testing.T) {
 		assertMockExpectations(t, tasks)
 	})
 
-	t.Run("tasks count lass than workers count", func(t *testing.T) {
+	t.Run("tasks count less than workers count", func(t *testing.T) {
 		// Количество задач, меньше количества воркеров
 		taskCount := 1
 		workersCount := 10
@@ -201,23 +222,6 @@ func TestRun(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, taskCount, getFinishedMockTaskCount(tasks), "not all tasks were completed")
 		assertMockExpectations(t, tasks)
-	})
-
-	t.Run("Test concurrency", func(t *testing.T) {
-		taskCount := 50
-		tasks := generateSuccessTasksWithRandomDuration(taskCount)
-		workersCount := 5
-		maxErrorsCount := 1
-
-		require.Eventually(
-			t,
-			func() bool {
-				runner := NewTaskRunner(tasks, workersCount, maxErrorsCount)
-				return runner.Run() == nil
-			},
-			getMockTasksDuration(tasks)/2,
-			time.Millisecond,
-		)
 	})
 }
 
