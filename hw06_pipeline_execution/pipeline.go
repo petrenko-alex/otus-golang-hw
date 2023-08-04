@@ -1,5 +1,9 @@
 package hw06pipelineexecution
 
+import "time"
+
+const DataWaitLimit = time.Second * 10
+
 type (
 	In  = <-chan interface{}
 	Out = In
@@ -9,6 +13,10 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	// Place your code here.
-	return nil
+	out := make(Bi)
+	close(out) // tmp to fail tests
+
+	// call stages
+
+	return out
 }
