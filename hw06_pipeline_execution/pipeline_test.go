@@ -82,14 +82,14 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("one element data", func(t *testing.T) {
-		result := make([]int, 0, 10)
+		result := make([]string, 0, 10)
 		_, inChannel := generateDataAndSendToChannel(1)
 
 		for s := range ExecutePipeline(inChannel, nil, stages...) {
-			result = append(result, s.(int))
+			result = append(result, s.(string))
 		}
 
-		require.Equal(t, []int{102}, result)
+		require.Equal(t, []string{"102"}, result)
 	})
 
 	t.Run("many stages", func(t *testing.T) {

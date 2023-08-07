@@ -13,10 +13,11 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	out := make(Bi)
-	close(out) // tmp to fail tests
+	stageChan := in // 1st stage IN chan = pipeline IN chan
 
-	// call stages
+	for _, stage := range stages {
+		stageChan = stage(stageChan) // stage OUT chan = next stage IN chan
+	}
 
-	return out
+	return stageChan // last stage OUT chan = pipeline OUT chan
 }
