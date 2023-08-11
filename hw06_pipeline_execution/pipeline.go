@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const DataWaitLimit = time.Second * 10
+const DataWaitLimit = time.Second * 3
 
 type (
 	In  = <-chan interface{}
@@ -29,6 +29,7 @@ func mergeDoneAndIn(done In, in In) In {
 
 	go func() {
 		defer close(out)
+		start := time.Now()
 
 		for {
 			select {
@@ -39,7 +40,11 @@ func mergeDoneAndIn(done In, in In) In {
 				out <- val
 			case <-done:
 				return
-				// default: // todo: add limit?
+			default:
+				spent := time.Since(start)
+				if spent > DataWaitLimit {
+					return
+				}
 			}
 		}
 	}()

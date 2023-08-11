@@ -9,9 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// todo: no data cases?
-// todo: done for generator?
-// todo: case done must be closed, not signaled
 const (
 	sleepPerStage = time.Millisecond * 100
 	fault         = sleepPerStage / 2
@@ -53,8 +50,6 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("no data", func(t *testing.T) {
-		t.Skip()
-
 		_, inChannel := generateDataAndSendToChannel(0, nil)
 
 		start := time.Now()
@@ -66,8 +61,6 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("no data, no stages", func(t *testing.T) {
-		t.Skip()
-
 		_, inChannel := generateDataAndSendToChannel(0, nil)
 
 		start := time.Now()
@@ -75,7 +68,7 @@ func TestPipeline(t *testing.T) {
 		elapsed := time.Since(start)
 
 		require.False(t, opened)
-		require.Less(t, elapsed, sleepPerStage)
+		require.GreaterOrEqual(t, elapsed, DataWaitLimit)
 	})
 
 	t.Run("one stage", func(t *testing.T) {
@@ -159,23 +152,6 @@ func TestPipeline(t *testing.T) {
 		require.NotZero(t, len(result))
 		require.Less(t, len(result), len(data))
 	})
-
-	t.Run("done must be closed, not signaled", func(t *testing.T) {
-		t.Skip()
-		done := make(Bi)
-		result := make([]string, 0, 10)
-		_, inChannel := generateDataAndSendToChannel(5, done)
-
-		go func() {
-			done <- time.After(sleepPerStage)
-		}()
-
-		for s := range ExecutePipeline(inChannel, nil, stages...) {
-			result = append(result, s.(string))
-		}
-
-		require.Equal(t, []string{"102", "104", "106", "108", "110"}, result)
-	})
 }
 
 // Генерирует слайс с тестовыми данными и отправляет их в канал.
@@ -189,7 +165,7 @@ func generateDataAndSendToChannel(dataSize int, done In) ([]int, In) {
 
 	if len(data) > 0 {
 		go func() {
-			defer close(in) // todo: need select here?
+			defer close(in)
 
 			for _, v := range data {
 				select {
