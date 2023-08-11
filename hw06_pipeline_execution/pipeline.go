@@ -37,6 +37,7 @@ func mergeDoneAndIn(done In, in In) In {
 				if !ok {
 					return
 				}
+				start = time.Now() // reset wait timer
 				out <- val
 			case <-done:
 				return
