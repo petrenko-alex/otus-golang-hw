@@ -109,7 +109,7 @@ func TestPipeline(t *testing.T) {
 				result = append(result, s.(string))
 			}
 			return true
-		}, time.Duration(timeout), time.Millisecond)
+		}, time.Duration(timeout), time.Microsecond)
 		require.Equal(t, []string{"102", "104", "106", "108", "110"}, result)
 		/*require.Less(t,
 			int64(elapsed),
