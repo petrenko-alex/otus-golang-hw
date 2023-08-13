@@ -97,18 +97,25 @@ func TestPipeline(t *testing.T) {
 		result := make([]string, 0, 10)
 		data, inChannel := generateDataAndSendToChannel(5, nil)
 
-		start := time.Now()
+		/*start := time.Now()
 		for s := range ExecutePipeline(inChannel, nil, stages...) {
 			result = append(result, s.(string))
 		}
-		elapsed := time.Since(start)
+		elapsed := time.Since(start)*/
 
+		timeout := int64(sleepPerStage)*int64(len(stages)+len(data)-1) + int64(fault)
+		require.Eventually(t, func() bool {
+			for s := range ExecutePipeline(inChannel, nil, stages...) {
+				result = append(result, s.(string))
+			}
+			return true
+		}, time.Duration(timeout), time.Millisecond)
 		require.Equal(t, []string{"102", "104", "106", "108", "110"}, result)
-		require.Less(t,
+		/*require.Less(t,
 			int64(elapsed),
 			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
 			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault),
-		)
+		)*/
 	})
 
 	t.Run("done with no result", func(t *testing.T) {
