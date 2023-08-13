@@ -18,7 +18,12 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	stageChan := mergeDoneAndIn(done, in) // 1st stage IN chan = pipeline IN chan
 
 	for _, stage := range stages {
-		stageChan = mergeDoneAndIn(done, stage(stageChan)) // stage OUT chan = next stage IN chan
+		select {
+		case <-done:
+			return stageChan
+		default:
+			stageChan = mergeDoneAndIn(done, stage(stageChan)) // stage OUT chan = next stage IN chan
+		}
 	}
 
 	return stageChan // last stage OUT chan = pipeline OUT chan
