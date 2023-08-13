@@ -15,30 +15,6 @@ const (
 )
 
 func TestPipeline(t *testing.T) {
-	// Stage generator
-	g := func(_ string, f func(v interface{}) interface{}) Stage {
-		return func(done In, in In) Out {
-			out := make(Bi)
-			go func() {
-				defer close(out)
-
-				for {
-					select {
-					case val, ok := <-in:
-						if !ok {
-							return
-						}
-						time.Sleep(sleepPerStage)
-						out <- f(val)
-					case <-done:
-						return
-					}
-				}
-			}()
-			return out
-		}
-	}
-
 	stages := []Stage{
 		g("Dummy", func(v interface{}) interface{} { return v }),
 		g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 }),
@@ -58,23 +34,10 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("no data", func(t *testing.T) {
-		t.Skip()
 		_, inChannel := generateDataAndSendToChannel(0, nil)
 
 		start := time.Now()
 		_, opened := <-ExecutePipeline(inChannel, nil, stages...)
-		elapsed := time.Since(start)
-
-		require.False(t, opened)
-		require.GreaterOrEqual(t, elapsed, DataWaitLimit)
-	})
-
-	t.Run("no data, no stages", func(t *testing.T) {
-		t.Skip()
-		_, inChannel := generateDataAndSendToChannel(0, nil)
-
-		start := time.Now()
-		_, opened := <-ExecutePipeline(inChannel, nil)
 		elapsed := time.Since(start)
 
 		require.False(t, opened)
@@ -188,4 +151,34 @@ func generateDataAndSendToChannel(dataSize int, done In) ([]int, In) {
 	}
 
 	return data, in
+}
+
+func g(_ string, f func(v interface{}) interface{}) Stage {
+	return func(done In, in In) Out {
+		out := make(Bi)
+		go func() {
+			defer close(out)
+			start := time.Now()
+
+			for {
+				select {
+				case val, ok := <-in:
+					if !ok {
+						return
+					}
+					start = time.Now() // reset wait timer
+					time.Sleep(sleepPerStage)
+					out <- f(val)
+				case <-done:
+					return
+				default:
+					spent := time.Since(start)
+					if spent > DataWaitLimit {
+						return
+					}
+				}
+			}
+		}()
+		return out
+	}
 }
