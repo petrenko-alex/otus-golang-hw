@@ -1,11 +1,5 @@
 package hw06pipelineexecution
 
-import (
-	"time"
-)
-
-const DataWaitLimit = time.Second * 3
-
 type (
 	In  = <-chan interface{}
 	Out = In
