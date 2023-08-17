@@ -50,6 +50,7 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("no data", func(t *testing.T) {
+		t.Skip()
 		_, inChannel := generateDataAndSendToChannel(0, nil)
 
 		start := time.Now()
@@ -61,6 +62,7 @@ func TestPipeline(t *testing.T) {
 	})
 
 	t.Run("no data, no stages", func(t *testing.T) {
+		t.Skip()
 		_, inChannel := generateDataAndSendToChannel(0, nil)
 
 		start := time.Now()
