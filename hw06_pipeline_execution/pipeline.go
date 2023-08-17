@@ -29,7 +29,6 @@ func mergeDoneAndIn(done In, in In) In {
 
 	go func() {
 		defer close(out)
-		start := time.Now()
 
 		for {
 			select {
@@ -37,15 +36,9 @@ func mergeDoneAndIn(done In, in In) In {
 				if !ok {
 					return
 				}
-				start = time.Now() // reset wait timer
 				out <- val
 			case <-done:
 				return
-			default:
-				spent := time.Since(start)
-				if spent > DataWaitLimit {
-					return
-				}
 			}
 		}
 	}()
