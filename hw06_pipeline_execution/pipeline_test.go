@@ -1,10 +1,11 @@
-package hw06pipelineexecution
+package hw06pipelineexecution_test
 
 import (
 	"strconv"
 	"testing"
 	"time"
 
+	. "github.com/petrenko-alex/otus-golang-hw/hw06_pipeline_execution"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,6 +21,7 @@ func TestPipeline(t *testing.T) {
 			out := make(Bi)
 			go func() {
 				defer close(out)
+
 				for v := range in {
 					time.Sleep(sleepPerStage)
 					out <- f(v)
@@ -36,20 +38,45 @@ func TestPipeline(t *testing.T) {
 		g("Stringifier", func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
 	}
 
-	t.Run("simple case", func(t *testing.T) {
-		in := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
+	t.Run("no stages", func(t *testing.T) {
+		result := make([]int, 0, 10)
+		data, inChannel := generateDataAndSendToChannel(5, nil)
 
-		go func() {
-			for _, v := range data {
-				in <- v
-			}
-			close(in)
-		}()
+		for s := range ExecutePipeline(inChannel, nil) {
+			result = append(result, s.(int))
+		}
 
+		require.Equal(t, data, result)
+	})
+
+	t.Run("one stage", func(t *testing.T) {
+		result := make([]int, 0, 10)
+		_, inChannel := generateDataAndSendToChannel(5, nil)
+
+		for s := range ExecutePipeline(inChannel, nil, stages[1]) {
+			result = append(result, s.(int))
+		}
+
+		require.Equal(t, []int{2, 4, 6, 8, 10}, result)
+	})
+
+	t.Run("one element data", func(t *testing.T) {
 		result := make([]string, 0, 10)
+		_, inChannel := generateDataAndSendToChannel(1, nil)
+
+		for s := range ExecutePipeline(inChannel, nil, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.Equal(t, []string{"102"}, result)
+	})
+
+	t.Run("many stages", func(t *testing.T) {
+		result := make([]string, 0, 10)
+		data, inChannel := generateDataAndSendToChannel(5, nil)
+
 		start := time.Now()
-		for s := range ExecutePipeline(in, nil, stages...) {
+		for s := range ExecutePipeline(inChannel, nil, stages...) {
 			result = append(result, s.(string))
 		}
 		elapsed := time.Since(start)
@@ -58,13 +85,14 @@ func TestPipeline(t *testing.T) {
 		require.Less(t,
 			int64(elapsed),
 			// ~0.8s for processing 5 values in 4 stages (100ms every) concurrently
-			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault))
+			int64(sleepPerStage)*int64(len(stages)+len(data)-1)+int64(fault),
+		)
 	})
 
-	t.Run("done case", func(t *testing.T) {
-		in := make(Bi)
+	t.Run("done with no result", func(t *testing.T) {
 		done := make(Bi)
-		data := []int{1, 2, 3, 4, 5}
+		result := make([]string, 0, 10)
+		_, inChannel := generateDataAndSendToChannel(5, done)
 
 		// Abort after 200ms
 		abortDur := sleepPerStage * 2
@@ -73,16 +101,8 @@ func TestPipeline(t *testing.T) {
 			close(done)
 		}()
 
-		go func() {
-			for _, v := range data {
-				in <- v
-			}
-			close(in)
-		}()
-
-		result := make([]string, 0, 10)
 		start := time.Now()
-		for s := range ExecutePipeline(in, done, stages...) {
+		for s := range ExecutePipeline(inChannel, done, stages...) {
 			result = append(result, s.(string))
 		}
 		elapsed := time.Since(start)
@@ -90,4 +110,50 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("done with part result", func(t *testing.T) {
+		done := make(Bi)
+		result := make([]string, 0, 10)
+		data, inChannel := generateDataAndSendToChannel(5, done)
+
+		// Abort after all stages completed for at least 1 value + some gap
+		abortDur := int(sleepPerStage)*len(stages) + int(sleepPerStage)
+		go func() {
+			<-time.After(time.Duration(abortDur))
+			close(done)
+		}()
+
+		for s := range ExecutePipeline(inChannel, done, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.NotZero(t, len(result))
+		require.Less(t, len(result), len(data))
+	})
+}
+
+// Генерирует слайс с тестовыми данными и отправляет их в канал.
+// Возвращает тестовые данные и канал, в который производится отправка.
+func generateDataAndSendToChannel(dataSize int, done In) ([]int, In) {
+	in := make(Bi)
+	data := make([]int, 0, dataSize)
+	for i := 1; i <= dataSize; i++ {
+		data = append(data, i)
+	}
+
+	if len(data) > 0 {
+		go func() {
+			defer close(in)
+
+			for _, v := range data {
+				select {
+				case in <- v:
+				case <-done:
+					return
+				}
+			}
+		}()
+	}
+
+	return data, in
 }
