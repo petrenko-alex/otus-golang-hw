@@ -30,6 +30,7 @@ func NewFileCopier(fromPath, toPath string, offset, limit int64) *FileCopier {
 }
 
 func (fc *FileCopier) Copy() error {
+
 	fromFile, openingErr := fc.openFromFile()
 	if openingErr != nil {
 		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", openingErr)
@@ -85,15 +86,21 @@ func (fc *FileCopier) getBufferForFile(file *os.File) ([]byte, error) {
 	}
 
 	fileSize := fileInfo.Size()
+	if fileSize == 0 {
+		return nil, ErrUnsupportedFile
+	} else if fileSize < fc.offset {
+		return nil, ErrOffsetExceedsFileSize
+	}
+
 	buffSize := fc.limit
 	if buffSize <= 0 {
-		buffSize = fileInfo.Size() - offset
+		buffSize = fileInfo.Size() - fc.offset
 	} else if buffSize > fileSize {
 		buffSize = fileSize
 	}
 
-	if offset+limit > fileSize {
-		buffSize = fileSize - offset
+	if fc.offset+fc.limit > fileSize {
+		buffSize = fileSize - fc.offset
 	}
 
 	return make([]byte, buffSize), nil

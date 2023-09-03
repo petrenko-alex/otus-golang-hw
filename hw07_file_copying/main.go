@@ -21,12 +21,6 @@ func init() {
 func main() {
 	flag.Parse()
 
-	// todo: validate
-
-	from = "testdata/input.txt"
-	to = "out.txt"
-	//limit = 10000
-
 	fileCopier := NewFileCopier(from, to, offset, limit)
 	err := fileCopier.Copy()
 	if err != nil {
