@@ -90,13 +90,15 @@ func (fc *FileCopier) getBufferForFile(file *os.File) []byte {
 	}
 
 	fileSize := fileInfo.Size()
-	if limit > fileSize {
-		limit = fileSize
+	buffSize := fc.limit
+	if buffSize <= 0 {
+		buffSize = fileInfo.Size() - offset
+	} else if buffSize > fileSize {
+		buffSize = fileSize
 	}
 
-	buffSize := limit - offset
-	if limit <= 0 {
-		buffSize = fileInfo.Size() - offset
+	if offset+limit > fileSize {
+		buffSize = fileSize - offset
 	}
 
 	return make([]byte, buffSize)
