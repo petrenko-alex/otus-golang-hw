@@ -2,13 +2,15 @@ package main
 
 import (
 	"errors"
-	"io"
+	"fmt"
 	"os"
 )
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	ErrWithSrcFile           = errors.New("source file problem")
+	ErrWithDestFile          = errors.New("destination file problem")
 )
 
 type FileCopier struct {
@@ -30,30 +32,29 @@ func NewFileCopier(fromPath, toPath string, offset, limit int64) *FileCopier {
 func (fc *FileCopier) Copy() error {
 	fromFile, openingErr := fc.openFromFile()
 	if openingErr != nil {
-
+		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", openingErr)
 	}
 	defer fromFile.Close()
 
-	buffer := fc.getBufferForFile(fromFile)
+	buffer, buffSizeErr := fc.getBufferForFile(fromFile)
+	if buffSizeErr != nil {
+		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", openingErr)
+	}
 
 	_, readErr := fromFile.ReadAt(buffer, fc.offset)
-
 	if readErr != nil {
-		//todo: realize
-		if readErr == io.EOF {
-			// что если не дочитали ?
-		}
+		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", openingErr)
 	}
 
 	toFile, fileCreateErr := fc.createToFile()
 	if fileCreateErr != nil {
-		// todo: realize
+		return fmt.Errorf(ErrWithDestFile.Error()+": %w", fileCreateErr)
 	}
 	defer toFile.Close()
 
 	_, writeErr := toFile.Write(buffer)
 	if writeErr != nil {
-		// todo: realize
+		return fmt.Errorf(ErrWithDestFile.Error()+": %w", fileCreateErr)
 	}
 
 	return nil
@@ -62,11 +63,6 @@ func (fc *FileCopier) Copy() error {
 func (fc *FileCopier) openFromFile() (*os.File, error) {
 	file, err := os.Open(fc.fromPath)
 	if err != nil {
-		if os.IsNotExist(err) {
-			// файл не найден
-		}
-		// другие ошибки, например нет прав
-		// todo: wrap error open file
 		return nil, err
 	}
 
@@ -76,17 +72,16 @@ func (fc *FileCopier) openFromFile() (*os.File, error) {
 func (fc *FileCopier) createToFile() (*os.File, error) {
 	toFile, err := os.Create(fc.toPath)
 	if err != nil {
-		// todo: wrap error
 		return nil, err
 	}
 
 	return toFile, nil
 }
 
-func (fc *FileCopier) getBufferForFile(file *os.File) []byte {
+func (fc *FileCopier) getBufferForFile(file *os.File) ([]byte, error) {
 	fileInfo, err := file.Stat()
 	if err != nil {
-		// todo: realize
+		return nil, err
 	}
 
 	fileSize := fileInfo.Size()
@@ -101,5 +96,5 @@ func (fc *FileCopier) getBufferForFile(file *os.File) []byte {
 		buffSize = fileSize - offset
 	}
 
-	return make([]byte, buffSize)
+	return make([]byte, buffSize), nil
 }
