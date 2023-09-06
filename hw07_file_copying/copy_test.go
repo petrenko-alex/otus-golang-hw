@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/cheggaaa/pb/v3"
 	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
@@ -20,7 +19,7 @@ func TestCopyErrors(t *testing.T) {
 	t.Run("offset more than filesize", func(t *testing.T) {
 		fileSize := fromFileStat.Size()
 
-		fileCopier := NewFileCopier(from, to, fileSize+100, limit, pb.New(0))
+		fileCopier := NewFileCopier(from, to, fileSize+100, limit, nil)
 		copierErr := fileCopier.Copy()
 
 		require.ErrorIs(t, copierErr, ErrOffsetExceedsFileSize)
@@ -29,28 +28,28 @@ func TestCopyErrors(t *testing.T) {
 	t.Run("limit more than filesize", func(t *testing.T) {
 		fileSize := fromFileStat.Size()
 
-		fileCopier := NewFileCopier(from, to, offset, fileSize+100, pb.New(0))
+		fileCopier := NewFileCopier(from, to, offset, fileSize+100, nil)
 		copierErr := fileCopier.Copy()
 
 		require.NoError(t, copierErr)
 	})
 
 	t.Run("unsupported file", func(t *testing.T) {
-		fileCopier := NewFileCopier("/dev/urandom", to, offset, limit, pb.New(0))
+		fileCopier := NewFileCopier("/dev/urandom", to, offset, limit, nil)
 		copierErr := fileCopier.Copy()
 
 		require.ErrorIs(t, copierErr, ErrUnsupportedFile)
 	})
 
 	t.Run("negative offset", func(t *testing.T) {
-		fileCopier := NewFileCopier(from, to, -1, limit, pb.New(0))
+		fileCopier := NewFileCopier(from, to, -1, limit, nil)
 		copierErr := fileCopier.Copy()
 
 		require.ErrorContains(t, copierErr, ErrWithSrcFile.Error())
 	})
 
 	t.Run("destination file problem", func(t *testing.T) {
-		fileCopier := NewFileCopier(from, "/root/out.txt", offset, limit, pb.New(0))
+		fileCopier := NewFileCopier(from, "/root/out.txt", offset, limit, nil)
 		copierErr := fileCopier.Copy()
 
 		require.ErrorContains(t, copierErr, ErrWithDestFile.Error())

@@ -119,8 +119,7 @@ func (fc *FileCopier) readSrcFile(file *os.File) (*[]byte, error) {
 		chunkSize = bytesToRead
 	}
 
-	stepCount := int64(math.Ceil(float64(bytesToRead) / float64(chunkSize)))
-	fc.progress.SetTotal(stepCount).Start()
+	fc.startProgressBar(int64(math.Ceil(float64(bytesToRead) / float64(chunkSize))))
 
 	stepOffset := fc.offset
 	for (stepOffset - fc.offset) < bytesToRead {
@@ -145,10 +144,34 @@ func (fc *FileCopier) readSrcFile(file *os.File) (*[]byte, error) {
 		}
 
 		stepOffset += int64(readBytes)
-		fc.progress.Increment()
+		fc.incProgressBar()
+	}
+
+	fc.finishProgressBar()
+
+	return &buffer, nil
+}
+
+func (fc *FileCopier) startProgressBar(steps int64) {
+	if fc.progress == nil {
+		return
+	}
+
+	fc.progress.SetTotal(steps).Start()
+}
+
+func (fc *FileCopier) incProgressBar() {
+	if fc.progress == nil {
+		return
+	}
+
+	fc.progress.Increment()
+}
+
+func (fc *FileCopier) finishProgressBar() {
+	if fc.progress == nil {
+		return
 	}
 
 	fc.progress.Finish()
-
-	return &buffer, nil
 }
