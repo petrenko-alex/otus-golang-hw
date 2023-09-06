@@ -49,16 +49,16 @@ func (fc *FileCopier) Copy() error {
 		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", validationErr)
 	}
 
-	buffer, readErr := fc.readSrcFile(srcFile)
-	if readErr != nil {
-		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", readErr)
-	}
-
 	dstFile, fileCreateErr := fc.createDstFile()
 	if fileCreateErr != nil {
 		return fmt.Errorf(ErrWithDestFile.Error()+": %w", fileCreateErr)
 	}
 	defer dstFile.Close()
+
+	buffer, readErr := fc.readSrcFile(srcFile)
+	if readErr != nil {
+		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", readErr)
+	}
 
 	_, writeErr := dstFile.Write(*buffer)
 	if writeErr != nil {
