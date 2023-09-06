@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"math"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -128,7 +129,8 @@ func (fc *FileCopier) readSrcFile(file *os.File) (*[]byte, error) {
 			chunkSize = remainingBytes
 		}
 
-		tmpBuf := make([]byte, 0, chunkSize) // use tmpBuf to make correct step amount and process by exactly readChunkSize bytes
+		// use tmpBuf to make correct step amount and process by exactly readChunkSize bytes
+		tmpBuf := make([]byte, 0, chunkSize)
 
 		readBytes, readErr := file.ReadAt(tmpBuf[len(tmpBuf):cap(tmpBuf)], stepOffset)
 		tmpBuf = tmpBuf[:len(tmpBuf)+readBytes]
@@ -136,7 +138,6 @@ func (fc *FileCopier) readSrcFile(file *os.File) (*[]byte, error) {
 
 		if readErr != nil {
 			if readErr == io.EOF {
-				readErr = nil
 				break
 			}
 

@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
