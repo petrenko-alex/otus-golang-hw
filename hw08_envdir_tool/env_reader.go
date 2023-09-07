@@ -14,3 +14,7 @@ func ReadDir(dir string) (Environment, error) {
 	// Place your code here
 	return nil, nil
 }
+
+func EmptyEnv() Environment {
+	return make(map[string]EnvValue)
+}
