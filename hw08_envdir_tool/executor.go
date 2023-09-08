@@ -1,18 +1,31 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 )
 
+var (
+	CommandInfoNotFoundErr = errors.New("no command provided")
+)
+
+const (
+	InternalErrorExitCode = 5923
+)
+
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
-func RunCmd(cmdInfo []string, env Environment) (returnCode int) {
+func RunCmd(cmdInfo []string, env Environment) (int, error) {
+	if len(cmdInfo) == 0 {
+		return InternalErrorExitCode, CommandInfoNotFoundErr
+	}
+
 	setEnvVars(env)
 
 	command := getCommand(cmdInfo)
 	command.Run()
 
-	return command.ProcessState.ExitCode()
+	return command.ProcessState.ExitCode(), nil
 }
 
 func setEnvVars(env Environment) {

@@ -19,7 +19,10 @@ func main() {
 		}
 	}
 
-	os.Exit(
-		RunCmd(cmdAndArgs, env),
-	)
+	exitCode, err := RunCmd(cmdAndArgs, env)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	os.Exit(exitCode)
 }
