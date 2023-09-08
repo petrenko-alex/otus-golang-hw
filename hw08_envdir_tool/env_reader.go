@@ -9,9 +9,7 @@ import (
 	"path/filepath"
 )
 
-var (
-	EnvReadError = errors.New("error reading environment vars")
-)
+var ErrEnvRead = errors.New("error reading environment vars")
 
 type Environment map[string]EnvValue
 
@@ -26,20 +24,20 @@ type EnvValue struct {
 func ReadDir(dir string) (Environment, error) {
 	files, readDirErr := os.ReadDir(dir)
 	if readDirErr != nil {
-		return nil, fmt.Errorf(EnvReadError.Error()+": %w", readDirErr)
+		return nil, fmt.Errorf(ErrEnvRead.Error()+": %w", readDirErr)
 	}
 
 	environment := make(Environment, len(files))
 	for _, dirEntry := range files {
 		file, openFileErr := os.Open(filepath.Join(dir, dirEntry.Name()))
 		if openFileErr != nil {
-			return nil, fmt.Errorf(EnvReadError.Error()+": %w", openFileErr)
+			return nil, fmt.Errorf(ErrEnvRead.Error()+": %w", openFileErr)
 		}
 		defer file.Close()
 
 		fileInfo, fileInfoErr := file.Stat()
 		if fileInfoErr != nil {
-			return nil, fmt.Errorf(EnvReadError.Error()+": %w", fileInfoErr)
+			return nil, fmt.Errorf(ErrEnvRead.Error()+": %w", fileInfoErr)
 		}
 
 		if fileInfo.Size() == 0 {
@@ -58,7 +56,7 @@ func ReadDir(dir string) (Environment, error) {
 }
 
 func sanitizeVal(val []byte) string {
-	val = bytes.Replace(val, []byte("\x00"), []byte("\n"), -1)
+	val = bytes.ReplaceAll(val, []byte("\x00"), []byte("\n"))
 	val = bytes.TrimRight(val, "\t ")
 
 	return string(val)

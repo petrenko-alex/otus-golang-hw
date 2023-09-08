@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRunCmd(t *testing.T) {
@@ -31,6 +32,6 @@ func TestRunCmdError(t *testing.T) {
 		exitCode, err := RunCmd([]string{}, EmptyEnv())
 
 		require.Equal(t, InternalErrorExitCode, exitCode)
-		require.ErrorIs(t, err, CommandInfoNotFoundErr)
+		require.ErrorIs(t, err, ErrCommandInfoNotFound)
 	})
 }

@@ -6,9 +6,7 @@ import (
 	"os/exec"
 )
 
-var (
-	CommandInfoNotFoundErr = errors.New("no command provided")
-)
+var ErrCommandInfoNotFound = errors.New("no command provided")
 
 const (
 	InternalErrorExitCode = 5923
@@ -17,7 +15,7 @@ const (
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmdInfo []string, env Environment) (int, error) {
 	if len(cmdInfo) == 0 {
-		return InternalErrorExitCode, CommandInfoNotFoundErr
+		return InternalErrorExitCode, ErrCommandInfoNotFound
 	}
 
 	setEnvVars(env)
@@ -40,7 +38,7 @@ func setEnvVars(env Environment) {
 }
 
 func getCommand(cmd []string) *exec.Cmd {
-	command := exec.Command(cmd[0], cmd[1:]...)
+	command := exec.Command(cmd[0], cmd[1:]...) // #nosec G204
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
