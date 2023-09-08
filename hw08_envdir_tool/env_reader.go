@@ -49,15 +49,19 @@ func ReadDir(dir string) (Environment, error) {
 
 		scanner := bufio.NewScanner(file)
 		scanner.Scan()
+		fileFirstLine := scanner.Bytes()
 
-		line := scanner.Bytes()
-		line = bytes.Replace(line, []byte("\x00"), []byte("\n"), -1)
-		line = bytes.TrimRight(line, "\t ")
-
-		environment[dirEntry.Name()] = EnvValue{Value: string(line)}
+		environment[dirEntry.Name()] = EnvValue{Value: sanitizeVal(fileFirstLine)}
 	}
 
 	return environment, nil
+}
+
+func sanitizeVal(val []byte) string {
+	val = bytes.Replace(val, []byte("\x00"), []byte("\n"), -1)
+	val = bytes.TrimRight(val, "\t ")
+
+	return string(val)
 }
 
 func EmptyEnv() Environment {
