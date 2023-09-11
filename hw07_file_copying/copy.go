@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 
 	"github.com/cheggaaa/pb/v3"
 )
@@ -15,6 +16,7 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 	ErrWithSrcFile           = errors.New("source file problem")
 	ErrWithDestFile          = errors.New("destination file problem")
+	ErrSrcEqualsDst          = errors.New("destination file equals source file")
 )
 
 const (
@@ -39,6 +41,11 @@ func NewFileCopier(fromPath, toPath string, offset, limit int64, pb *pb.Progress
 }
 
 func (fc *FileCopier) Copy() error {
+	filesEqualErr := fc.validateFilesNotEqual()
+	if filesEqualErr != nil {
+		return filesEqualErr
+	}
+
 	srcFile, openingErr := fc.openSrcFile()
 	if openingErr != nil {
 		return fmt.Errorf(ErrWithSrcFile.Error()+": %w", openingErr)
@@ -64,6 +71,17 @@ func (fc *FileCopier) Copy() error {
 	_, writeErr := dstFile.Write(*buffer)
 	if writeErr != nil {
 		return fmt.Errorf(ErrWithDestFile.Error()+": %w", writeErr)
+	}
+
+	return nil
+}
+
+func (fc *FileCopier) validateFilesNotEqual() error {
+	absFromPath, _ := filepath.Abs(fc.fromPath)
+	absToPath, _ := filepath.Abs(fc.toPath)
+
+	if absFromPath == absToPath {
+		return ErrSrcEqualsDst
 	}
 
 	return nil

@@ -56,6 +56,13 @@ func TestCopyErrors(t *testing.T) {
 		require.ErrorContains(t, copierErr, ErrWithDestFile.Error())
 	})
 
+	t.Run("destination file equals source file", func(t *testing.T) {
+		fileCopier := NewFileCopier(from, from, offset, limit, nil)
+		copierErr := fileCopier.Copy()
+
+		require.ErrorContains(t, copierErr, ErrSrcEqualsDst.Error())
+	})
+
 	err = os.Remove(to)
 	if err != nil {
 		t.Fatal(err)
