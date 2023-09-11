@@ -94,7 +94,7 @@ func (fc *FileCopier) validateSrcFile(file *os.File) error {
 	}
 
 	fileSize := fileInfo.Size()
-	if fileSize == 0 {
+	if fileSize == 0 { // for files with unknown size (e.g. /dev/urandom)
 		return ErrUnsupportedFile
 	} else if fileSize < fc.offset {
 		return ErrOffsetExceedsFileSize
