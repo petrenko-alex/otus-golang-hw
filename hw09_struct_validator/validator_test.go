@@ -2,7 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -36,25 +36,68 @@ type (
 	}
 )
 
+// todo: test cases for each validator
+// todo: how to work with unexported fields
+
 func TestValidate(t *testing.T) {
-	tests := []struct {
-		in          interface{}
+	testCases := []struct {
+		name        string
+		input       interface{}
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			name:        "only struct is available",
+			input:       "simple string",
+			expectedErr: ErrInputNotStruct,
 		},
-		// ...
-		// Place your code here.
+		{
+			name:        "empty struct",
+			input:       struct{}{},
+			expectedErr: nil,
+		},
+		{
+			name:        "one field, no tag",
+			input:       struct{ Fld string }{Fld: "value"},
+			expectedErr: nil,
+		},
+		{
+			name: "one field, alien tag",
+			input: struct {
+				Fld string `json:"name"`
+			}{Fld: "value"},
+			expectedErr: nil,
+		},
+		{
+			name: "one field, one tag, corrupted",
+			input: struct {
+				Fld string `validate:`
+			}{Fld: "val"},
+			expectedErr: ErrValidatorInit,
+		},
+		{
+			name: "one field, one tag, empty",
+			input: struct {
+				Fld string `validate:""`
+			}{Fld: "val"},
+			expectedErr: ErrValidatorInit,
+		},
+		{
+			name: "one field, one tag, satisfy",
+			input: struct {
+				Fld string `validate:"len:5"`
+			}{Fld: "val"},
+			expectedErr: nil,
+		},
+		// name: "one field, many tags"
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-			tt := tt
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase := testCase
 			t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			err := Validate(testCase.input)
+			require.ErrorIs(t, err, testCase.expectedErr)
 		})
 	}
 }
