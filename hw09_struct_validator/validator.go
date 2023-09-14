@@ -2,8 +2,18 @@ package hw09structvalidator
 
 import (
 	"errors"
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
 	"reflect"
 )
+
+// todo: словарь терминов
+// todo: rename to struct validator?
+// todo: add constructors for types
+
+// validation (raw)rule - min:10, len:32
+// validation limit - 10, 32
+// validation criteria - min, len
+// validation tag - ?
 
 const (
 	ValidatorTagName = "validate"
@@ -13,14 +23,6 @@ var (
 	ErrInputNotStruct = errors.New("input argument must be a struct")
 	ErrValidatorInit  = errors.New("incorrect validate tag value")
 )
-
-type (
-	ValidationRule = string
-)
-
-type Validator interface {
-	ValidateValue(value interface{}) ValidationErrors
-}
 
 type ValidationError struct {
 	Field string
@@ -33,6 +35,7 @@ func (v ValidationErrors) Error() string {
 	panic("implement me")
 }
 
+// Задача StructValidator - проходить по поням структуры и каждое поле валидировать
 func Validate(v interface{}) error {
 	inputType := reflect.TypeOf(v)
 	if inputType.Kind() != reflect.Struct {
@@ -46,22 +49,22 @@ func Validate(v interface{}) error {
 		fieldType := inputType.Field(i)
 		val := fieldType.Tag.Get(ValidatorTagName)
 
-		validator, err := GetValidator(fieldType.Type.Kind(), val)
+		validator, err := validators.GetValidator(fieldType.Type.Kind(), val)
 		if err != nil {
 			return ErrValidatorInit
 		}
 
 		fieldValue := inputValue.FieldByName(fieldType.Name)
-		validationErrors = append(
-			validationErrors,
-			validator.ValidateValue(fieldValue.Interface())...,
-		)
-
+		fieldErrors := validator.ValidateValue(fieldValue.Interface())
+		if fieldErrors != nil && len(fieldErrors) > 0 {
+			for _, fieldErr := range fieldErrors {
+				validationErrors = append(validationErrors, ValidationError{
+					Field: fieldType.Name,
+					Err:   fieldErr,
+				})
+			}
+		}
 	}
 
-	return nil
-}
-
-func GetValidator(kind reflect.Kind, rule ValidationRule) (Validator, error) {
-	return MockValidator{}, nil
+	return validationErrors
 }
