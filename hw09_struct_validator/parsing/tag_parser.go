@@ -17,7 +17,7 @@ func (t TagParser) GetValidationRules(tag ValidationTag) (rules.ValidationRules,
 	// todo: common regex for validationtag
 
 	ruleStrings := strings.Split(tag, ValidationTagSeparator)
-	validationRules := make(rules.ValidationRules, len(ruleStrings))
+	validationRules := make(rules.ValidationRules, 0, len(ruleStrings))
 
 	for _, ruleString := range ruleStrings {
 

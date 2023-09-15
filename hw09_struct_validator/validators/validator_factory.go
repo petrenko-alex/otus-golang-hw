@@ -30,11 +30,9 @@ func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validatio
 	}
 
 	switch fieldType {
-	case reflect.String:
-	case reflect.Int:
+	case reflect.String, reflect.Int:
 		return ScalarValueValidator{rules}, nil
-	case reflect.Slice:
-	case reflect.Array:
+	case reflect.Slice, reflect.Array:
 		return SliceValueValidator{}, nil
 	}
 

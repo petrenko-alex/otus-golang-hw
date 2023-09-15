@@ -1,5 +1,7 @@
 package rules
 
+import "strconv"
+
 type LenRule struct{ ValidationLimit }
 
 func (r LenRule) Validate(value interface{}) error {
@@ -8,8 +10,8 @@ func (r LenRule) Validate(value interface{}) error {
 		return ErrCastValueForRule
 	}
 
-	limitInt, limitCastOk := r.GetLimit().(int)
-	if limitCastOk != true {
+	limitInt, limitCastOk := strconv.Atoi(r.GetLimit().(string))
+	if limitCastOk != nil {
 		return ErrCastLimitForRule
 	}
 

@@ -52,5 +52,9 @@ func (v StructValidator) Validate(value interface{}) error {
 		}
 	}
 
+	if len(validationErrors) == 0 {
+		return nil
+	}
+
 	return validationErrors
 }
