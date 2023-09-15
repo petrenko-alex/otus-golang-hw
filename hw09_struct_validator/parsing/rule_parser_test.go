@@ -57,27 +57,27 @@ func TestBaseRuleParser_GetRule_Errors(t *testing.T) {
 		{
 			name:   "empty string rule",
 			input:  "",
-			output: rules.ErrParsingRule,
+			output: ErrParsingRule,
 		},
 		{
 			name:   "incorrect string rule structure #1",
 			input:  "no delimiter",
-			output: rules.ErrParsingRule,
+			output: ErrParsingRule,
 		},
 		{
 			name:   "incorrect string rule structure #2",
 			input:  "len:",
-			output: rules.ErrParsingRule,
+			output: ErrParsingRule,
 		},
 		{
 			name:   "incorrect string rule structure #3",
 			input:  ":12",
-			output: rules.ErrParsingRule,
+			output: ErrParsingRule,
 		},
 		{
 			name:   "unknown rule",
 			input:  "magic:rule",
-			output: rules.ErrUnknownRule,
+			output: ErrUnknownRule,
 		},
 	}
 	for _, test := range tests {
