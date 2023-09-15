@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -96,7 +97,10 @@ func TestValidate(t *testing.T) {
 			testCase := testCase
 			t.Parallel()
 
-			err := Validate(testCase.input)
+			var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
+			var structValidator Validator = StructValidator{validatorFactory}
+
+			err := structValidator.Validate(testCase.input)
 			require.ErrorIs(t, err, testCase.expectedErr)
 		})
 	}

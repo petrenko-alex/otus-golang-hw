@@ -6,14 +6,8 @@ import (
 	"reflect"
 )
 
-// todo: словарь терминов
-// todo: rename to struct validator?
+// todo: doc blocks
 // todo: add constructors for types
-
-// validation (raw)rule - min:10, len:32
-// validation limit - 10, 32
-// validation criteria - min, len
-// validation tag - ?
 
 const (
 	ValidatorTagName = "validate"
@@ -24,32 +18,24 @@ var (
 	ErrValidatorInit  = errors.New("incorrect validate tag value")
 )
 
-type ValidationError struct {
-	Field string
-	Err   error
+type StructValidator struct {
+	factory validators.ValidatorFactory
 }
 
-type ValidationErrors []ValidationError
-
-func (v ValidationErrors) Error() string {
-	panic("implement me")
-}
-
-// Задача StructValidator - проходить по поням структуры и каждое поле валидировать
-func Validate(v interface{}) error {
-	inputType := reflect.TypeOf(v)
+func (v StructValidator) Validate(value interface{}) error {
+	inputType := reflect.TypeOf(value)
 	if inputType.Kind() != reflect.Struct {
 		return ErrInputNotStruct
 	}
 
-	inputValue := reflect.ValueOf(v)
+	inputValue := reflect.ValueOf(value)
 
 	validationErrors := make(ValidationErrors, 0)
 	for i := 0; i < inputType.NumField(); i++ {
 		fieldType := inputType.Field(i)
 		val := fieldType.Tag.Get(ValidatorTagName)
 
-		validator, err := validators.GetValidator(fieldType.Type.Kind(), val)
+		validator, err := v.factory.GetValidator(fieldType.Type.Kind(), val)
 		if err != nil {
 			return ErrValidatorInit
 		}
