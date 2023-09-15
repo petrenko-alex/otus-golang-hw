@@ -1,6 +1,8 @@
 package parsing
 
 import (
+	"errors"
+	"fmt"
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 	"strings"
 )
@@ -9,22 +11,28 @@ const (
 	ValidationTagSeparator = "|"
 )
 
+var (
+	ErrValidationTagEmpty   = errors.New("no validation rules provided")
+	ErrParsingValidationTag = errors.New("validation tag corrupted")
+)
+
 type TagParser struct {
-	Factory RuleParser // todo: rename from Factory
+	RuleParser RuleParser
 }
 
 func (t TagParser) GetValidationRules(tag ValidationTag) (rules.ValidationRules, error) {
-	// todo: common regex for validationtag
+	if len(tag) == 0 {
+		return nil, ErrValidationTagEmpty
+	}
 
 	ruleStrings := strings.Split(tag, ValidationTagSeparator)
 	validationRules := make(rules.ValidationRules, 0, len(ruleStrings))
 
 	for _, ruleString := range ruleStrings {
 
-		rule, err := t.Factory.GetRule(ruleString)
+		rule, err := t.RuleParser.GetRule(ruleString)
 		if err != nil {
-			// todo: wrap ?
-			return nil, err
+			return nil, fmt.Errorf(ErrParsingValidationTag.Error()+": %w", err)
 		}
 
 		validationRules = append(validationRules, rule)

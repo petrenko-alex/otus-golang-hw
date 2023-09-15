@@ -20,7 +20,7 @@ func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validatio
 	}
 
 	var tagParser parsing.ValidationTagParser = parsing.TagParser{
-		Factory: parsing.BaseRuleParser{},
+		RuleParser: parsing.BaseRuleParser{},
 	}
 
 	rules, err := tagParser.GetValidationRules(validationTag)
