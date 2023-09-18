@@ -1,18 +1,31 @@
 package rules
 
+import "strconv"
+
 type MinRule struct{ ValidationLimit }
 
-func (m MinRule) Validate(value interface{}) error {
-	//TODO implement me
-	panic("implement me")
+func (r MinRule) Validate(value interface{}) error {
+	valueInt, valueCastOk := value.(int)
+	if valueCastOk != true {
+		return ErrCastValueForRule
+	}
+
+	limitInt, limitCastOk := strconv.Atoi(r.GetLimit().(string))
+	if limitCastOk != nil {
+		return ErrCastLimitForRule
+	}
+
+	if valueInt < limitInt {
+		return r.GetError()
+	}
+
+	return nil
 }
 
-func (m MinRule) GetLimit() ValidationLimit {
-	//TODO implement me
-	panic("implement me")
+func (r MinRule) GetLimit() ValidationLimit {
+	return r.ValidationLimit
 }
 
-func (m MinRule) GetError() error {
-	//TODO implement me
-	panic("implement me")
+func (r MinRule) GetError() error {
+	return ErrValidationFailed
 }
