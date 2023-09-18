@@ -22,9 +22,14 @@ func TestBaseRuleParser_GetRule(t *testing.T) {
 			output: rules.RegexpRule{},
 		},
 		{
-			name:   "in rule",
+			name:   "in rule for int",
 			input:  "in:122,322",
-			output: rules.InRule{},
+			output: &rules.InRule{},
+		},
+		{
+			name:   "in rule for strings",
+			input:  "in:foo,bar",
+			output: &rules.InRule{},
 		},
 		{
 			name:   "min rule",

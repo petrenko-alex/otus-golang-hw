@@ -40,7 +40,11 @@ func (f BaseRuleParser) GetRule(stringRule string) (rules.ValidationRule, error)
 	case "regexp":
 		return rules.RegexpRule{limit}, nil
 	case "in":
-		return rules.InRule{limit}, nil
+		rule, err := rules.NewInRule(limit)
+		if err != nil {
+			return nil, ErrParsingRule
+		}
+		return rule, nil
 	case "min":
 		return rules.MinRule{limit}, nil
 	case "max":
