@@ -11,8 +11,6 @@ func (s ScalarValueValidator) GetValidatorRules() rules.ValidationRules {
 }
 
 func (s ScalarValueValidator) ValidateValue(value interface{}) []error {
-	// todo: check value scalar?
-
 	validationErrors := make([]error, 0)
 	for _, rule := range s.GetValidatorRules() {
 		err := rule.Validate(value)
