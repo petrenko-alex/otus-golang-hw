@@ -2,8 +2,15 @@ package validators
 
 import (
 	"errors"
+	"fmt"
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/parsing"
 	"reflect"
+)
+
+var (
+	ErrFieldTypeArg         = errors.New("can't get field type")
+	ErrValidationTagArg     = errors.New("can't parse validation tag")
+	ErrUnsupportedFieldType = errors.New("can't validate field type")
 )
 
 type ValidatorFactory interface {
@@ -15,8 +22,7 @@ type FieldTypeValidatorFactory struct{}
 
 func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validationTag string) (ValueValidator, error) {
 	if _, ok := fieldType.(reflect.Kind); !ok {
-		// todo: return err
-		return nil, errors.New("tmp err")
+		return nil, ErrFieldTypeArg
 	}
 
 	var tagParser parsing.ValidationTagParser = parsing.TagParser{
@@ -25,8 +31,7 @@ func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validatio
 
 	rules, err := tagParser.GetValidationRules(validationTag)
 	if err != nil {
-		// todo: wrap err
-		return nil, err
+		return nil, fmt.Errorf(ErrValidationTagArg.Error()+": %w", err)
 	}
 
 	switch fieldType {
@@ -36,5 +41,5 @@ func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validatio
 		return SliceValueValidator{}, nil
 	}
 
-	return nil, errors.New("tmp err") // todo: return err not supported (why not default?)
+	return nil, ErrUnsupportedFieldType
 }
