@@ -44,6 +44,10 @@ func (v StructValidator) Validate(value interface{}) error {
 		}
 
 		fieldValue := inputValue.FieldByName(fieldType.Name)
+		if !fieldValue.CanInterface() {
+			continue // skip validation of unexported fields
+		}
+
 		fieldErrors := validator.ValidateValue(fieldValue.Interface())
 		if fieldErrors != nil && len(fieldErrors) > 0 {
 			for _, fieldErr := range fieldErrors {

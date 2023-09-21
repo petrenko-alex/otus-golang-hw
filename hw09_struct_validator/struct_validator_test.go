@@ -35,6 +35,11 @@ type (
 		Code string `validate:"in:200,404,500"`
 		Body string `json:"omitempty"`
 	}
+
+	Unexported struct {
+		fieldOne string `validate:"len:11"`
+		fieldTwo int    `validate:"min:18"`
+	}
 )
 
 func TestStructValidator_Validate_Errors(t *testing.T) {
@@ -110,5 +115,16 @@ func TestStructValidator_Validate(t *testing.T) {
 		require.Len(t, err, 1)
 		require.IsType(t, ValidationError{}, err.(ValidationErrors)[0])
 		require.Equal(t, "Code", err.(ValidationErrors)[0].Field)
+	})
+
+	t.Run("Unexported struct", func(t *testing.T) {
+		input := Unexported{
+			fieldOne: "value",
+			fieldTwo: 10,
+		}
+
+		err := structValidator.Validate(input)
+
+		require.Nil(t, err)
 	})
 }
