@@ -38,7 +38,7 @@ func (f FieldTypeValidatorFactory) GetValidator(fieldType interface{}, validatio
 	case reflect.String, reflect.Int:
 		return ScalarValueValidator{rules}, nil
 	case reflect.Slice, reflect.Array:
-		return SliceValueValidator{}, nil
+		return SliceValueValidator{ScalarValueValidator{rules}}, nil
 	}
 
 	return nil, ErrUnsupportedFieldType
