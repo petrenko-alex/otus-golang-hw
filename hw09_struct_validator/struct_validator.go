@@ -34,6 +34,9 @@ func (v StructValidator) Validate(value interface{}) error {
 	for i := 0; i < inputType.NumField(); i++ {
 		fieldType := inputType.Field(i)
 		val := fieldType.Tag.Get(ValidatorTagName)
+		if len(val) == 0 {
+			continue
+		}
 
 		validator, err := v.factory.GetValidator(fieldType.Type.Kind(), val)
 		if err != nil {
