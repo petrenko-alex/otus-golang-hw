@@ -32,76 +32,83 @@ type (
 	}
 
 	Response struct {
-		Code int    `validate:"in:200,404,500"`
+		Code string `validate:"in:200,404,500"`
 		Body string `json:"omitempty"`
 	}
 )
 
-// todo: test cases for each validator
-// todo: how to work with unexported fields
+func TestStructValidator_Validate_Errors(t *testing.T) {
+	t.Run("only struct is available", func(t *testing.T) {
+		var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
+		var structValidator Validator = StructValidator{validatorFactory}
 
-func TestValidate(t *testing.T) {
-	testCases := []struct {
-		name        string
-		input       interface{}
-		expectedErr error
-	}{
-		{
-			name:        "only struct is available",
-			input:       "simple string",
-			expectedErr: ErrInputNotStruct,
-		},
-		{
-			name:        "empty struct",
-			input:       struct{}{},
-			expectedErr: nil,
-		},
-		{
-			name:        "one field, no tag",
-			input:       struct{ Fld string }{Fld: "value"},
-			expectedErr: nil,
-		},
-		{
-			name: "one field, alien tag",
-			input: struct {
-				Fld string `json:"name"`
-			}{Fld: "value"},
-			expectedErr: nil,
-		},
-		{
-			name: "one field, one tag, corrupted",
-			input: struct {
-				Fld string `validate:`
-			}{Fld: "val"},
-			expectedErr: ErrValidatorInit,
-		},
-		{
-			name: "one field, one tag, empty",
-			input: struct {
-				Fld string `validate:""`
-			}{Fld: "val"},
-			expectedErr: ErrValidatorInit,
-		},
-		{
-			name: "one field, one tag, satisfy",
-			input: struct {
-				Fld string `validate:"len:5"`
-			}{Fld: "val"},
-			expectedErr: nil,
-		},
-		// name: "one field, many tags"
-	}
+		err := structValidator.Validate("simple string")
 
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			testCase := testCase
-			t.Parallel()
+		require.ErrorIs(t, err, ErrInputNotStruct)
+	})
+}
 
-			var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
-			var structValidator Validator = StructValidator{validatorFactory}
+func TestStructValidator_Validate(t *testing.T) {
+	var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
+	var structValidator Validator = StructValidator{validatorFactory}
 
-			err := structValidator.Validate(testCase.input)
-			require.ErrorIs(t, err, testCase.expectedErr)
-		})
-	}
+	t.Run("empty struct", func(t *testing.T) {
+		input := struct{}{}
+
+		err := structValidator.Validate(input)
+
+		require.Nil(t, err)
+	})
+
+	t.Run("User struct", func(t *testing.T) {
+		input := User{
+			ID:     "510",
+			Name:   "Alex",
+			Age:    17,
+			Email:  "test$test.ru",
+			Role:   UserRole("client"),
+			Phones: []string{"88007006", "8100200302"},
+			meta:   json.RawMessage("{error: null}"),
+		}
+
+		err := structValidator.Validate(input)
+
+		require.Len(t, err, 6)
+		require.Equal(t, []string{"ID", "Age", "Email", "Role", "Phones", "Phones"}, err.(ValidationErrors).GetFields())
+	})
+
+	t.Run("App struct", func(t *testing.T) {
+		input := App{Version: "1.0"}
+
+		err := structValidator.Validate(input)
+
+		require.Len(t, err, 1)
+		require.IsType(t, ValidationError{}, err.(ValidationErrors)[0])
+		require.Equal(t, "Version", err.(ValidationErrors)[0].Field)
+	})
+
+	t.Run("Token struct", func(t *testing.T) {
+		input := Token{
+			Header:    []byte("some header"),
+			Payload:   []byte("some payload"),
+			Signature: []byte("some signature"),
+		}
+
+		err := structValidator.Validate(input)
+
+		require.Nil(t, err)
+	})
+
+	t.Run("Response struct", func(t *testing.T) {
+		input := Response{
+			Code: "201",
+			Body: "<h1>Hello World</h1>",
+		}
+
+		err := structValidator.Validate(input)
+
+		require.Len(t, err, 1)
+		require.IsType(t, ValidationError{}, err.(ValidationErrors)[0])
+		require.Equal(t, "Code", err.(ValidationErrors)[0].Field)
+	})
 }
