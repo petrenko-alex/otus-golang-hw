@@ -95,6 +95,6 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 		validationErrors, runtimeErr := validator.ValidateValue("25")
 
 		require.Nil(t, validationErrors)
-		require.ErrorContains(t, runtimeErr, RuntimeError.Error())
+		require.ErrorContains(t, runtimeErr, ErrRuntime.Error())
 	})
 }

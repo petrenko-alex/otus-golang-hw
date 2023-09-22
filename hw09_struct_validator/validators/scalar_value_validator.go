@@ -20,7 +20,7 @@ func (s ScalarValueValidator) ValidateValue(value interface{}) ([]error, error) 
 		err := rule.Validate(value)
 		if err != nil {
 			if !errors.Is(err, rule.GetError()) {
-				return nil, fmt.Errorf(RuntimeError.Error()+": %w", err)
+				return nil, fmt.Errorf(ErrRuntime.Error()+": %w", err)
 			}
 			validationErrors = append(validationErrors, err)
 		}

@@ -5,7 +5,7 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 )
 
-var RuntimeError = errors.New("unexpected error during validation")
+var ErrRuntime = errors.New("unexpected error during validation")
 
 type ValueValidator interface {
 	// ValidateValue validates value against ValidatorRules using various rule combining logic.

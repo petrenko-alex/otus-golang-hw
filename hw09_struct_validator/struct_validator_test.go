@@ -71,7 +71,7 @@ func TestStructValidator_Validate_Errors(t *testing.T) {
 	t.Run("validate runtime error", func(t *testing.T) {
 		err := structValidator.Validate(ValidateRuntimeError{Field: "value"})
 
-		require.ErrorContains(t, err, validators.RuntimeError.Error())
+		require.ErrorContains(t, err, validators.ErrRuntime.Error())
 	})
 }
 
