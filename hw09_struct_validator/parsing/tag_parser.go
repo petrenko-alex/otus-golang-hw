@@ -30,7 +30,6 @@ func (t TagParser) GetValidationRules(tag ValidationTag) (rules.ValidationRules,
 	validationRules := make(rules.ValidationRules, 0, len(ruleStrings))
 
 	for _, ruleString := range ruleStrings {
-
 		rule, err := t.RuleParser.GetRule(ruleString)
 		if err != nil {
 			return nil, fmt.Errorf(ErrParsingValidationTag.Error()+": %w", err)

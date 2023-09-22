@@ -6,6 +6,68 @@ import (
 	"testing"
 )
 
+func TestSliceValueValidator_ValidateValue_Errors(t *testing.T) {
+	t.Run("unsupported slice", func(t *testing.T) {
+		var validator ValueValidator = SliceValueValidator{
+			ScalarValueValidator{
+				rules.ValidationRules{
+					rules.LenRule{Limit: "3"},
+				},
+			},
+		}
+
+		validationErrors, runtimeErr := validator.ValidateValue([]bool{true, false})
+
+		require.Nil(t, validationErrors)
+		require.ErrorIs(t, runtimeErr, ErrValueNotSupported)
+	})
+
+	t.Run("incorrect validator rule", func(t *testing.T) {
+		var validator ValueValidator = SliceValueValidator{
+			ScalarValueValidator{
+				rules.ValidationRules{
+					rules.LenRule{Limit: "3"},
+				},
+			},
+		}
+
+		validationErrors, runtimeErr := validator.ValidateValue([]int{1, 2, 3})
+
+		require.Nil(t, validationErrors)
+		require.ErrorIs(t, runtimeErr, rules.ErrCastValueForRule)
+	})
+
+	t.Run("slice of interfaces", func(t *testing.T) {
+		var validator ValueValidator = SliceValueValidator{
+			ScalarValueValidator{
+				rules.ValidationRules{
+					rules.LenRule{Limit: "3"},
+				},
+			},
+		}
+
+		validationErrors, runtimeErr := validator.ValidateValue([]interface{}{1, "string"})
+
+		require.Nil(t, validationErrors)
+		require.ErrorIs(t, runtimeErr, ErrValueNotSupported)
+	})
+
+	t.Run("validate non slice value", func(t *testing.T) {
+		var validator ValueValidator = SliceValueValidator{
+			ScalarValueValidator{
+				rules.ValidationRules{
+					rules.LenRule{Limit: "3"},
+				},
+			},
+		}
+
+		validationErrors, runtimeErr := validator.ValidateValue(1)
+
+		require.Nil(t, validationErrors)
+		require.ErrorIs(t, runtimeErr, ErrValueNotIterable)
+	})
+}
+
 func TestSliceValueValidator_ValidateValue(t *testing.T) {
 	t.Run("no validation rules", func(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
@@ -107,65 +169,4 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		require.Len(t, validationErrors, 0)
 		require.Nil(t, runtimeErr)
 	})
-
-	t.Run("unsupported slice", func(t *testing.T) {
-		var validator ValueValidator = SliceValueValidator{
-			ScalarValueValidator{
-				rules.ValidationRules{
-					rules.LenRule{Limit: "3"},
-				},
-			},
-		}
-
-		validationErrors, runtimeErr := validator.ValidateValue([]bool{true, false})
-
-		require.Nil(t, validationErrors)
-		require.ErrorIs(t, runtimeErr, ErrValueNotSupported)
-	})
-
-	t.Run("incorrect validator rule", func(t *testing.T) {
-		var validator ValueValidator = SliceValueValidator{
-			ScalarValueValidator{
-				rules.ValidationRules{
-					rules.LenRule{Limit: "3"},
-				},
-			},
-		}
-
-		validationErrors, runtimeErr := validator.ValidateValue([]int{1, 2, 3})
-
-		require.Nil(t, validationErrors)
-		require.ErrorIs(t, runtimeErr, rules.ErrCastValueForRule)
-	})
-
-	t.Run("slice of interfaces", func(t *testing.T) {
-		var validator ValueValidator = SliceValueValidator{
-			ScalarValueValidator{
-				rules.ValidationRules{
-					rules.LenRule{Limit: "3"},
-				},
-			},
-		}
-
-		validationErrors, runtimeErr := validator.ValidateValue([]interface{}{1, "string"})
-
-		require.Nil(t, validationErrors)
-		require.ErrorIs(t, runtimeErr, ErrValueNotSupported)
-	})
-
-	t.Run("validate non slice value", func(t *testing.T) {
-		var validator ValueValidator = SliceValueValidator{
-			ScalarValueValidator{
-				rules.ValidationRules{
-					rules.LenRule{Limit: "3"},
-				},
-			},
-		}
-
-		validationErrors, runtimeErr := validator.ValidateValue(1)
-
-		require.Nil(t, validationErrors)
-		require.ErrorIs(t, runtimeErr, ErrValueNotIterable)
-	})
-
 }
