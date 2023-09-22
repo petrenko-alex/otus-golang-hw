@@ -1,9 +1,10 @@
 package validators
 
 import (
+	"testing"
+
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestSliceValueValidator_ValidateValue_Errors(t *testing.T) {

@@ -3,8 +3,9 @@ package validators
 import (
 	"errors"
 	"fmt"
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/parsing"
 	"reflect"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/parsing"
 )
 
 var (

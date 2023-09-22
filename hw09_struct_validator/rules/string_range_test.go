@@ -1,8 +1,9 @@
 package rules
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestStringRangeRule_Validate(t *testing.T) {

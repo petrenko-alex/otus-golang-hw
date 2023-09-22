@@ -3,6 +3,7 @@ package validators
 import (
 	"errors"
 	"fmt"
+
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 )
 

@@ -1,9 +1,10 @@
 package parsing
 
 import (
+	"testing"
+
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestBaseRuleParser_GetRule(t *testing.T) {

@@ -2,8 +2,9 @@ package validators
 
 import (
 	"errors"
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 	"reflect"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 )
 
 var (
