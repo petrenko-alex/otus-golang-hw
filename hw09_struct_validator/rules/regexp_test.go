@@ -32,7 +32,6 @@ func TestRegexpRule_Validate(t *testing.T) {
 		err := rule.Validate("5")
 
 		require.ErrorIs(t, err, ErrCastLimitForRule)
-
 	})
 	t.Run("value satisfy limit", func(t *testing.T) {
 		var limit ValidationLimit = "\\d+"
@@ -41,7 +40,6 @@ func TestRegexpRule_Validate(t *testing.T) {
 		err := rule.Validate("5")
 
 		require.NoError(t, err)
-
 	})
 	t.Run("value does not satisfy limit", func(t *testing.T) {
 		var limit ValidationLimit = "\\d+"
