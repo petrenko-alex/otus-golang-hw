@@ -8,10 +8,10 @@ import (
 
 func TestFieldTypeValidatorFactory_GetValidator(t *testing.T) {
 	var factory ValidatorFactory = FieldTypeValidatorFactory{}
+	const validationTag = "min:0|max:10"
 
 	t.Run("get validator for scalar values", func(t *testing.T) {
 		fieldType := reflect.Int
-		validationTag := "min:0|max:10"
 
 		validator, err := factory.GetValidator(fieldType, validationTag)
 
@@ -21,7 +21,6 @@ func TestFieldTypeValidatorFactory_GetValidator(t *testing.T) {
 
 	t.Run("get validator for slice values", func(t *testing.T) {
 		fieldType := reflect.Array
-		validationTag := "min:0|max:10"
 
 		validator, err := factory.GetValidator(fieldType, validationTag)
 
@@ -40,7 +39,6 @@ func TestFieldTypeValidatorFactory_GetValidator(t *testing.T) {
 
 	t.Run("unsupported field type", func(t *testing.T) {
 		fieldType := reflect.Bool
-		validationTag := "min:0|max:10"
 
 		_, err := factory.GetValidator(fieldType, validationTag)
 
@@ -49,7 +47,6 @@ func TestFieldTypeValidatorFactory_GetValidator(t *testing.T) {
 
 	t.Run("incorrect fieldType arg", func(t *testing.T) {
 		fieldType := "bool"
-		validationTag := "min:0|max:10"
 
 		_, err := factory.GetValidator(fieldType, validationTag)
 

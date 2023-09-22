@@ -2,8 +2,9 @@ package parsing
 
 import (
 	"errors"
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 	"strings"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/rules"
 )
 
 const (
