@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
-	"github.com/stretchr/testify/require"
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators" //nolint:depguard
+	"github.com/stretchr/testify/require"                                      //nolint:depguard
 )
 
 type UserRole string
@@ -16,11 +16,11 @@ type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
 		Name   string
-		Age    int             `validate:"min:18|max:50"`
-		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
-		Role   UserRole        `validate:"in:admin,stuff"`
-		Phones []string        `validate:"len:11"`
-		meta   json.RawMessage //nolint:unused
+		Age    int      `validate:"min:18|max:50"`
+		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
+		Role   UserRole `validate:"in:admin,stuff"`
+		Phones []string `validate:"len:11"`
+		meta   json.RawMessage
 	}
 
 	App struct {
