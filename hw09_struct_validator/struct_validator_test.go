@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators" //nolint:depguard
-	"github.com/stretchr/testify/require"                                      //nolint:depguard
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string

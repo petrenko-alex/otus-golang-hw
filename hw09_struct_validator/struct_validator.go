@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators" //nolint:depguard
+	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
 )
 
 const (

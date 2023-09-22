@@ -32,7 +32,6 @@ func TestLenRule_Validate(t *testing.T) {
 		err := rule.Validate("str")
 
 		require.ErrorIs(t, err, ErrValidationFailed)
-
 	})
 
 	t.Run("value greater than  limit", func(t *testing.T) {
@@ -42,7 +41,6 @@ func TestLenRule_Validate(t *testing.T) {
 		err := rule.Validate("string")
 
 		require.ErrorIs(t, err, ErrValidationFailed)
-
 	})
 
 	t.Run("value satisfy limit", func(t *testing.T) {
@@ -52,6 +50,5 @@ func TestLenRule_Validate(t *testing.T) {
 		err := rule.Validate("strin")
 
 		require.NoError(t, err)
-
 	})
 }
