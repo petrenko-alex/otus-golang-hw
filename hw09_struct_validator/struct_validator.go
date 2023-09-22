@@ -48,7 +48,11 @@ func (v StructValidator) Validate(value interface{}) error {
 			continue // skip validation of unexported fields
 		}
 
-		fieldErrors := validator.ValidateValue(fieldValue.Interface())
+		fieldErrors, runtimeError := validator.ValidateValue(fieldValue.Interface())
+		if runtimeError != nil {
+			return runtimeError
+		}
+
 		if fieldErrors != nil && len(fieldErrors) > 0 {
 			for _, fieldErr := range fieldErrors {
 				validationErrors = append(validationErrors, ValidationError{

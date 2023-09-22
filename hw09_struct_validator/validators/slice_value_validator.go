@@ -15,7 +15,7 @@ type SliceValueValidator struct {
 	scalarValidator ScalarValueValidator
 }
 
-func (v SliceValueValidator) ValidateValue(value interface{}) []error {
+func (v SliceValueValidator) ValidateValue(value interface{}) ([]error, error) {
 	validationErrors := make([]error, 0)
 	switch reflect.TypeOf(value).Kind() {
 	case reflect.Slice, reflect.Array:
@@ -25,22 +25,27 @@ func (v SliceValueValidator) ValidateValue(value interface{}) []error {
 			element := s.Index(i)
 
 			var elementValidationErrors []error
+			var runtimeError error
 			switch element.Kind() {
 			case reflect.String:
-				elementValidationErrors = v.scalarValidator.ValidateValue(element.String())
+				elementValidationErrors, runtimeError = v.scalarValidator.ValidateValue(element.String())
 			case reflect.Int:
-				elementValidationErrors = v.scalarValidator.ValidateValue(int(element.Int()))
+				elementValidationErrors, runtimeError = v.scalarValidator.ValidateValue(int(element.Int()))
 			default:
-				return []error{ErrValueNotSupported}
+				return nil, ErrValueNotSupported
+			}
+
+			if runtimeError != nil {
+				return nil, runtimeError
 			}
 
 			validationErrors = append(validationErrors, elementValidationErrors...)
 		}
 	default:
-		return []error{ErrValueNotIterable}
+		return nil, ErrValueNotIterable
 	}
 
-	return validationErrors
+	return validationErrors, nil
 }
 
 func (v SliceValueValidator) GetValidatorRules() rules.ValidationRules {

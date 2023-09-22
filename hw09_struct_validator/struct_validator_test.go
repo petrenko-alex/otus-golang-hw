@@ -40,16 +40,36 @@ type (
 		fieldOne string `validate:"len:11"`
 		fieldTwo int    `validate:"min:18"`
 	}
+
+	UnsupportedFieldType struct {
+		Field bool `validate:"in:true"`
+	}
+
+	ValidateRuntimeError struct {
+		Field string `validate:"min:10"`
+	}
 )
 
 func TestStructValidator_Validate_Errors(t *testing.T) {
-	t.Run("only struct is available", func(t *testing.T) {
-		var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
-		var structValidator Validator = StructValidator{validatorFactory}
+	var validatorFactory validators.ValidatorFactory = validators.FieldTypeValidatorFactory{}
+	var structValidator Validator = StructValidator{validatorFactory}
 
+	t.Run("only struct is available", func(t *testing.T) {
 		err := structValidator.Validate("simple string")
 
 		require.ErrorIs(t, err, ErrInputNotStruct)
+	})
+
+	t.Run("not supported field type", func(t *testing.T) {
+		err := structValidator.Validate(UnsupportedFieldType{Field: false})
+
+		require.ErrorIs(t, err, ErrValidatorInit)
+	})
+
+	t.Run("validate runtime error", func(t *testing.T) {
+		err := structValidator.Validate(ValidateRuntimeError{Field: "value"})
+
+		require.ErrorContains(t, err, validators.RuntimeError.Error())
 	})
 }
 
