@@ -2,7 +2,7 @@ package rules
 
 import "regexp"
 
-type RegexpRule struct{ ValidationLimit }
+type RegexpRule struct{ Limit ValidationLimit }
 
 func (r RegexpRule) Validate(value interface{}) error {
 	valueStr, valueCastOk := value.(string)
@@ -28,7 +28,7 @@ func (r RegexpRule) Validate(value interface{}) error {
 }
 
 func (r RegexpRule) GetLimit() ValidationLimit {
-	return r.ValidationLimit
+	return r.Limit
 }
 
 func (r RegexpRule) GetError() error {

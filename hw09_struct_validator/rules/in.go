@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type InRule struct{ ValidationLimit }
+type InRule struct{ Limit ValidationLimit }
 
 func NewInRule(limit ValidationLimit) (*InRule, error) {
 	strLimit, strCastOk := limit.(string)
@@ -30,7 +30,7 @@ func (r InRule) Validate(value interface{}) error {
 }
 
 func (r InRule) GetLimit() ValidationLimit {
-	return r.ValidationLimit
+	return r.Limit
 }
 
 func (r InRule) GetError() error {

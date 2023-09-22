@@ -2,7 +2,7 @@ package rules
 
 import "golang.org/x/exp/slices"
 
-type StringRangeRule struct{ ValidationLimit }
+type StringRangeRule struct{ Limit ValidationLimit }
 
 func (r StringRangeRule) Validate(value interface{}) error {
 	valueString, valueCastOk := value.(string)
@@ -23,7 +23,7 @@ func (r StringRangeRule) Validate(value interface{}) error {
 }
 
 func (r StringRangeRule) GetLimit() ValidationLimit {
-	return r.ValidationLimit
+	return r.Limit
 }
 
 func (r StringRangeRule) GetError() error {

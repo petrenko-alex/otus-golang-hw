@@ -2,7 +2,7 @@ package rules
 
 import "strconv"
 
-type IntRangeRule struct{ ValidationLimit }
+type IntRangeRule struct{ Limit ValidationLimit }
 
 func (r IntRangeRule) Validate(value interface{}) error {
 	valueInt, valueCastOk := value.(int)
@@ -26,7 +26,7 @@ func (r IntRangeRule) Validate(value interface{}) error {
 }
 
 func (r IntRangeRule) GetLimit() ValidationLimit {
-	return r.ValidationLimit
+	return r.Limit
 }
 
 func (r IntRangeRule) GetError() error {
