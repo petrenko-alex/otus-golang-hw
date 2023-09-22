@@ -50,7 +50,7 @@ func (v StructValidator) Validate(value interface{}) error {
 			return runtimeError
 		}
 
-		if fieldErrors != nil && len(fieldErrors) > 0 {
+		if len(fieldErrors) > 0 {
 			for _, fieldErr := range fieldErrors {
 				validationErrors = append(validationErrors, ValidationError{
 					Field: fieldType.Name,

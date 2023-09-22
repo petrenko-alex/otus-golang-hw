@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/petrenko-alex/otus-golang-hw/hw09_struct_validator/validators"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -98,8 +99,13 @@ func TestStructValidator_Validate(t *testing.T) {
 
 		err := structValidator.Validate(input)
 
-		require.Len(t, err, 6)
-		require.Equal(t, []string{"ID", "Age", "Email", "Role", "Phones", "Phones"}, err.(ValidationErrors).GetFields())
+		var validationErr ValidationErrors
+		if !errors.As(err, &validationErr) {
+			require.Fail(t, "unexpected return type")
+		}
+
+		require.Len(t, validationErr, 6)
+		require.Equal(t, []string{"ID", "Age", "Email", "Role", "Phones", "Phones"}, validationErr.GetFields())
 	})
 
 	t.Run("App struct", func(t *testing.T) {
@@ -107,9 +113,14 @@ func TestStructValidator_Validate(t *testing.T) {
 
 		err := structValidator.Validate(input)
 
-		require.Len(t, err, 1)
-		require.IsType(t, ValidationError{}, err.(ValidationErrors)[0])
-		require.Equal(t, "Version", err.(ValidationErrors)[0].Field)
+		var validationErr ValidationErrors
+		if !errors.As(err, &validationErr) {
+			require.Fail(t, "unexpected return type")
+		}
+
+		require.Len(t, validationErr, 1)
+		require.IsType(t, ValidationError{}, validationErr[0])
+		require.Equal(t, "Version", validationErr[0].Field)
 	})
 
 	t.Run("Token struct", func(t *testing.T) {
@@ -132,9 +143,14 @@ func TestStructValidator_Validate(t *testing.T) {
 
 		err := structValidator.Validate(input)
 
-		require.Len(t, err, 1)
-		require.IsType(t, ValidationError{}, err.(ValidationErrors)[0])
-		require.Equal(t, "Code", err.(ValidationErrors)[0].Field)
+		var validationErr ValidationErrors
+		if !errors.As(err, &validationErr) {
+			require.Fail(t, "unexpected return type")
+		}
+
+		require.Len(t, validationErr, 1)
+		require.IsType(t, ValidationError{}, validationErr[0])
+		require.Equal(t, "Code", validationErr[0].Field)
 	})
 
 	t.Run("Unexported struct", func(t *testing.T) {
