@@ -7,5 +7,6 @@ type (
 )
 
 type ValidationTagParser interface {
+	// GetValidationRules parses ValidationTag and return ValidationRules for it.
 	GetValidationRules(tag ValidationTag) (rules.ValidationRules, error)
 }

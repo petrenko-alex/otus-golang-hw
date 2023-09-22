@@ -17,6 +17,7 @@ var (
 )
 
 type RuleParser interface {
+	// GetRule returns one ValidationRule for strings, describing rule (ex. "len:10").
 	GetRule(string) (rules.ValidationRule, error)
 }
 

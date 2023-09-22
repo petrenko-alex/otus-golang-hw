@@ -2,8 +2,6 @@ package rules
 
 import "errors"
 
-// TODO: use generics?
-
 var (
 	ErrCastValueForRule = errors.New("can't cast value for validation rule")
 	ErrCastLimitForRule = errors.New("can't cast limit for validation rule")

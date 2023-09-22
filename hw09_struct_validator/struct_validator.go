@@ -6,9 +6,6 @@ import (
 	"reflect"
 )
 
-// todo: doc blocks
-// todo: add constructors for types
-
 const (
 	ValidatorTagName = "validate"
 )
