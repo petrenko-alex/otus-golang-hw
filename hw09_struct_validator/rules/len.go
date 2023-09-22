@@ -6,7 +6,7 @@ type LenRule struct{ Limit ValidationLimit }
 
 func (r LenRule) Validate(value interface{}) error {
 	valueStr, valueCastOk := value.(string)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 

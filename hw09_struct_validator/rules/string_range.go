@@ -6,7 +6,7 @@ type StringRangeRule struct{ Limit ValidationLimit }
 
 func (r StringRangeRule) Validate(value interface{}) error {
 	valueString, valueCastOk := value.(string)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 

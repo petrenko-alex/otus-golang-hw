@@ -6,7 +6,7 @@ type MaxRule struct{ Limit ValidationLimit }
 
 func (r MaxRule) Validate(value interface{}) error {
 	valueInt, valueCastOk := value.(int)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 

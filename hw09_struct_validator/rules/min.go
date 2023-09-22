@@ -6,7 +6,7 @@ type MinRule struct{ Limit ValidationLimit }
 
 func (r MinRule) Validate(value interface{}) error {
 	valueInt, valueCastOk := value.(int)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 

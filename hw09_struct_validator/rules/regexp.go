@@ -6,7 +6,7 @@ type RegexpRule struct{ Limit ValidationLimit }
 
 func (r RegexpRule) Validate(value interface{}) error {
 	valueStr, valueCastOk := value.(string)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 

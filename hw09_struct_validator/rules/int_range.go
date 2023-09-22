@@ -6,7 +6,7 @@ type IntRangeRule struct{ Limit ValidationLimit }
 
 func (r IntRangeRule) Validate(value interface{}) error {
 	valueInt, valueCastOk := value.(int)
-	if valueCastOk != true {
+	if !valueCastOk {
 		return ErrCastValueForRule
 	}
 
