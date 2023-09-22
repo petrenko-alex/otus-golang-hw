@@ -19,7 +19,7 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 	t.Run("one rule, no validationErrors", func(t *testing.T) {
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"20"},
+				rules.MaxRule{Limit: "20"},
 			},
 		}
 
@@ -32,7 +32,7 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 	t.Run("one rule, one error", func(t *testing.T) {
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"20"},
+				rules.MaxRule{Limit: "20"},
 			},
 		}
 
@@ -45,8 +45,8 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 	t.Run("multiple rule, no validationErrors", func(t *testing.T) {
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"20"},
-				rules.MinRule{"10"},
+				rules.MaxRule{Limit: "20"},
+				rules.MinRule{Limit: "10"},
 			},
 		}
 
@@ -59,8 +59,8 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 	t.Run("multiple rule, one error", func(t *testing.T) {
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"20"},
-				rules.MinRule{"10"},
+				rules.MaxRule{Limit: "20"},
+				rules.MinRule{Limit: "10"},
 			},
 		}
 
@@ -74,7 +74,7 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 		inRule, _ := rules.NewInRule("10,30")
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"40"},
+				rules.MaxRule{Limit: "40"},
 				inRule,
 			},
 		}
@@ -88,7 +88,7 @@ func TestScalarValueValidator_ValidateValue(t *testing.T) {
 	t.Run("runtime error", func(t *testing.T) {
 		var validator ValueValidator = ScalarValueValidator{
 			rules.ValidationRules{
-				rules.MaxRule{"20"},
+				rules.MaxRule{Limit: "20"},
 			},
 		}
 

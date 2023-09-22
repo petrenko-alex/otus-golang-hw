@@ -22,7 +22,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.MinRule{"15"},
+					rules.MinRule{Limit: "15"},
 				},
 			},
 		}
@@ -37,7 +37,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -52,7 +52,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -67,7 +67,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"4"},
+					rules.LenRule{Limit: "4"},
 				},
 			},
 		}
@@ -82,7 +82,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"4"},
+					rules.LenRule{Limit: "4"},
 				},
 			},
 		}
@@ -97,7 +97,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -112,7 +112,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -127,7 +127,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -142,7 +142,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}
@@ -157,7 +157,7 @@ func TestSliceValueValidator_ValidateValue(t *testing.T) {
 		var validator ValueValidator = SliceValueValidator{
 			ScalarValueValidator{
 				rules.ValidationRules{
-					rules.LenRule{"3"},
+					rules.LenRule{Limit: "3"},
 				},
 			},
 		}

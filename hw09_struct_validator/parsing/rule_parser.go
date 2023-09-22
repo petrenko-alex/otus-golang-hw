@@ -38,9 +38,9 @@ func (f BaseRuleParser) GetRule(stringRule string) (rules.ValidationRule, error)
 
 	switch criteria {
 	case "len":
-		return rules.LenRule{limit}, nil
+		return rules.LenRule{Limit: limit}, nil
 	case "regexp":
-		return rules.RegexpRule{limit}, nil
+		return rules.RegexpRule{Limit: limit}, nil
 	case "in":
 		rule, err := rules.NewInRule(limit)
 		if err != nil {
@@ -48,9 +48,9 @@ func (f BaseRuleParser) GetRule(stringRule string) (rules.ValidationRule, error)
 		}
 		return rule, nil
 	case "min":
-		return rules.MinRule{limit}, nil
+		return rules.MinRule{Limit: limit}, nil
 	case "max":
-		return rules.MaxRule{limit}, nil
+		return rules.MaxRule{Limit: limit}, nil
 	default:
 		return nil, ErrUnknownRule
 	}
