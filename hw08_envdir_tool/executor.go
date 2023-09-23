@@ -4,18 +4,15 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"syscall"
 )
 
 var ErrCommandInfoNotFound = errors.New("no command provided")
 
-const (
-	InternalErrorExitCode = 5923
-)
-
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmdInfo []string, env Environment) (int, error) {
 	if len(cmdInfo) == 0 {
-		return InternalErrorExitCode, ErrCommandInfoNotFound
+		return int(syscall.EINVAL), ErrCommandInfoNotFound
 	}
 
 	setEnvVars(env)

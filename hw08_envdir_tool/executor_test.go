@@ -1,6 +1,7 @@
 package main
 
 import (
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -31,7 +32,7 @@ func TestRunCmdError(t *testing.T) {
 	t.Run("run without command provided", func(t *testing.T) {
 		exitCode, err := RunCmd([]string{}, EmptyEnv())
 
-		require.Equal(t, InternalErrorExitCode, exitCode)
+		require.Equal(t, int(syscall.EINVAL), exitCode)
 		require.ErrorIs(t, err, ErrCommandInfoNotFound)
 	})
 }
