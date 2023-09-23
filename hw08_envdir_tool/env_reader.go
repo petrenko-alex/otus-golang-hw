@@ -33,7 +33,6 @@ func ReadDir(dir string) (Environment, error) {
 		if openFileErr != nil {
 			return nil, fmt.Errorf(ErrEnvRead.Error()+": %w", openFileErr)
 		}
-		defer file.Close()
 
 		fileInfo, fileInfoErr := file.Stat()
 		if fileInfoErr != nil {
@@ -50,6 +49,11 @@ func ReadDir(dir string) (Environment, error) {
 		fileFirstLine := scanner.Bytes()
 
 		environment[dirEntry.Name()] = EnvValue{Value: sanitizeVal(fileFirstLine)}
+
+		fileCloseErr := file.Close()
+		if fileCloseErr != nil {
+			return nil, fmt.Errorf(ErrEnvRead.Error()+": %w", readDirErr)
+		}
 	}
 
 	return environment, nil
