@@ -7,14 +7,8 @@ import (
 	"strings"
 )
 
-type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+type UserEmail struct {
+	Email string
 }
 
 type DomainStat map[string]int
@@ -27,7 +21,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomains(u, domain)
 }
 
-type users [100_000]User
+type users [100_000]UserEmail
 
 func getUsers(r io.Reader) (result users, err error) {
 	content, err := io.ReadAll(r) // порционное чтение?
@@ -37,7 +31,7 @@ func getUsers(r io.Reader) (result users, err error) {
 
 	lines := strings.Split(string(content), "\n")
 	for i, line := range lines {
-		var user User
+		var user UserEmail
 		if err = json.Unmarshal([]byte(line), &user); err != nil { // try codegen?
 			return
 		}
