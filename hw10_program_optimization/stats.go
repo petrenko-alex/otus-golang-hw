@@ -1,6 +1,7 @@
 package hw10programoptimization
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,44 +15,22 @@ type UserEmail struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
-}
-
-type users [100_000]UserEmail
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := io.ReadAll(r) // порционное чтение?
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user UserEmail
-		if err = json.Unmarshal([]byte(line), &user); err != nil { // try codegen?
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
+	scanner := bufio.NewScanner(r)
 
-	for _, user := range u {
+	for scanner.Scan() {
+		var user UserEmail
+		if err := json.Unmarshal(scanner.Bytes(), &user); err != nil {
+			return nil, fmt.Errorf("get users error: %w", err)
+		}
+
 		matched := strings.Contains(user.Email, "."+domain)
 		if matched {
 			emailPart := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
-
-			num := result[emailPart]
-			num++
-			result[emailPart] = num
+			result[emailPart] += 1
 		}
+
 	}
+
 	return result, nil
 }
