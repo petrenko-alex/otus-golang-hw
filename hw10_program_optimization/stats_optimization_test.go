@@ -6,9 +6,10 @@ package hw10programoptimization
 import (
 	"archive/zip"
 	"bytes"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (

@@ -30,9 +30,8 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		matched := strings.Contains(user.Email, "."+domain)
 		if matched {
 			emailPart := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
-			result[emailPart] += 1
+			result[emailPart]++
 		}
-
 	}
 
 	return result, nil
