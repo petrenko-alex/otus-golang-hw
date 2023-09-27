@@ -51,7 +51,6 @@ func TestGetDomainStat_Time_And_Memory(t *testing.T) {
 	require.Less(t, mem, memoryLimit, "the program is too greedy")
 }
 
-// go test -v -bench BenchmarkGetDomainStat -run BenchmarkGetDomainStat -benchmem -cpuprofile=cpu.out -memprofile=mem.out -tags bench .
 func BenchmarkGetDomainStat(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := GetDomainStat(bytes.NewBufferString(data), "com")
@@ -451,4 +450,4 @@ var data = `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliqui
 {"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynch@broWsecat.com","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}
 {"Id":3,"Name":"Clarence Olson","Username":"RachelAdams","Email":"RoseSmith@Browsecat.com","Phone":"988-48-97","Password":"71kuz3gA5w","Address":"Monterey Park 39"}
 {"Id":4,"Name":"Gregory Reid","Username":"tButler","Email":"5Moore@Teklist.net","Phone":"520-04-16","Password":"r639qLNu","Address":"Sunfield Park 20"}
-{"Id":5,"Name":"Janice Rose","Username":"KeithHart","Email":"nulla@Linktype.com","Phone":"146-91-01","Password":"acSBF5","Address":"Russell Trail 61"}`
+{"Id":5,"Name":"Janice Rose","Username":"KeithHart","Email":"nulla@Linktype.com","Phone":"146-91-01","Password":"acSBF5","Address":"Russell Trail 61"}` //nolint:all
