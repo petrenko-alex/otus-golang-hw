@@ -1,16 +1,17 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
-	"sync"
 	"time"
 )
 
 func main() {
 	var timeout, host, port string
-	var wg sync.WaitGroup
+
 	flag.StringVar(&timeout, "timeout", "10s", "connect timeout")
 	flag.Parse()
 
@@ -40,27 +41,42 @@ func main() {
 	}
 	defer client.Close()
 
-	wg.Add(2)
-	go func() {
+	receiveChan := make(chan error)
+	go func(doneCh chan<- error) {
 		receiveErr := client.Receive()
 		if receiveErr != nil {
-
+			if receiveErr == io.EOF {
+				close(doneCh)
+			}
+			// todo:?
 		}
+	}(receiveChan)
 
-		wg.Done()
-	}()
-
-	go func() {
+	sendChan := make(chan error)
+	go func(doneCh chan<- error) {
 		sendErr := client.Send()
 		if sendErr != nil {
+			if errors.Is(sendErr, io.EOF) {
+				close(doneCh)
+			}
 			// todo
 		}
+	}(sendChan)
 
-		wg.Done()
-	}()
+	for {
+		select {
+		case <-receiveChan:
+			fmt.Fprintln(os.Stderr, "Connection was closed by server")
 
-	wg.Wait()
+			client.Close()
+			os.Exit(1)
+		case <-sendChan:
+			fmt.Fprintln(os.Stderr, "Connection was closed by peer")
 
-	// Place your code here,
+			client.Close()
+			os.Exit(1)
+		}
+	}
+
 	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
 }

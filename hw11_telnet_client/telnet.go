@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -51,9 +52,9 @@ func (c *BaseTelnetClient) Send() error {
 	}
 
 	scanner := bufio.NewScanner(c.in)
-	for i := 0; i < 3; i++ { // todo: inf loop
+	for { // todo: inf loop
 		if !scanner.Scan() {
-			// todo:
+			return io.EOF
 		}
 
 		_, err := c.connection.Write([]byte(fmt.Sprintf("%s\n", scanner.Bytes())))
@@ -62,8 +63,6 @@ func (c *BaseTelnetClient) Send() error {
 			return err
 		}
 	}
-
-	return nil
 }
 
 func (c *BaseTelnetClient) Receive() error {
@@ -71,19 +70,17 @@ func (c *BaseTelnetClient) Receive() error {
 		// todo
 	}
 
-	for i := 0; i < 3; i++ { // todo: inf loop
+	for {
 		scanner := bufio.NewScanner(c.connection)
 		if !scanner.Scan() {
-			// todo
+			return io.EOF
 		}
 
 		_, err := fmt.Fprintln(c.out, scanner.Text())
 		if err != nil {
-			// todo
+			return errors.New("error printing received msg")
 		}
 	}
-
-	return nil
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
