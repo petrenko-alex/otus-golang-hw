@@ -12,9 +12,10 @@ import (
 )
 
 func main() {
-	var timeout, host, port string
+	var host, port string
+	var timeout time.Duration
 
-	flag.StringVar(&timeout, "timeout", "10s", "connect timeout")
+	flag.DurationVar(&timeout, "timeout", 10*time.Second, "connect timeout")
 	flag.Parse()
 
 	host = flag.Arg(0)
@@ -23,14 +24,9 @@ func main() {
 	host = "localhost"
 	port = "4241"
 
-	timeoutObj, err := time.ParseDuration(timeout)
-	if err != nil {
-		// todo:
-	}
-
 	client := NewTelnetClient(
 		host+":"+port,
-		timeoutObj,
+		timeout,
 		os.Stdin,
 		os.Stdout,
 	)
