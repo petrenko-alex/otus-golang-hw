@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -32,6 +34,9 @@ func main() {
 		os.Stdin,
 		os.Stdout,
 	)
+
+	sigintChan := make(chan os.Signal)
+	signal.Notify(sigintChan, syscall.SIGINT)
 
 	connectErr := client.Connect()
 	if connectErr != nil {
@@ -72,6 +77,11 @@ func main() {
 			os.Exit(1)
 		case <-sendChan:
 			fmt.Fprintln(os.Stderr, "Connection was closed by peer")
+
+			client.Close()
+			os.Exit(1)
+		case <-sigintChan:
+			fmt.Fprintln(os.Stderr, "SIGINT. Closing.")
 
 			client.Close()
 			os.Exit(1)
