@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -28,9 +29,7 @@ func main() {
 
 	connectErr := client.Connect()
 	if connectErr != nil {
-		// todo:
-		fmt.Println(connectErr)
-		os.Exit(1)
+		log.Fatal(connectErr)
 	}
 	defer client.Close()
 
@@ -60,19 +59,13 @@ func main() {
 		select {
 		case <-receiveChan:
 			fmt.Fprintln(os.Stderr, "Connection was closed by server")
-
-			client.Close()
-			os.Exit(1)
+			return
 		case <-sendChan:
 			fmt.Fprintln(os.Stderr, "Connection was closed by peer")
-
-			client.Close()
-			os.Exit(1)
+			return
 		case <-sigintChan:
 			fmt.Fprintln(os.Stderr, "SIGINT. Closing.")
-
-			client.Close()
-			os.Exit(1)
+			return
 		}
 	}
 
