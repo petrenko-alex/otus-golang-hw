@@ -26,7 +26,7 @@ type BaseTelnetClient struct {
 }
 
 func (c *BaseTelnetClient) Connect() error {
-	conn, err := net.Dial("tcp", c.address)
+	conn, err := net.DialTimeout("tcp", c.address, c.timeout)
 	if err != nil {
 		// todo: wrap
 		return err

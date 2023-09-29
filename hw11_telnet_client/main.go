@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,22 +18,13 @@ func main() {
 
 	flag.DurationVar(&timeout, "timeout", 10*time.Second, "connect timeout")
 	flag.Parse()
-
 	host = flag.Arg(0)
 	port = flag.Arg(1)
 
-	host = "localhost"
-	port = "4241"
-
-	client := NewTelnetClient(
-		host+":"+port,
-		timeout,
-		os.Stdin,
-		os.Stdout,
-	)
-
 	sigintChan := make(chan os.Signal)
 	signal.Notify(sigintChan, syscall.SIGINT)
+
+	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
 
 	connectErr := client.Connect()
 	if connectErr != nil {
