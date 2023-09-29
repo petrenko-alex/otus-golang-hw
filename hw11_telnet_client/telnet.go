@@ -52,7 +52,7 @@ func (c *BaseTelnetClient) Send() error {
 	}
 
 	scanner := bufio.NewScanner(c.in)
-	for { // todo: inf loop
+	for {
 		if !scanner.Scan() {
 			return io.EOF
 		}
@@ -70,8 +70,8 @@ func (c *BaseTelnetClient) Receive() error {
 		// todo
 	}
 
+	scanner := bufio.NewScanner(c.connection)
 	for {
-		scanner := bufio.NewScanner(c.connection)
 		if !scanner.Scan() {
 			return io.EOF
 		}
