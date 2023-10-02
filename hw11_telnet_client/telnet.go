@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+var (
+	ErrNotConnected = errors.New("no connection, call Connect() first")
+)
+
 type TelnetClient interface {
 	Connect() error
 	io.Closer
@@ -29,7 +33,6 @@ type BaseTelnetClient struct {
 func (c *BaseTelnetClient) Connect() error {
 	conn, err := net.DialTimeout("tcp", c.address, c.timeout)
 	if err != nil {
-		// todo: wrap
 		return err
 	}
 
@@ -43,15 +46,15 @@ func (c *BaseTelnetClient) Connect() error {
 func (c *BaseTelnetClient) Close() error {
 	err := c.connection.Close()
 	if err != nil {
-		// todo: wrap
+		return err
 	}
-	// todo: what else?
+
 	return nil
 }
 
 func (c *BaseTelnetClient) Send() error {
 	if c.connection == nil {
-		// todo:
+		return ErrNotConnected
 	}
 
 	if !c.clientScanner.Scan() {
@@ -60,7 +63,6 @@ func (c *BaseTelnetClient) Send() error {
 
 	_, err := c.connection.Write([]byte(fmt.Sprintf("%s\n", c.clientScanner.Bytes())))
 	if err != nil {
-		// todo: wrap
 		return err
 	}
 
@@ -69,7 +71,7 @@ func (c *BaseTelnetClient) Send() error {
 
 func (c *BaseTelnetClient) Receive() error {
 	if c.connection == nil {
-		// todo
+		return ErrNotConnected
 	}
 
 	if !c.serverScanner.Scan() {
@@ -78,7 +80,7 @@ func (c *BaseTelnetClient) Receive() error {
 
 	_, err := fmt.Fprintln(c.out, c.serverScanner.Text())
 	if err != nil {
-		return errors.New("error printing received msg")
+		return err
 	}
 
 	return nil

@@ -1,10 +1,7 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -16,6 +13,7 @@ import (
 func main() {
 	var host, port string
 	var timeout time.Duration
+	logger := log.New(os.Stderr, "telnet:", 0)
 
 	flag.DurationVar(&timeout, "timeout", 10*time.Second, "connect timeout")
 	flag.Parse()
@@ -29,7 +27,7 @@ func main() {
 
 	connectErr := client.Connect()
 	if connectErr != nil {
-		log.Fatal(connectErr)
+		logger.Fatal(connectErr)
 	}
 	defer client.Close()
 
@@ -38,10 +36,9 @@ func main() {
 		for {
 			receiveErr := client.Receive()
 			if receiveErr != nil {
-				if receiveErr == io.EOF {
-					close(doneCh)
-				}
-				// todo:?
+				close(doneCh)
+				logger.Println(receiveErr)
+
 				return
 			}
 		}
@@ -52,10 +49,9 @@ func main() {
 		for {
 			sendErr := client.Send()
 			if sendErr != nil {
-				if errors.Is(sendErr, io.EOF) {
-					close(doneCh)
-				}
-				// todo
+				close(doneCh)
+				logger.Println(sendErr)
+
 				return
 			}
 		}
@@ -65,16 +61,16 @@ func main() {
 	for {
 		select {
 		case <-receiveChan:
-			fmt.Fprintln(os.Stderr, "Connection was closed by server")
+			logger.Println("Connection was closed by server")
 			return
 		case <-sendChan:
-			fmt.Fprintln(os.Stderr, "Connection was closed by peer")
+			logger.Println("Connection was closed by peer")
+
 			return
 		case <-sigintChan:
-			fmt.Fprintln(os.Stderr, "SIGINT. Closing.")
+			logger.Println("SIGINT. Closing.")
+
 			return
 		}
 	}
-
-	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
 }
