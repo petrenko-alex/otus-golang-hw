@@ -22,7 +22,8 @@ type BaseTelnetClient struct {
 	in      io.ReadCloser
 	out     io.Writer
 
-	connection net.Conn
+	connection                   net.Conn
+	clientScanner, serverScanner *bufio.Scanner
 }
 
 func (c *BaseTelnetClient) Connect() error {
@@ -33,6 +34,8 @@ func (c *BaseTelnetClient) Connect() error {
 	}
 
 	c.connection = conn
+	c.clientScanner = bufio.NewScanner(c.in)
+	c.serverScanner = bufio.NewScanner(c.connection)
 
 	return nil
 }
@@ -51,18 +54,17 @@ func (c *BaseTelnetClient) Send() error {
 		// todo:
 	}
 
-	scanner := bufio.NewScanner(c.in)
-	for {
-		if !scanner.Scan() {
-			return io.EOF
-		}
-
-		_, err := c.connection.Write([]byte(fmt.Sprintf("%s\n", scanner.Bytes())))
-		if err != nil {
-			// todo: wrap
-			return err
-		}
+	if !c.clientScanner.Scan() {
+		return io.EOF
 	}
+
+	_, err := c.connection.Write([]byte(fmt.Sprintf("%s\n", c.clientScanner.Bytes())))
+	if err != nil {
+		// todo: wrap
+		return err
+	}
+
+	return nil
 }
 
 func (c *BaseTelnetClient) Receive() error {
@@ -70,17 +72,16 @@ func (c *BaseTelnetClient) Receive() error {
 		// todo
 	}
 
-	scanner := bufio.NewScanner(c.connection)
-	for {
-		if !scanner.Scan() {
-			return io.EOF
-		}
-
-		_, err := fmt.Fprintln(c.out, scanner.Text())
-		if err != nil {
-			return errors.New("error printing received msg")
-		}
+	if !c.serverScanner.Scan() {
+		return io.EOF
 	}
+
+	_, err := fmt.Fprintln(c.out, c.serverScanner.Text())
+	if err != nil {
+		return errors.New("error printing received msg")
+	}
+
+	return nil
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {

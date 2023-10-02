@@ -35,24 +35,31 @@ func main() {
 
 	receiveChan := make(chan error)
 	go func(doneCh chan<- error) {
-		receiveErr := client.Receive()
-		if receiveErr != nil {
-			if receiveErr == io.EOF {
-				close(doneCh)
+		for {
+			receiveErr := client.Receive()
+			if receiveErr != nil {
+				if receiveErr == io.EOF {
+					close(doneCh)
+				}
+				// todo:?
+				return
 			}
-			// todo:?
 		}
 	}(receiveChan)
 
 	sendChan := make(chan error)
 	go func(doneCh chan<- error) {
-		sendErr := client.Send()
-		if sendErr != nil {
-			if errors.Is(sendErr, io.EOF) {
-				close(doneCh)
+		for {
+			sendErr := client.Send()
+			if sendErr != nil {
+				if errors.Is(sendErr, io.EOF) {
+					close(doneCh)
+				}
+				// todo
+				return
 			}
-			// todo
 		}
+
 	}(sendChan)
 
 	for {
