@@ -9,9 +9,7 @@ import (
 	"time"
 )
 
-var (
-	ErrNotConnected = errors.New("no connection, call Connect() first")
-)
+var ErrNotConnected = errors.New("no connection, call Connect() first")
 
 type TelnetClient interface {
 	Connect() error

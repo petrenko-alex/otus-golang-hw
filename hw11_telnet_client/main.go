@@ -20,7 +20,7 @@ func main() {
 	host = flag.Arg(0)
 	port = flag.Arg(1)
 
-	sigintChan := make(chan os.Signal)
+	sigintChan := make(chan os.Signal, 1)
 	signal.Notify(sigintChan, syscall.SIGINT)
 
 	client := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
@@ -55,7 +55,6 @@ func main() {
 				return
 			}
 		}
-
 	}(sendChan)
 
 	for {
