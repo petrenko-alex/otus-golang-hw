@@ -44,6 +44,10 @@ func (c *BaseTelnetClient) Connect() error {
 }
 
 func (c *BaseTelnetClient) Close() error {
+	if c.connection == nil {
+		return ErrNotConnected
+	}
+
 	err := c.connection.Close()
 	if err != nil {
 		return err
