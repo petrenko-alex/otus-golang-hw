@@ -1,20 +1,55 @@
 package main
 
-// При желании конфигурацию можно вынести в internal/config.
-// Организация конфига в main принуждает нас сужать API компонентов, использовать
-// при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
+import (
+	"errors"
+	"io"
+
+	"gopkg.in/yaml.v3"
+)
+
+var (
+	ErrInvalidStorageValue = errors.New("invalid storage value in config")
+)
+
+type StorageType string
+
+const (
+	Memory StorageType = "memory"
+	DB     StorageType = "db"
+)
+
 type Config struct {
-	Logger LoggerConf
-	// TODO
+	Logger struct {
+		Level string
+	}
+	Server struct {
+		Host, Port string
+	}
+	Db struct {
+		Dsn string
+	}
+	Storage StorageType
 }
 
-type LoggerConf struct {
-	Level string
-	// TODO
+func NewConfig(configFile io.Reader) (*Config, error) {
+	config := &Config{}
+
+	yamlDecoder := yaml.NewDecoder(configFile)
+	if err := yamlDecoder.Decode(&config); err != nil {
+		return nil, err
+	}
+
+	if validateErr := validateConfig(config); validateErr != nil {
+		return nil, validateErr
+	}
+
+	return config, nil
 }
 
-func NewConfig() Config {
-	return Config{}
-}
+func validateConfig(config *Config) error {
+	if config.Storage != Memory && config.Storage != DB {
+		return ErrInvalidStorageValue
+	}
 
-// TODO
+	return nil
+}

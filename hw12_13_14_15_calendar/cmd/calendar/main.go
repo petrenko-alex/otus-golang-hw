@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,7 +18,7 @@ import (
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
 
 func main() {
@@ -28,7 +29,16 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
+	file, fileErr := os.Open(configFile)
+	if fileErr != nil {
+		log.Fatal("Error opening config file.")
+	}
+
+	config, configErr := NewConfig(file)
+	if configErr != nil {
+		log.Fatal("Error parsing config file.")
+	}
+
 	logg := logger.New(config.Logger.Level)
 
 	storage := memorystorage.New()

@@ -1,0 +1,8 @@
+logger:
+  level: "info"
+storage: "memory"
+db:
+  dsn: "test dsn"
+server:
+  host: "localhost"
+  port: 4242
