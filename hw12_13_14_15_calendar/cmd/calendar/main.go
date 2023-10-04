@@ -39,7 +39,7 @@ func main() {
 		log.Fatal("Error parsing config file.")
 	}
 
-	logg := logger.New(config.Logger.Level)
+	logg := createLogger(config)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
@@ -68,4 +68,15 @@ func main() {
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+}
+
+func createLogger(config *Config) logger.Logger {
+	levelMap := map[string]logger.Level{
+		"debug":   logger.Debug,
+		"info":    logger.Info,
+		"warning": logger.Warning,
+		"error":   logger.Error,
+	}
+
+	return logger.New(levelMap[config.Logger.Level], os.Stdout)
 }
