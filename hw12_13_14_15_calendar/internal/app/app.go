@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct { // TODO
@@ -10,7 +12,12 @@ type App struct { // TODO
 type Logger interface { // TODO
 }
 
-type Storage interface { // TODO
+type Storage interface {
+	Create(storage.Event) (string, error)
+	ReadOne(string) (storage.Event, error)
+	ReadAll() storage.Events
+	Update(storage.Event) error
+	Delete(string) error
 }
 
 func New(logger Logger, storage Storage) *App {
