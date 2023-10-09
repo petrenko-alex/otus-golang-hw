@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
 var configFile string
@@ -34,12 +34,12 @@ func main() {
 		log.Fatal("Error opening config file.")
 	}
 
-	config, configErr := NewConfig(file)
+	cfg, configErr := config.NewConfig(file)
 	if configErr != nil {
 		log.Fatal("Error parsing config file.")
 	}
 
-	logg := createLogger(config)
+	logg := createLogger(cfg)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
@@ -70,7 +70,7 @@ func main() {
 	}
 }
 
-func createLogger(config *Config) logger.Logger {
+func createLogger(cfg *config.Config) logger.Logger {
 	levelMap := map[string]logger.Level{
 		"debug":   logger.Debug,
 		"info":    logger.Info,
@@ -78,5 +78,5 @@ func createLogger(config *Config) logger.Logger {
 		"error":   logger.Error,
 	}
 
-	return logger.New(levelMap[config.Logger.Level], os.Stdout)
+	return logger.New(levelMap[cfg.Logger.Level], os.Stdout)
 }
