@@ -2,7 +2,7 @@ logger:
   level: "info"
 storage: "memory"
 db:
-  dsn: "test dsn"
+  dsn: "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 server:
   host: "localhost"
   port: 4242
