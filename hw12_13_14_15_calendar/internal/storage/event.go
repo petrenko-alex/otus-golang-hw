@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// todo: use time.Duration type
 var (
 	ErrEventNotFound = errors.New("event not found")
 )
@@ -16,8 +17,8 @@ type Event struct {
 	Title       string
 	DateTime    time.Time
 	Description string
-	Duration    time.Duration
-	RemindTime  time.Duration
+	Duration    string
+	RemindTime  string
 
 	UserId int
 }

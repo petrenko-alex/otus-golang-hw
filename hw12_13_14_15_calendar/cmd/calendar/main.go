@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	memorystorage "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	"log"
 	"os"
 	"os/signal"
@@ -20,6 +21,8 @@ var configFile string
 func init() {
 	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
+
+// TODO: separate service to get from context so not to hardcode context value keys
 
 func main() {
 	flag.Parse()
