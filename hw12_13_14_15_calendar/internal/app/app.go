@@ -9,7 +9,11 @@ import (
 type App struct { // TODO
 }
 
-type Logger interface { // TODO
+type Logger interface {
+	Debug(string)
+	Info(string)
+	Warning(string)
+	Error(string)
 }
 
 type Storage interface {
