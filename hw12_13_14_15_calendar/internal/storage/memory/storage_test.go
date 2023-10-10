@@ -24,11 +24,11 @@ func TestStorage(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		memStorage := memorystorage.New()
 
-		_, err := memStorage.Create(event)
-		storageEvents := memStorage.ReadAll()
+		_, createErr := memStorage.Create(event)
+		storageEvents, _ := memStorage.ReadAll()
 
-		require.NoError(t, err)
-		require.Len(t, storageEvents, 1)
+		require.NoError(t, createErr)
+		require.Len(t, *storageEvents, 1)
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -79,8 +79,9 @@ func TestStorage(t *testing.T) {
 		deleteErr := memStorage.Delete(id)
 
 		// assert
+		events, _ := memStorage.ReadAll()
 		require.NoError(t, deleteErr)
-		require.Len(t, memStorage.ReadAll(), 0)
+		require.Len(t, *events, 0)
 	})
 
 	t.Run("read unknown", func(t *testing.T) {
@@ -108,6 +109,7 @@ func TestStorage(t *testing.T) {
 			require.NoError(t, createErr)
 		}
 
-		require.Len(t, memStorage.ReadAll(), n)
+		events, _ := memStorage.ReadAll()
+		require.Len(t, *events, n)
 	})
 }

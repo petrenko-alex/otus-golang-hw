@@ -15,7 +15,7 @@ type Logger interface { // TODO
 type Storage interface {
 	Create(storage.Event) (string, error)
 	ReadOne(string) (*storage.Event, error)
-	ReadAll() storage.Events // todo: return errors as well?
+	ReadAll() (*storage.Events, error)
 	Update(storage.Event) error
 	Delete(string) error
 }

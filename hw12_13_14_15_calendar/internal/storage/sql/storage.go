@@ -72,12 +72,12 @@ func (s *PgStorage) ReadOne(id string) (*storage.Event, error) {
 	return &event, nil
 }
 
-func (s *PgStorage) ReadAll() storage.Events {
+func (s *PgStorage) ReadAll() (*storage.Events, error) {
 	events := storage.Events{}
 
 	rows, err := s.db.Query(fmt.Sprintf("SELECT %s FROM %s", tableColumnsRead, tableName))
 	if err != nil {
-		// todo:
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -85,7 +85,7 @@ func (s *PgStorage) ReadAll() storage.Events {
 		event := storage.Event{}
 		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
 		if err != nil {
-			// todo:
+			return nil, err
 		}
 
 		events = append(events, event)
@@ -93,10 +93,10 @@ func (s *PgStorage) ReadAll() storage.Events {
 
 	err = rows.Err()
 	if err != nil {
-		// todo:
+		return nil, err
 	}
 
-	return events
+	return &events, nil
 }
 
 func (s *PgStorage) Update(event storage.Event) error {

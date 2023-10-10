@@ -30,7 +30,7 @@ func (s *Storage) ReadOne(id string) (*storage.Event, error) {
 	return &event, nil
 }
 
-func (s *Storage) ReadAll() storage.Events {
+func (s *Storage) ReadAll() (*storage.Events, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -40,7 +40,7 @@ func (s *Storage) ReadAll() storage.Events {
 		events = append(events, event)
 	}
 
-	return events
+	return &events, nil
 }
 
 func (s *Storage) Create(event storage.Event) (string, error) {
