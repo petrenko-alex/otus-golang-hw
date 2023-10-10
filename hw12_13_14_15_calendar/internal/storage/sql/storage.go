@@ -47,7 +47,7 @@ func (s *PgStorage) Create(event storage.Event) (string, error) {
 	return event.ID, nil
 }
 
-func (s *PgStorage) ReadOne(id string) (storage.Event, error) {
+func (s *PgStorage) ReadOne(id string) (*storage.Event, error) {
 	event := storage.Event{}
 
 	err := s.db.QueryRow(
@@ -66,10 +66,10 @@ func (s *PgStorage) ReadOne(id string) (storage.Event, error) {
 			err = ErrNotFound
 		}
 
-		return event, err
+		return nil, err
 	}
 
-	return event, nil
+	return &event, nil
 }
 
 func (s *PgStorage) ReadAll() storage.Events {

@@ -18,16 +18,16 @@ func New() *Storage {
 	}
 }
 
-func (s *Storage) ReadOne(id string) (storage.Event, error) {
+func (s *Storage) ReadOne(id string) (*storage.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	event, has := s.data[id]
 	if !has {
-		return storage.Event{}, storage.ErrEventNotFound // TODO: what is the better way?
+		return nil, storage.ErrEventNotFound
 	}
 
-	return event, nil
+	return &event, nil
 }
 
 func (s *Storage) ReadAll() storage.Events {

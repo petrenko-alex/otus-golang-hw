@@ -15,8 +15,8 @@ func TestStorage(t *testing.T) {
 		Title:       "some event",
 		DateTime:    time.Now(),
 		Description: "this is some event",
-		Duration:    time.Minute * 60,
-		RemindTime:  time.Minute * 15,
+		Duration:    "60",
+		RemindTime:  "15",
 
 		UserId: 1,
 	}
@@ -40,17 +40,17 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, createErr)
 
 		// read & update
-		event, readErr := memStorage.ReadOne(id)
+		event1, readErr := memStorage.ReadOne(id)
 		require.NoError(t, readErr)
 
-		event.Title = newTitle
-		updateErr := memStorage.Update(event)
+		event1.Title = newTitle
+		updateErr := memStorage.Update(*event1)
 		require.NoError(t, updateErr)
 
 		// assert
-		event, readErr = memStorage.ReadOne(id)
+		event2, readErr := memStorage.ReadOne(id)
 		require.NoError(t, readErr)
-		require.Equal(t, newTitle, event.Title)
+		require.Equal(t, newTitle, event2.Title)
 	})
 
 	t.Run("update unknown", func(t *testing.T) {
@@ -66,7 +66,6 @@ func TestStorage(t *testing.T) {
 
 		// assert
 		require.ErrorIs(t, updateErr, storage.ErrEventNotFound)
-
 	})
 
 	t.Run("delete", func(t *testing.T) {
@@ -110,7 +109,5 @@ func TestStorage(t *testing.T) {
 		}
 
 		require.Len(t, memStorage.ReadAll(), n)
-
 	})
-
 }
