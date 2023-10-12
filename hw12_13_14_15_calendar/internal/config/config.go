@@ -2,6 +2,7 @@ package config
 
 import (
 	"io"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -11,11 +12,13 @@ type Config struct {
 		Level string
 	}
 	Server struct {
-		Host, Port string
+		Host, Port   string
+		ReadTimeout  time.Duration `yaml:"read_timeout"`
+		WriteTimeout time.Duration `yaml:"write_timeout"`
 	}
 	Db struct {
 		Dsn           string
-		MigrationsDir string `yaml:"migrations-dir"`
+		MigrationsDir string `yaml:"migrations_dir"`
 	}
 	Storage string
 }
