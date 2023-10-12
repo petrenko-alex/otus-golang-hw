@@ -26,7 +26,8 @@ type Config struct {
 		Host, Port string
 	}
 	Db struct {
-		Dsn string
+		Dsn           string
+		MigrationsDir string `yaml:"migrations-dir"`
 	}
 	Storage StorageType
 }

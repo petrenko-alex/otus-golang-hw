@@ -3,6 +3,7 @@ logger:
 storage: "memory"
 db:
   dsn: "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+  migrations-dir: "./migrations/"
 server:
   host: "localhost"
   port: 4242
