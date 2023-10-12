@@ -1,4 +1,4 @@
-package storage
+package entity
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 )
 
 // todo: use time.Duration type
+
 var (
 	ErrEventNotFound = errors.New("event not found")
 )

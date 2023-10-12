@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	memorystorage "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/require"
 )
 
 func TestStorage(t *testing.T) {
-	event := storage.Event{
+	event := entity.Event{
 		Title:       "some event",
 		DateTime:    time.Now(),
 		Description: "this is some event",
@@ -25,7 +25,7 @@ func TestStorage(t *testing.T) {
 		memStorage := memorystorage.New()
 
 		_, createErr := memStorage.Create(event)
-		storageEvents, _ := memStorage.ReadAll()
+		storageEvents, _ := memStorage.ReadAll() // TODO: убрать это? читать сыро. Иначе, тестируем код с помощью того же кода, который тестируем.
 
 		require.NoError(t, createErr)
 		require.Len(t, *storageEvents, 1)
@@ -57,7 +57,7 @@ func TestStorage(t *testing.T) {
 		memStorage := memorystorage.New()
 
 		// create to init storage
-		_, createErr := memStorage.Create(event)
+		_, createErr := memStorage.Create(event) // фикстуры?
 		require.NoError(t, createErr)
 
 		// generate random ID & try to update
@@ -65,7 +65,7 @@ func TestStorage(t *testing.T) {
 		updateErr := memStorage.Update(event)
 
 		// assert
-		require.ErrorIs(t, updateErr, storage.ErrEventNotFound)
+		require.ErrorIs(t, updateErr, entity.ErrEventNotFound)
 	})
 
 	t.Run("delete", func(t *testing.T) {
@@ -96,7 +96,7 @@ func TestStorage(t *testing.T) {
 		_, readErr := memStorage.ReadOne(id)
 
 		// assert
-		require.ErrorIs(t, readErr, storage.ErrEventNotFound)
+		require.ErrorIs(t, readErr, entity.ErrEventNotFound)
 	})
 
 	t.Run("read all", func(t *testing.T) {

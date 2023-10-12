@@ -7,6 +7,8 @@ import (
 )
 
 type App struct { // TODO
+	storage storage.Storage
+	logger  Logger
 }
 
 type Logger interface {
@@ -16,16 +18,11 @@ type Logger interface {
 	Error(string)
 }
 
-type Storage interface {
-	Create(storage.Event) (string, error)
-	ReadOne(string) (*storage.Event, error)
-	ReadAll() (*storage.Events, error)
-	Update(storage.Event) error
-	Delete(string) error
-}
-
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+func New(logger Logger, storage storage.Storage) *App {
+	return &App{
+		logger:  logger,
+		storage: storage,
+	}
 }
 
 func (a *App) CreateEvent(ctx context.Context, id, title string) error {

@@ -1,21 +1,9 @@
 package config
 
 import (
-	"errors"
 	"io"
 
 	"gopkg.in/yaml.v3"
-)
-
-var (
-	ErrInvalidStorageValue = errors.New("invalid storage value in config")
-)
-
-type StorageType string
-
-const (
-	Memory StorageType = "memory"
-	DB     StorageType = "db"
 )
 
 type Config struct {
@@ -29,7 +17,7 @@ type Config struct {
 		Dsn           string
 		MigrationsDir string `yaml:"migrations-dir"`
 	}
-	Storage StorageType
+	Storage string
 }
 
 func NewConfig(configFile io.Reader) (*Config, error) {
@@ -40,17 +28,5 @@ func NewConfig(configFile io.Reader) (*Config, error) {
 		return nil, err
 	}
 
-	if validateErr := validateConfig(config); validateErr != nil {
-		return nil, validateErr
-	}
-
 	return config, nil
-}
-
-func validateConfig(config *Config) error {
-	if config.Storage != Memory && config.Storage != DB {
-		return ErrInvalidStorageValue
-	}
-
-	return nil
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	memorystorage "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
 	"log"
 	"os"
 	"os/signal"
@@ -14,6 +13,7 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
@@ -44,8 +44,12 @@ func main() {
 
 	logg := createLogger(cfg)
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	appStorage, storageErr := storage.GetStorage(cfg.Storage)
+	if storageErr != nil {
+		log.Fatal("Error getting storage.")
+	}
+
+	calendar := app.New(logg, appStorage)
 
 	server := internalhttp.NewServer(logg, calendar)
 

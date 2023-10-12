@@ -7,7 +7,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	"strconv"
 	"time"
 )
@@ -29,7 +29,7 @@ const (
 	tableColumnsInsert = "title,description,datetime,duration,remind_time,user_id"
 )
 
-func (s *PgStorage) Create(event storage.Event) (string, error) {
+func (s *PgStorage) Create(event entity.Event) (string, error) {
 	err := s.db.QueryRow(
 		fmt.Sprintf("INSERT INTO %s(%s) VALUES($1,$2,$3,$4,$5,$6) RETURNING id", tableName, tableColumnsInsert),
 		event.Title,
@@ -47,8 +47,8 @@ func (s *PgStorage) Create(event storage.Event) (string, error) {
 	return event.ID, nil
 }
 
-func (s *PgStorage) ReadOne(id string) (*storage.Event, error) {
-	event := storage.Event{}
+func (s *PgStorage) ReadOne(id string) (*entity.Event, error) {
+	event := entity.Event{}
 
 	err := s.db.QueryRow(
 		fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", tableColumnsRead, tableName), id,
@@ -72,8 +72,8 @@ func (s *PgStorage) ReadOne(id string) (*storage.Event, error) {
 	return &event, nil
 }
 
-func (s *PgStorage) ReadAll() (*storage.Events, error) {
-	events := storage.Events{}
+func (s *PgStorage) ReadAll() (*entity.Events, error) {
+	events := entity.Events{}
 
 	rows, err := s.db.Query(fmt.Sprintf("SELECT %s FROM %s", tableColumnsRead, tableName))
 	if err != nil {
@@ -82,7 +82,7 @@ func (s *PgStorage) ReadAll() (*storage.Events, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		event := storage.Event{}
+		event := entity.Event{}
 		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
 		if err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func (s *PgStorage) ReadAll() (*storage.Events, error) {
 	return &events, nil
 }
 
-func (s *PgStorage) Update(event storage.Event) error {
+func (s *PgStorage) Update(event entity.Event) error {
 	_, err := s.db.Exec(
 		fmt.Sprintf("UPDATE %s SET title=$1, description=$2, datetime=$3, duration=$4, remind_time=$5, user_id=$6 WHERE id=$7", tableName),
 		event.Title,
