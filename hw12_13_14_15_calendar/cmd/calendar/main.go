@@ -73,7 +73,7 @@ func main() {
 	}
 }
 
-func createLogger(cfg *config.Config) logger.Logger {
+func createLogger(cfg *config.Config) app.Logger {
 	levelMap := map[string]logger.Level{
 		"debug":   logger.Debug,
 		"info":    logger.Info,
