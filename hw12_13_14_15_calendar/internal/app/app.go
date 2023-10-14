@@ -6,7 +6,7 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
-type App struct { // TODO
+type App struct {
 	storage storage.Storage
 	logger  Logger
 }

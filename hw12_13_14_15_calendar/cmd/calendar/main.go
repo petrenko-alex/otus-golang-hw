@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -49,14 +52,27 @@ func main() {
 		log.Fatal("Error getting storage.")
 	}
 
-	calendar := app.New(logg, appStorage)
+	server := internalhttp.NewServer(
+		internalhttp.ServerOptions{
+			Host:         cfg.Server.Host,
+			Port:         cfg.Server.Port,
+			ReadTimeout:  cfg.Server.ReadTimeout,
+			WriteTimeout: cfg.Server.WriteTimeout,
+		},
+		logg,
+		app.New(logg, appStorage),
+	)
 
-	server := internalhttp.NewServer(logg, calendar)
-
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	ctx, cancel := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGHUP,
+	)
 	defer cancel()
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		<-ctx.Done()
 
@@ -66,15 +82,20 @@ func main() {
 		if err := server.Stop(ctx); err != nil {
 			logg.Error("failed to stop http server: " + err.Error())
 		}
+
+		logg.Info("calendar stopped.")
+		wg.Done()
 	}()
 
 	logg.Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
+	if err := server.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}
+
+	wg.Wait()
 }
 
 func createLogger(cfg *config.Config) app.Logger {
