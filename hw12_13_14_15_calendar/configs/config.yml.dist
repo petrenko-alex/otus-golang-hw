@@ -2,7 +2,7 @@ logger:
   level: "info"
 storage: "memory"
 db:
-  dsn: "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+  dsn: "<paste your dsn>"
   migrations_dir: "./migrations/"
 server:
   host: "localhost"
