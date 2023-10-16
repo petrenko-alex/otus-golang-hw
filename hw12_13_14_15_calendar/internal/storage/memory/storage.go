@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
@@ -12,10 +13,27 @@ type Storage struct {
 	data map[string]entity.Event
 }
 
+func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*entity.Events, error) {
+	periodEvents := make(entity.Events, 0)
+
+	for _, event := range s.data {
+		event.DateTime.After(periodStart)
+		if event.DateTime.After(periodStart) && event.DateTime.Before(periodEnd) {
+			periodEvents = append(periodEvents, event)
+		}
+	}
+
+	return &periodEvents, nil
+}
+
 func New() *Storage {
 	return &Storage{
-		data: make(map[string]entity.Event, 0),
+		data: make(map[string]entity.Event),
 	}
+}
+
+func NewWithEvents(events map[string]entity.Event) *Storage {
+	return &Storage{data: events}
 }
 
 func (s *Storage) ReadOne(id string) (*entity.Event, error) {

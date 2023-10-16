@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	memorystorage "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage/memory"
@@ -25,6 +26,7 @@ type Storage interface {
 	ReadAll() (*entity.Events, error)
 	Update(entity.Event) error
 	Delete(string) error
+	GetForPeriod(time.Time, time.Time) (*entity.Events, error)
 }
 
 func GetStorage(storageType string) (Storage, error) {

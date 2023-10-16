@@ -127,6 +127,37 @@ func (s *PgStorage) Delete(id string) error {
 	return nil
 }
 
+func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events, error) {
+	events := entity.Events{}
+
+	rows, err := s.db.Query(
+		fmt.Sprintf("SELECT %s FROM %s WHERE datetime BETWEEN $1 AND $2", tableColumnsRead, tableName),
+		start,
+		end,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		event := entity.Event{}
+		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
+		if err != nil {
+			return nil, err
+		}
+
+		events = append(events, event)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return &events, nil
+}
+
 func New() *PgStorage {
 	return &PgStorage{}
 }

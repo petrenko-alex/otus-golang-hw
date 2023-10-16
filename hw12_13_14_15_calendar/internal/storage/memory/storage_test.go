@@ -1,6 +1,7 @@
 package memorystorage_test
 
 import (
+	"sort"
 	"testing"
 	"time"
 
@@ -112,4 +113,76 @@ func TestStorage(t *testing.T) {
 		events, _ := memStorage.ReadAll()
 		require.Len(t, *events, n)
 	})
+
+	t.Run("read for day", func(t *testing.T) {
+		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
+		strg := memorystorage.NewWithEvents(map[string]entity.Event{
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 2), UserId: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 2), UserId: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24), UserId: 1},
+			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24), UserId: 1},
+		})
+
+		events, err := strg.GetForPeriod(
+			time.Date(2023, 10, 16, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, 10, 17, 0, 0, 0, 0, time.UTC),
+		)
+
+		require.NoError(t, err)
+		require.Len(t, *events, 3)
+		require.Equal(t, []string{"1", "2", "3"}, getKeys(t, events))
+	})
+
+	t.Run("read for week", func(t *testing.T) {
+		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
+		strg := memorystorage.NewWithEvents(map[string]entity.Event{
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 10), UserId: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 24 * 10), UserId: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserId: 1},
+		})
+
+		events, err := strg.GetForPeriod(
+			time.Date(2023, 10, 16, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, 10, 23, 0, 0, 0, 0, time.UTC),
+		)
+
+		require.NoError(t, err)
+		require.Len(t, *events, 2)
+		require.Equal(t, []string{"1", "4"}, getKeys(t, events))
+	})
+
+	t.Run("read for month", func(t *testing.T) {
+		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
+		strg := memorystorage.NewWithEvents(map[string]entity.Event{
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 30), UserId: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(time.Hour * 24 * 10), UserId: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserId: 1},
+			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24 * 30), UserId: 1},
+		})
+
+		events, err := strg.GetForPeriod(
+			time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2023, 10, 31, 0, 0, 0, 0, time.UTC),
+		)
+
+		require.NoError(t, err)
+		require.Len(t, *events, 3)
+		require.Equal(t, []string{"1", "3", "4"}, getKeys(t, events))
+	})
+}
+
+func getKeys(t *testing.T, events *entity.Events) []string {
+	t.Helper()
+	keys := make([]string, 0, len(*events))
+
+	for _, event := range *events {
+		keys = append(keys, event.ID)
+	}
+
+	sort.Strings(keys)
+
+	return keys
 }
