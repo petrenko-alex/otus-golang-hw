@@ -27,6 +27,7 @@ type Storage interface {
 	Update(entity.Event) error
 	Delete(string) error
 	GetForPeriod(time.Time, time.Time) (*entity.Events, error)
+	GetForTime(time.Time) (*entity.Event, error)
 }
 
 func GetStorage(storageType string) (Storage, error) {

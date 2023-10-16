@@ -158,6 +158,31 @@ func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events
 	return &events, nil
 }
 
+func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
+	event := entity.Event{}
+
+	err := s.db.QueryRow(
+		fmt.Sprintf("SELECT %s FROM %s WHERE datetime=$1", tableColumnsRead, tableName), t,
+	).Scan(
+		&event.ID,
+		&event.Title,
+		&event.Description,
+		&event.DateTime,
+		&event.Duration,
+		&event.RemindTime,
+		&event.UserId,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return &event, nil
+}
+
 func New() *PgStorage {
 	return &PgStorage{}
 }

@@ -13,19 +13,6 @@ type Storage struct {
 	data map[string]entity.Event
 }
 
-func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*entity.Events, error) {
-	periodEvents := make(entity.Events, 0)
-
-	for _, event := range s.data {
-		event.DateTime.After(periodStart)
-		if event.DateTime.After(periodStart) && event.DateTime.Before(periodEnd) {
-			periodEvents = append(periodEvents, event)
-		}
-	}
-
-	return &periodEvents, nil
-}
-
 func New() *Storage {
 	return &Storage{
 		data: make(map[string]entity.Event),
@@ -90,4 +77,26 @@ func (s *Storage) Delete(id string) error {
 	s.mu.Unlock()
 
 	return nil
+}
+
+func (s *Storage) GetForTime(t time.Time) (*entity.Event, error) {
+	for _, event := range s.data {
+		if event.DateTime == t {
+			return &event, nil
+		}
+	}
+
+	return nil, entity.ErrEventNotFound
+}
+
+func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*entity.Events, error) {
+	periodEvents := make(entity.Events, 0)
+
+	for _, event := range s.data {
+		if event.DateTime.After(periodStart) && event.DateTime.Before(periodEnd) {
+			periodEvents = append(periodEvents, event)
+		}
+	}
+
+	return &periodEvents, nil
 }
