@@ -69,7 +69,7 @@ func (a *App) UpdateEvent(id string, event entity.Event) error {
 	}
 
 	// check not active
-	if existingEvent.DateTime == time.Now() { // todo: check with duration
+	if existingEvent.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) { // todo: check with duration
 		return ErrEventIsActive
 	}
 
@@ -103,7 +103,7 @@ func (a *App) DeleteEvent(id string) error {
 		return readErr
 	}
 
-	if event.DateTime == time.Now() { // todo: check with duration
+	if event.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) { // todo: check with duration
 		return ErrEventIsActive
 	}
 
