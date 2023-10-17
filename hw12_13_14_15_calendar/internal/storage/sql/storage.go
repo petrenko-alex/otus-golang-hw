@@ -18,8 +18,19 @@ type PgStorage struct {
 	db *sql.DB
 }
 
+// dto to process null values
+type sqlEvent struct {
+	ID          string
+	Title       string
+	DateTime    time.Time
+	Description sql.NullString
+	Duration    sql.NullString
+	RemindTime  sql.NullString
+
+	UserId int
+}
+
 var (
-	ErrNotFound      = errors.New("event with specified id was not found")
 	ErrConnectFailed = errors.New("error connecting to db")
 )
 
@@ -48,7 +59,7 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 }
 
 func (s *PgStorage) GetById(id string) (*entity.Event, error) {
-	event := entity.Event{}
+	event := sqlEvent{}
 
 	err := s.db.QueryRow(
 		fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", tableColumnsRead, tableName), id,
@@ -69,7 +80,7 @@ func (s *PgStorage) GetById(id string) (*entity.Event, error) {
 		return nil, err
 	}
 
-	return &event, nil
+	return s.sqlEventToEvent(&event), nil
 }
 
 func (s *PgStorage) GetAll() (*entity.Events, error) {
@@ -82,13 +93,13 @@ func (s *PgStorage) GetAll() (*entity.Events, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		event := entity.Event{}
+		event := sqlEvent{}
 		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
 		if err != nil {
 			return nil, err
 		}
 
-		events = append(events, event)
+		events = append(events, *s.sqlEventToEvent(&event))
 	}
 
 	err = rows.Err()
@@ -141,13 +152,13 @@ func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events
 	defer rows.Close()
 
 	for rows.Next() {
-		event := entity.Event{}
+		event := sqlEvent{}
 		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
 		if err != nil {
 			return nil, err
 		}
 
-		events = append(events, event)
+		events = append(events, *s.sqlEventToEvent(&event))
 	}
 
 	err = rows.Err()
@@ -159,7 +170,7 @@ func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events
 }
 
 func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
-	event := entity.Event{}
+	event := sqlEvent{}
 
 	err := s.db.QueryRow(
 		fmt.Sprintf("SELECT %s FROM %s WHERE datetime=$1", tableColumnsRead, tableName), t,
@@ -180,7 +191,7 @@ func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
 		return nil, err
 	}
 
-	return &event, nil
+	return s.sqlEventToEvent(&event), nil
 }
 
 func New() *PgStorage {
@@ -215,4 +226,27 @@ func (s *PgStorage) Close(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *PgStorage) sqlEventToEvent(sqlEvent *sqlEvent) *entity.Event {
+	var event = entity.Event{}
+
+	event.ID = sqlEvent.ID
+	event.Title = sqlEvent.Title
+	event.DateTime = sqlEvent.DateTime
+	event.UserId = sqlEvent.UserId
+
+	if sqlEvent.Description.Valid {
+		event.Description = sqlEvent.Description.String
+	}
+
+	if sqlEvent.Duration.Valid {
+		event.Duration = sqlEvent.Duration.String
+	}
+
+	if sqlEvent.RemindTime.Valid {
+		event.RemindTime = sqlEvent.RemindTime.String
+	}
+
+	return &event
 }
