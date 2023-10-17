@@ -1,6 +1,7 @@
 package memorystorage
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -14,9 +15,7 @@ type Storage struct {
 }
 
 func New() *Storage {
-	return &Storage{
-		data: make(map[string]entity.Event),
-	}
+	return &Storage{}
 }
 
 func NewWithEvents(events map[string]entity.Event) *Storage {
@@ -61,7 +60,7 @@ func (s *Storage) Create(event entity.Event) (string, error) {
 func (s *Storage) Update(event entity.Event) error {
 	_, err := s.GetById(event.ID)
 	if err != nil {
-		return err // todo: wrap?
+		return err
 	}
 
 	s.mu.Lock()
@@ -99,4 +98,19 @@ func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*ent
 	}
 
 	return &periodEvents, nil
+}
+
+func (s *Storage) Connect(ctx context.Context) error {
+	s.data = make(map[string]entity.Event)
+
+	return nil
+}
+
+func (s *Storage) Close(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.data = nil
+
+	return nil
 }

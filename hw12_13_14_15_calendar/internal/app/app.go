@@ -35,7 +35,7 @@ func New(logger Logger, storage storage.Storage) *App {
 
 // CreateEvent create event if requested time is not busy.
 func (a *App) CreateEvent(event entity.Event) (string, error) {
-	existingEvent, getErr := a.storage.GetForTime(event.DateTime) // todo: check with duration
+	existingEvent, getErr := a.storage.GetForTime(event.DateTime)
 	if existingEvent != nil {
 		return "", ErrDateBusy
 	}
@@ -69,12 +69,12 @@ func (a *App) UpdateEvent(id string, event entity.Event) error {
 	}
 
 	// check not active
-	if existingEvent.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) { // todo: check with duration
+	if existingEvent.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) {
 		return ErrEventIsActive
 	}
 
 	// check new time not busy
-	eventWithRequestedTime, getErr := a.storage.GetForTime(event.DateTime) // todo: check with duration
+	eventWithRequestedTime, getErr := a.storage.GetForTime(event.DateTime)
 	if eventWithRequestedTime != nil {
 		return ErrDateBusy
 	}
@@ -103,7 +103,7 @@ func (a *App) DeleteEvent(id string) error {
 		return readErr
 	}
 
-	if event.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) { // todo: check with duration
+	if event.DateTime.Round(time.Minute) == time.Now().Round(time.Minute) {
 		return ErrEventIsActive
 	}
 

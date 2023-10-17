@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// todo: use time.Duration type
-
 var (
 	ErrEventNotFound = errors.New("event not found")
 )

@@ -1,6 +1,7 @@
 package memorystorage_test
 
 import (
+	"context"
 	"sort"
 	"testing"
 	"time"
@@ -24,9 +25,11 @@ func TestStorage(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		_, createErr := memStorage.Create(event)
-		storageEvents, _ := memStorage.GetAll() // TODO: убрать это? читать напрямую из sql. Иначе, тестируем код с помощью того же кода, который тестируем.
+		storageEvents, _ := memStorage.GetAll()
 
 		require.NoError(t, createErr)
 		require.Len(t, *storageEvents, 1)
@@ -35,6 +38,8 @@ func TestStorage(t *testing.T) {
 	t.Run("update", func(t *testing.T) {
 		newTitle := "new title"
 		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		// create to init storage
 		id, createErr := memStorage.Create(event)
@@ -56,9 +61,11 @@ func TestStorage(t *testing.T) {
 
 	t.Run("update unknown", func(t *testing.T) {
 		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		// create to init storage
-		_, createErr := memStorage.Create(event) // фикстуры?
+		_, createErr := memStorage.Create(event)
 		require.NoError(t, createErr)
 
 		// generate random ID & try to update
@@ -71,6 +78,8 @@ func TestStorage(t *testing.T) {
 
 	t.Run("delete", func(t *testing.T) {
 		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		// create to init storage
 		id, createErr := memStorage.Create(event)
@@ -87,6 +96,8 @@ func TestStorage(t *testing.T) {
 
 	t.Run("read unknown", func(t *testing.T) {
 		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		// create to init storage
 		_, createErr := memStorage.Create(event)
@@ -101,8 +112,10 @@ func TestStorage(t *testing.T) {
 	})
 
 	t.Run("read all", func(t *testing.T) {
-		memStorage := memorystorage.New()
 		n := 3
+		memStorage := memorystorage.New()
+		connectErr := memStorage.Connect(context.Background())
+		require.NoError(t, connectErr)
 
 		// create to init storage
 		for i := 0; i < n; i++ {

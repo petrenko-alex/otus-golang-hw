@@ -35,6 +35,14 @@ func main() {
 		return
 	}
 
+	ctx, cancel := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGHUP,
+	)
+	defer cancel()
+
 	file, fileErr := os.Open(configFile)
 	if fileErr != nil {
 		log.Fatal("Error opening config file.")
@@ -44,12 +52,18 @@ func main() {
 	if configErr != nil {
 		log.Fatal("Error parsing config file.")
 	}
+	ctx = cfg.WithContext(ctx)
 
 	logg := createLogger(cfg)
 
 	appStorage, storageErr := storage.GetStorage(cfg.Storage)
 	if storageErr != nil {
 		log.Fatal("Error getting storage.")
+	}
+
+	storageInitErr := appStorage.Connect(ctx)
+	if storageInitErr != nil {
+		log.Fatal("Error init storage.")
 	}
 
 	server := internalhttp.NewServer(
@@ -62,14 +76,6 @@ func main() {
 		logg,
 		app.New(logg, appStorage),
 	)
-
-	ctx, cancel := signal.NotifyContext(
-		context.Background(),
-		syscall.SIGINT,
-		syscall.SIGTERM,
-		syscall.SIGHUP,
-	)
-	defer cancel()
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)

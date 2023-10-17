@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -20,7 +21,14 @@ var (
 	ErrInvalidStorageValue = errors.New("invalid storage value in config")
 )
 
+type ConnectionStorage interface {
+	Connect(ctx context.Context) error
+	Close(ctx context.Context) error
+}
+
 type Storage interface {
+	ConnectionStorage
+
 	Create(entity.Event) (string, error)
 	Update(entity.Event) error
 	Delete(string) error

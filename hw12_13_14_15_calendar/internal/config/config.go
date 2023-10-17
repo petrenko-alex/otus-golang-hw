@@ -1,11 +1,14 @@
 package config
 
 import (
+	"context"
 	"io"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
+
+const ctxKey = "config"
 
 type Config struct {
 	Logger struct {
@@ -32,4 +35,12 @@ func NewConfig(configFile io.Reader) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) WithContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, ctxKey, c)
+}
+
+func GetFromContext(ctx context.Context) *Config {
+	return ctx.Value(ctxKey).(*Config)
 }

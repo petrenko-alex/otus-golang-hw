@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"context"
 	"io"
 	"log"
 	"testing"
@@ -19,6 +20,11 @@ func createApp(t *testing.T) *app.App {
 	strg, err := storage.GetStorage(string(storage.Memory))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	storageInitErr := strg.Connect(context.Background())
+	if storageInitErr != nil {
+		log.Fatal(storageInitErr)
 	}
 
 	return app.New(

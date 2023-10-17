@@ -199,8 +199,8 @@ func New() *PgStorage {
 }
 
 func (s *PgStorage) Connect(ctx context.Context) error {
-	cfg, ok := ctx.Value("config").(*config.Config)
-	if !ok {
+	cfg := config.GetFromContext(ctx)
+	if cfg == nil {
 		return ErrConnectFailed
 	}
 
