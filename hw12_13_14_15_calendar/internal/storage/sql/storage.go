@@ -63,7 +63,7 @@ func (s *PgStorage) GetById(id string) (*entity.Event, error) {
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err = ErrNotFound
+			err = entity.ErrEventNotFound
 		}
 
 		return nil, err
@@ -174,7 +174,7 @@ func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err = ErrNotFound
+			err = entity.ErrEventNotFound
 		}
 
 		return nil, err
