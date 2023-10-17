@@ -3,7 +3,6 @@ package app_test
 import (
 	"io"
 	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -14,27 +13,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var application *app.App
+func createApp(t *testing.T) *app.App {
+	t.Helper()
 
-func TestMain(m *testing.M) {
-	setup()
-	code := m.Run()
-	os.Exit(code)
-}
-
-func setup() {
 	strg, err := storage.GetStorage(string(storage.Memory))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	application = app.New(
+	return app.New(
 		logger.New(logger.Debug, io.Discard),
 		strg,
 	)
 }
 
 func TestApp_CreateEvent(t *testing.T) {
+	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
 
 	id1, err1 := application.CreateEvent(
@@ -66,6 +60,7 @@ func TestApp_CreateEvent(t *testing.T) {
 }
 
 func TestApp_UpdateEvent(t *testing.T) {
+	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
 	event := entity.Event{
 		Title:       "event 1",
@@ -106,6 +101,7 @@ func TestApp_UpdateEvent(t *testing.T) {
 }
 
 func TestApp_DeleteEvent(t *testing.T) {
+	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
 
 	id1, err1 := application.CreateEvent(
