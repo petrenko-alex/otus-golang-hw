@@ -47,7 +47,7 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 	return event.ID, nil
 }
 
-func (s *PgStorage) ReadOne(id string) (*entity.Event, error) {
+func (s *PgStorage) GetById(id string) (*entity.Event, error) {
 	event := entity.Event{}
 
 	err := s.db.QueryRow(
@@ -72,7 +72,7 @@ func (s *PgStorage) ReadOne(id string) (*entity.Event, error) {
 	return &event, nil
 }
 
-func (s *PgStorage) ReadAll() (*entity.Events, error) {
+func (s *PgStorage) GetAll() (*entity.Events, error) {
 	events := entity.Events{}
 
 	rows, err := s.db.Query(fmt.Sprintf("SELECT %s FROM %s", tableColumnsRead, tableName))

@@ -26,7 +26,7 @@ func TestStorage(t *testing.T) {
 		memStorage := memorystorage.New()
 
 		_, createErr := memStorage.Create(event)
-		storageEvents, _ := memStorage.ReadAll() // TODO: убрать это? читать сыро. Иначе, тестируем код с помощью того же кода, который тестируем.
+		storageEvents, _ := memStorage.GetAll() // TODO: убрать это? читать напрямую из sql. Иначе, тестируем код с помощью того же кода, который тестируем.
 
 		require.NoError(t, createErr)
 		require.Len(t, *storageEvents, 1)
@@ -41,7 +41,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, createErr)
 
 		// read & update
-		event1, readErr := memStorage.ReadOne(id)
+		event1, readErr := memStorage.GetById(id)
 		require.NoError(t, readErr)
 
 		event1.Title = newTitle
@@ -49,7 +49,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, updateErr)
 
 		// assert
-		event2, readErr := memStorage.ReadOne(id)
+		event2, readErr := memStorage.GetById(id)
 		require.NoError(t, readErr)
 		require.Equal(t, newTitle, event2.Title)
 	})
@@ -80,7 +80,7 @@ func TestStorage(t *testing.T) {
 		deleteErr := memStorage.Delete(id)
 
 		// assert
-		events, _ := memStorage.ReadAll()
+		events, _ := memStorage.GetAll()
 		require.NoError(t, deleteErr)
 		require.Len(t, *events, 0)
 	})
@@ -94,7 +94,7 @@ func TestStorage(t *testing.T) {
 
 		// generate random ID & try to read
 		id := uuid.New().String()
-		_, readErr := memStorage.ReadOne(id)
+		_, readErr := memStorage.GetById(id)
 
 		// assert
 		require.ErrorIs(t, readErr, entity.ErrEventNotFound)
@@ -110,7 +110,7 @@ func TestStorage(t *testing.T) {
 			require.NoError(t, createErr)
 		}
 
-		events, _ := memStorage.ReadAll()
+		events, _ := memStorage.GetAll()
 		require.Len(t, *events, n)
 	})
 

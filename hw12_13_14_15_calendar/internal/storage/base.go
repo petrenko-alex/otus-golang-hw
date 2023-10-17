@@ -22,10 +22,10 @@ var (
 
 type Storage interface {
 	Create(entity.Event) (string, error)
-	ReadOne(string) (*entity.Event, error)
-	ReadAll() (*entity.Events, error)
 	Update(entity.Event) error
 	Delete(string) error
+	GetAll() (*entity.Events, error)
+	GetById(string) (*entity.Event, error)
 	GetForPeriod(time.Time, time.Time) (*entity.Events, error)
 	GetForTime(time.Time) (*entity.Event, error)
 }

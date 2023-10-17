@@ -23,7 +23,7 @@ func NewWithEvents(events map[string]entity.Event) *Storage {
 	return &Storage{data: events}
 }
 
-func (s *Storage) ReadOne(id string) (*entity.Event, error) {
+func (s *Storage) GetById(id string) (*entity.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -35,7 +35,7 @@ func (s *Storage) ReadOne(id string) (*entity.Event, error) {
 	return &event, nil
 }
 
-func (s *Storage) ReadAll() (*entity.Events, error) {
+func (s *Storage) GetAll() (*entity.Events, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -59,7 +59,7 @@ func (s *Storage) Create(event entity.Event) (string, error) {
 }
 
 func (s *Storage) Update(event entity.Event) error {
-	_, err := s.ReadOne(event.ID)
+	_, err := s.GetById(event.ID)
 	if err != nil {
 		return err // todo: wrap?
 	}
