@@ -34,3 +34,5 @@ ENV CONFIG_FILE /etc/calendar/config.yml
 COPY ./configs/config.yml ${CONFIG_FILE}
 
 CMD ${BIN_FILE} -config ${CONFIG_FILE}
+
+# TODO: run migrations

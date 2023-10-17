@@ -20,7 +20,7 @@ migrate-down: build-migrations
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: build
+run: migrate-up build
 	$(BIN) -config ./configs/config.yml
 
 build-img:
