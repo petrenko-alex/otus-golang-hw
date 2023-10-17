@@ -38,7 +38,7 @@ func (l *LogHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request
 			UserAgent string
 		}{
 			Ip:        request.RemoteAddr,
-			Datetime:  time.Now().Format(time.DateTime),
+			Datetime:  time.Now().Format(time.RFC822),
 			Method:    request.Method,
 			Path:      request.URL.Path,
 			Http:      request.Proto,
