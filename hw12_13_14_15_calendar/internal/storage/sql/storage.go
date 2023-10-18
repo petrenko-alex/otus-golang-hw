@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	_ "github.com/lib/pq"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
-	"strconv"
-	"time"
 )
 
 type PgStorage struct {
@@ -17,7 +18,7 @@ type PgStorage struct {
 	ctx context.Context
 }
 
-// dto to process null values
+// dto to process null values.
 type sqlEvent struct {
 	ID          string
 	Title       string
@@ -29,9 +30,7 @@ type sqlEvent struct {
 	UserId int
 }
 
-var (
-	ErrConnectFailed = errors.New("error connecting to db")
-)
+var ErrConnectFailed = errors.New("error connecting to db")
 
 const (
 	tableName          = "event"
@@ -50,7 +49,6 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 		event.RemindTime,
 		strconv.Itoa(event.UserId),
 	).Scan(&event.ID)
-
 	if err != nil {
 		return "", err
 	}
@@ -124,7 +122,6 @@ func (s *PgStorage) Update(event entity.Event) error {
 		event.UserId,
 		event.ID,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -237,7 +234,7 @@ func (s *PgStorage) Close(ctx context.Context) error {
 }
 
 func (s *PgStorage) sqlEventToEvent(sqlEvent *sqlEvent) *entity.Event {
-	var event = entity.Event{}
+	event := entity.Event{}
 
 	event.ID = sqlEvent.ID
 	event.Title = sqlEvent.Title

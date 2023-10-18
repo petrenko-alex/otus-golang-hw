@@ -5,9 +5,7 @@ import (
 	"time"
 )
 
-var (
-	ErrEventNotFound = errors.New("event not found")
-)
+var ErrEventNotFound = errors.New("event not found")
 
 type Events []Event
 

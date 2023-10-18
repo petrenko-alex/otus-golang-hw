@@ -10,7 +10,7 @@ import (
 )
 
 type Storage struct {
-	mu   sync.RWMutex //nolint:unused
+	mu   sync.RWMutex
 	data map[string]entity.Event
 }
 

@@ -17,9 +17,7 @@ const (
 	DB     Type = "db"
 )
 
-var (
-	ErrInvalidStorageValue = errors.New("invalid storage value in config")
-)
+var ErrInvalidStorageValue = errors.New("invalid storage value in config")
 
 type ConnectionStorage interface {
 	Connect(ctx context.Context) error
@@ -45,7 +43,6 @@ func GetStorage(storageType string) (Storage, error) {
 
 	if Type(storageType) == Memory {
 		return memorystorage.New(), nil
-
 	}
 
 	return sqlstorage.New(), nil
