@@ -25,14 +25,19 @@ func init() {
 	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
 
-// TODO: separate service to get from context so not to hardcode context value keys
+// 2. run linter
+// 3. прочитать пункт "Об архитектуре" из readme
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	flag.Parse()
 
 	if flag.Arg(0) == "version" {
 		printVersion()
-		return
+		return 0
 	}
 
 	ctx, cancel := signal.NotifyContext(
@@ -45,12 +50,16 @@ func main() {
 
 	file, fileErr := os.Open(configFile)
 	if fileErr != nil {
-		log.Fatal("Error opening config file.")
+		log.Println("Error opening config file.")
+
+		return 1
 	}
 
 	cfg, configErr := config.NewConfig(file)
 	if configErr != nil {
-		log.Fatal("Error parsing config file.")
+		log.Println("Error parsing config file.")
+
+		return 1
 	}
 	ctx = cfg.WithContext(ctx)
 
@@ -58,12 +67,16 @@ func main() {
 
 	appStorage, storageErr := storage.GetStorage(cfg.Storage)
 	if storageErr != nil {
-		log.Fatal("Error getting storage.")
+		log.Println("Error getting storage.")
+
+		return 1
 	}
 
 	storageInitErr := appStorage.Connect(ctx)
 	if storageInitErr != nil {
-		log.Fatal("Error init storage.")
+		log.Println("Error init storage.")
+
+		return 1
 	}
 
 	server := internalhttp.NewServer(
@@ -98,10 +111,13 @@ func main() {
 	if err := server.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
-		os.Exit(1)
+
+		return 1
 	}
 
 	wg.Wait()
+
+	return 0
 }
 
 func createLogger(cfg *config.Config) app.Logger {
