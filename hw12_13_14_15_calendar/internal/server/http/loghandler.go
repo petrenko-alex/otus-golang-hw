@@ -26,22 +26,22 @@ func (l *LogHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request
 	l.nextHandler.ServeHTTP(lrw, request)
 	end := time.Since(start)
 
-	logJson, err := json.Marshal(
+	logJSON, err := json.Marshal(
 		struct {
-			Ip        string
+			IP        string
 			Datetime  string
 			Method    string
 			Path      string
-			Http      string
+			HTTP      string
 			Status    string
 			Time      string
 			UserAgent string
 		}{
-			Ip:        request.RemoteAddr,
+			IP:        request.RemoteAddr,
 			Datetime:  time.Now().Format(time.RFC822),
 			Method:    request.Method,
 			Path:      request.URL.Path,
-			Http:      request.Proto,
+			HTTP:      request.Proto,
 			Status:    strconv.Itoa(lrw.StatusCode),
 			Time:      end.String(),
 			UserAgent: request.UserAgent(),
@@ -51,7 +51,7 @@ func (l *LogHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request
 		l.logger.Error(err.Error())
 	}
 
-	l.logger.Info(string(logJson))
+	l.logger.Info(string(logJSON))
 }
 
 type LoggingResponseWriter struct {
