@@ -9,9 +9,10 @@ import (
 )
 
 func TestLogger(t *testing.T) {
+	const msg = "log msg"
+
 	t.Run("log with exact level", func(t *testing.T) {
 		out := &bytes.Buffer{}
-		msg := "log msg"
 
 		logg := logger.New(logger.Warning, out)
 		logg.Warning(msg)
@@ -21,7 +22,6 @@ func TestLogger(t *testing.T) {
 
 	t.Run("log with higher level", func(t *testing.T) {
 		out := &bytes.Buffer{}
-		msg := "log msg"
 
 		logg := logger.New(logger.Info, out)
 		logg.Warning(msg)
@@ -31,7 +31,6 @@ func TestLogger(t *testing.T) {
 
 	t.Run("log with lower level", func(t *testing.T) {
 		out := &bytes.Buffer{}
-		msg := "log msg"
 
 		logg := logger.New(logger.Error, out)
 		logg.Warning(msg)
