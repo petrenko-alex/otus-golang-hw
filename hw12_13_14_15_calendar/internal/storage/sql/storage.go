@@ -47,7 +47,7 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 		event.DateTime.Format(time.RFC3339),
 		event.Duration,
 		event.RemindTime,
-		strconv.Itoa(event.UserId),
+		strconv.Itoa(event.UserID),
 	).Scan(&event.ID)
 	if err != nil {
 		return "", err
@@ -119,7 +119,7 @@ func (s *PgStorage) Update(event entity.Event) error {
 		event.DateTime.Format(time.RFC3339),
 		event.Duration,
 		event.RemindTime,
-		event.UserId,
+		event.UserID,
 		event.ID,
 	)
 	if err != nil {
@@ -239,7 +239,7 @@ func (s *PgStorage) sqlEventToEvent(sqlEvent *sqlEvent) *entity.Event {
 	event.ID = sqlEvent.ID
 	event.Title = sqlEvent.Title
 	event.DateTime = sqlEvent.DateTime
-	event.UserId = sqlEvent.UserId
+	event.UserID = sqlEvent.UserId
 
 	if sqlEvent.Description.Valid {
 		event.Description = sqlEvent.Description.String

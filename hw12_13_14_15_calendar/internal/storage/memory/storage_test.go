@@ -20,7 +20,7 @@ func TestStorage(t *testing.T) {
 		Duration:    "60",
 		RemindTime:  "15",
 
-		UserId: 1,
+		UserID: 1,
 	}
 
 	t.Run("create", func(t *testing.T) {
@@ -130,11 +130,11 @@ func TestStorage(t *testing.T) {
 	t.Run("read for day", func(t *testing.T) {
 		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
 		strg := memorystorage.NewWithEvents(map[string]entity.Event{
-			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
-			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 2), UserId: 1},
-			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 2), UserId: 1},
-			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24), UserId: 1},
-			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24), UserId: 1},
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserID: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 2), UserID: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 2), UserID: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24), UserID: 1},
+			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24), UserID: 1},
 		})
 
 		events, err := strg.GetForPeriod(
@@ -150,10 +150,10 @@ func TestStorage(t *testing.T) {
 	t.Run("read for week", func(t *testing.T) {
 		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
 		strg := memorystorage.NewWithEvents(map[string]entity.Event{
-			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
-			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 10), UserId: 1},
-			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 24 * 10), UserId: 1},
-			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserId: 1},
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserID: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 10), UserID: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(-time.Hour * 24 * 10), UserID: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserID: 1},
 		})
 
 		events, err := strg.GetForPeriod(
@@ -169,11 +169,11 @@ func TestStorage(t *testing.T) {
 	t.Run("read for month", func(t *testing.T) {
 		initialDate := time.Date(2023, 10, 16, 13, 10, 0, 0, time.UTC)
 		strg := memorystorage.NewWithEvents(map[string]entity.Event{
-			"1": {ID: "1", Title: "1", DateTime: initialDate, UserId: 1},
-			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 30), UserId: 1},
-			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(time.Hour * 24 * 10), UserId: 1},
-			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserId: 1},
-			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24 * 30), UserId: 1},
+			"1": {ID: "1", Title: "1", DateTime: initialDate, UserID: 1},
+			"2": {ID: "2", Title: "2", DateTime: initialDate.Add(time.Hour * 24 * 30), UserID: 1},
+			"3": {ID: "3", Title: "3", DateTime: initialDate.Add(time.Hour * 24 * 10), UserID: 1},
+			"4": {ID: "4", Title: "4", DateTime: initialDate.Add(time.Hour * 24 * 2), UserID: 1},
+			"5": {ID: "5", Title: "5", DateTime: initialDate.Add(-time.Hour * 24 * 30), UserID: 1},
 		})
 
 		events, err := strg.GetForPeriod(

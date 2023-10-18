@@ -17,5 +17,5 @@ type Event struct {
 	Duration    string
 	RemindTime  string
 
-	UserId int
+	UserID int
 }

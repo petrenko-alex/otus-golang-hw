@@ -44,7 +44,7 @@ func TestApp_CreateEvent(t *testing.T) {
 			DateTime:    dateTime,
 			Duration:    "02:00:00",
 			RemindTime:  "00:15:00",
-			UserId:      1,
+			UserID:      1,
 		},
 	)
 
@@ -58,7 +58,7 @@ func TestApp_CreateEvent(t *testing.T) {
 			DateTime:    dateTime,
 			Duration:    "03:00:00",
 			RemindTime:  "00:30:00",
-			UserId:      1,
+			UserID:      1,
 		},
 	)
 
@@ -74,7 +74,7 @@ func TestApp_UpdateEvent(t *testing.T) {
 		DateTime:    dateTime,
 		Duration:    "02:00:00",
 		RemindTime:  "00:15:00",
-		UserId:      1,
+		UserID:      1,
 	}
 
 	// update unknown
@@ -117,7 +117,7 @@ func TestApp_DeleteEvent(t *testing.T) {
 			DateTime:    dateTime,
 			Duration:    "02:00:00",
 			RemindTime:  "00:15:00",
-			UserId:      1,
+			UserID:      1,
 		},
 	)
 	require.NoError(t, err1)
@@ -129,7 +129,7 @@ func TestApp_DeleteEvent(t *testing.T) {
 			DateTime:    time.Now(),
 			Duration:    "03:00:00",
 			RemindTime:  "00:30:00",
-			UserId:      1,
+			UserID:      1,
 		},
 	)
 	require.NoError(t, err2)
