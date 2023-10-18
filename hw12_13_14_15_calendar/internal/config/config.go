@@ -8,7 +8,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const ctxKey = "config"
+type key int
+
+const (
+	ctxKey key = iota
+)
 
 type Config struct {
 	Logger struct {
@@ -16,12 +20,12 @@ type Config struct {
 	}
 	Server struct {
 		Host, Port   string
-		ReadTimeout  time.Duration `yaml:"read_timeout"`
-		WriteTimeout time.Duration `yaml:"write_timeout"`
+		ReadTimeout  time.Duration `yaml:"readTimeout"`
+		WriteTimeout time.Duration `yaml:"writeTimeout"`
 	}
-	Db struct {
+	DB struct {
 		Dsn           string
-		MigrationsDir string `yaml:"migrations_dir"`
+		MigrationsDir string `yaml:"migrationsDir"`
 	}
 	Storage string
 }

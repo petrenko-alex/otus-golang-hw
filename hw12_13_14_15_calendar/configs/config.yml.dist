@@ -3,9 +3,9 @@ logger:
 storage: "memory"
 db:
   dsn: "<paste your dsn>"
-  migrations_dir: "./migrations/"
+  migrationsDir: "./migrations/"
 server:
   host: "localhost"
   port: 4242
-  read_timeout: 1s
-  write_timeout: 1s
+  readTimeout: 1s
+  writeTimeout: 1s

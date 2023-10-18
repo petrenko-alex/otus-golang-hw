@@ -206,7 +206,7 @@ func (s *PgStorage) Connect(ctx context.Context) error {
 		return ErrConnectFailed
 	}
 
-	db, openErr := sql.Open("postgres", cfg.Db.Dsn)
+	db, openErr := sql.Open("postgres", cfg.DB.Dsn)
 	if openErr != nil {
 		return fmt.Errorf(ErrConnectFailed.Error()+":%w", openErr)
 	}

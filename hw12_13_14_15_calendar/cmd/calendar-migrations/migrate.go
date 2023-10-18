@@ -45,7 +45,7 @@ func run() int {
 		return 1
 	}
 
-	db, err := goose.OpenDBWithDriver("postgres", cfg.Db.Dsn)
+	db, err := goose.OpenDBWithDriver("postgres", cfg.DB.Dsn)
 	if err != nil {
 		log.Printf("goose: failed to open DB: %v\n\n", err)
 
@@ -63,7 +63,7 @@ func run() int {
 		arguments = append(arguments, args[3:]...)
 	}
 
-	if err := goose.Run(command, db, cfg.Db.MigrationsDir, arguments...); err != nil {
+	if err := goose.Run(command, db, cfg.DB.MigrationsDir, arguments...); err != nil {
 		log.Printf("goose %v: %v\n", command, err)
 
 		return 1
