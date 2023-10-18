@@ -25,9 +25,6 @@ func init() {
 	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
 
-// 2. run linter
-// 3. прочитать пункт "Об архитектуре" из readme
-
 func main() {
 	os.Exit(run())
 }
@@ -55,7 +52,7 @@ func run() int {
 		return 1
 	}
 
-	cfg, configErr := config.NewConfig(file)
+	cfg, configErr := config.New(file)
 	if configErr != nil {
 		log.Println("Error parsing config file.")
 
@@ -65,7 +62,7 @@ func run() int {
 
 	logg := createLogger(cfg)
 
-	appStorage, storageErr := storage.GetStorage(cfg.Storage)
+	appStorage, storageErr := storage.Get(cfg.Storage)
 	if storageErr != nil {
 		log.Println("Error getting storage.")
 

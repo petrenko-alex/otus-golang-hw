@@ -17,7 +17,7 @@ import (
 func createApp(t *testing.T) *app.App {
 	t.Helper()
 
-	strg, err := storage.GetStorage(string(storage.Memory))
+	strg, err := storage.Get(string(storage.Memory))
 	if err != nil {
 		log.Fatal(err)
 	}

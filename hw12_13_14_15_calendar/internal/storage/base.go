@@ -36,7 +36,7 @@ type Storage interface {
 	GetForTime(time.Time) (*entity.Event, error)
 }
 
-func GetStorage(storageType string) (Storage, error) {
+func Get(storageType string) (Storage, error) {
 	if Type(storageType) != Memory && Type(storageType) != DB {
 		return nil, ErrInvalidStorageValue
 	}

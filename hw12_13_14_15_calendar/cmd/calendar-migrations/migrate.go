@@ -38,7 +38,7 @@ func run() int {
 		return 1
 	}
 
-	cfg, configErr := config.NewConfig(file)
+	cfg, configErr := config.New(file)
 	if configErr != nil {
 		log.Println("Error parsing config file.")
 

@@ -30,7 +30,7 @@ type Config struct {
 	Storage string
 }
 
-func NewConfig(configFile io.Reader) (*Config, error) {
+func New(configFile io.Reader) (*Config, error) {
 	config := &Config{}
 
 	yamlDecoder := yaml.NewDecoder(configFile)
