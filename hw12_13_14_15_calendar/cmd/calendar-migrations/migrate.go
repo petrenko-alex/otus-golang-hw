@@ -18,28 +18,38 @@ func init() {
 }
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	flag.Parse()
 
 	args := os.Args[1:]
 	if len(args) < 2 {
 		flag.Usage()
-		return
+		return 0
 	}
 	command := args[1]
 
 	file, fileErr := os.Open(configFile)
 	if fileErr != nil {
-		log.Fatal("Error opening config file.")
+		log.Println("Error opening config file.")
+
+		return 1
 	}
 
 	cfg, configErr := config.NewConfig(file)
 	if configErr != nil {
-		log.Fatal("Error parsing config file.")
+		log.Println("Error parsing config file.")
+
+		return 1
 	}
 
 	db, err := goose.OpenDBWithDriver("postgres", cfg.Db.Dsn)
 	if err != nil {
-		log.Fatalf("goose: failed to open DB: %v\n", err)
+		log.Printf("goose: failed to open DB: %v\n\n", err)
+
+		return 1
 	}
 
 	defer func() {
@@ -54,6 +64,10 @@ func main() {
 	}
 
 	if err := goose.Run(command, db, cfg.Db.MigrationsDir, arguments...); err != nil {
-		log.Fatalf("goose %v: %v", command, err)
+		log.Printf("goose %v: %v\n", command, err)
+
+		return 1
 	}
+
+	return 0
 }
