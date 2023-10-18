@@ -56,7 +56,7 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 	return event.ID, nil
 }
 
-func (s *PgStorage) GetById(id string) (*entity.Event, error) {
+func (s *PgStorage) GetByID(id string) (*entity.Event, error) {
 	event := sqlEvent{}
 
 	err := s.db.QueryRowContext(

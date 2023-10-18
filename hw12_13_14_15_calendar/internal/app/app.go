@@ -59,7 +59,7 @@ func (a *App) CreateEvent(event entity.Event) (string, error) {
 // UpdateEvent updates event if it is not active and requested time is not busy.
 func (a *App) UpdateEvent(id string, event entity.Event) error {
 	// check has event
-	existingEvent, readErr := a.storage.GetById(id)
+	existingEvent, readErr := a.storage.GetByID(id)
 	if readErr != nil {
 		a.logger.Error(readErr.Error())
 
@@ -96,7 +96,7 @@ func (a *App) UpdateEvent(id string, event entity.Event) error {
 
 // DeleteEvent deletes event if it is not active.
 func (a *App) DeleteEvent(id string) error {
-	event, readErr := a.storage.GetById(id)
+	event, readErr := a.storage.GetByID(id)
 	if readErr != nil {
 		a.logger.Error(readErr.Error())
 

@@ -22,7 +22,7 @@ func NewWithEvents(events map[string]entity.Event) *Storage {
 	return &Storage{data: events}
 }
 
-func (s *Storage) GetById(id string) (*entity.Event, error) {
+func (s *Storage) GetByID(id string) (*entity.Event, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -58,7 +58,7 @@ func (s *Storage) Create(event entity.Event) (string, error) {
 }
 
 func (s *Storage) Update(event entity.Event) error {
-	_, err := s.GetById(event.ID)
+	_, err := s.GetByID(event.ID)
 	if err != nil {
 		return err
 	}
@@ -100,13 +100,13 @@ func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*ent
 	return &periodEvents, nil
 }
 
-func (s *Storage) Connect(ctx context.Context) error {
+func (s *Storage) Connect(_ context.Context) error {
 	s.data = make(map[string]entity.Event)
 
 	return nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *Storage) Close(_ context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

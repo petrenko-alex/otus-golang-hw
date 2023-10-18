@@ -12,17 +12,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStorage(t *testing.T) {
-	event := entity.Event{
-		Title:       "some event",
-		DateTime:    time.Now(),
-		Description: "this is some event",
-		Duration:    "60",
-		RemindTime:  "15",
+var event = entity.Event{
+	Title:       "some event",
+	DateTime:    time.Now(),
+	Description: "this is some event",
+	Duration:    "60",
+	RemindTime:  "15",
 
-		UserID: 1,
-	}
+	UserID: 1,
+}
 
+func TestStorageModify(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		memStorage := memorystorage.New()
 		connectErr := memStorage.Connect(context.Background())
@@ -46,7 +46,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, createErr)
 
 		// read & update
-		event1, readErr := memStorage.GetById(id)
+		event1, readErr := memStorage.GetByID(id)
 		require.NoError(t, readErr)
 
 		event1.Title = newTitle
@@ -54,7 +54,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, updateErr)
 
 		// assert
-		event2, readErr := memStorage.GetById(id)
+		event2, readErr := memStorage.GetByID(id)
 		require.NoError(t, readErr)
 		require.Equal(t, newTitle, event2.Title)
 	})
@@ -93,7 +93,9 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, deleteErr)
 		require.Len(t, *events, 0)
 	})
+}
 
+func TestStorageRead(t *testing.T) {
 	t.Run("read unknown", func(t *testing.T) {
 		memStorage := memorystorage.New()
 		connectErr := memStorage.Connect(context.Background())
@@ -105,7 +107,7 @@ func TestStorage(t *testing.T) {
 
 		// generate random ID & try to read
 		id := uuid.New().String()
-		_, readErr := memStorage.GetById(id)
+		_, readErr := memStorage.GetByID(id)
 
 		// assert
 		require.ErrorIs(t, readErr, entity.ErrEventNotFound)
