@@ -16,7 +16,7 @@ func NewAppHandler(app Application, logger Logger) *AppHandler {
 	}
 }
 
-func (h AppHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (h AppHandler) ServeHTTP(writer http.ResponseWriter, _ *http.Request) {
 	_, err := writer.Write([]byte("Hello World"))
 	if err != nil {
 		h.logger.Error(err.Error())
