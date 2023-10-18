@@ -47,7 +47,7 @@ func NewServer(options ServerOptions, logger Logger, app Application) *Server {
 	}
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start(_ context.Context) error {
 	err := s.server.ListenAndServe()
 	if err != nil {
 		return err
