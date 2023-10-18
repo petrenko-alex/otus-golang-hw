@@ -12,10 +12,9 @@ import (
 	"time"
 )
 
-// TODO: Query with context?
-
 type PgStorage struct {
-	db *sql.DB
+	db  *sql.DB
+	ctx context.Context
 }
 
 // dto to process null values
@@ -41,7 +40,8 @@ const (
 )
 
 func (s *PgStorage) Create(event entity.Event) (string, error) {
-	err := s.db.QueryRow(
+	err := s.db.QueryRowContext(
+		s.ctx,
 		fmt.Sprintf("INSERT INTO %s(%s) VALUES($1,$2,$3,$4,$5,$6) RETURNING id", tableName, tableColumnsInsert),
 		event.Title,
 		event.Description,
@@ -61,8 +61,10 @@ func (s *PgStorage) Create(event entity.Event) (string, error) {
 func (s *PgStorage) GetById(id string) (*entity.Event, error) {
 	event := sqlEvent{}
 
-	err := s.db.QueryRow(
-		fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", tableColumnsRead, tableName), id,
+	err := s.db.QueryRowContext(
+		s.ctx,
+		fmt.Sprintf("SELECT %s FROM %s WHERE id=$1", tableColumnsRead, tableName),
+		id,
 	).Scan(
 		&event.ID,
 		&event.Title,
@@ -86,7 +88,7 @@ func (s *PgStorage) GetById(id string) (*entity.Event, error) {
 func (s *PgStorage) GetAll() (*entity.Events, error) {
 	events := entity.Events{}
 
-	rows, err := s.db.Query(fmt.Sprintf("SELECT %s FROM %s", tableColumnsRead, tableName))
+	rows, err := s.db.QueryContext(s.ctx, fmt.Sprintf("SELECT %s FROM %s", tableColumnsRead, tableName))
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +113,8 @@ func (s *PgStorage) GetAll() (*entity.Events, error) {
 }
 
 func (s *PgStorage) Update(event entity.Event) error {
-	_, err := s.db.Exec(
+	_, err := s.db.ExecContext(
+		s.ctx,
 		fmt.Sprintf("UPDATE %s SET title=$1, description=$2, datetime=$3, duration=$4, remind_time=$5, user_id=$6 WHERE id=$7", tableName),
 		event.Title,
 		event.Description,
@@ -130,7 +133,7 @@ func (s *PgStorage) Update(event entity.Event) error {
 }
 
 func (s *PgStorage) Delete(id string) error {
-	_, err := s.db.Exec(fmt.Sprintf("DELETE FROM %s where id=$1", tableName), id)
+	_, err := s.db.ExecContext(s.ctx, fmt.Sprintf("DELETE FROM %s where id=$1", tableName), id)
 	if err != nil {
 		return err
 	}
@@ -141,7 +144,8 @@ func (s *PgStorage) Delete(id string) error {
 func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events, error) {
 	events := entity.Events{}
 
-	rows, err := s.db.Query(
+	rows, err := s.db.QueryContext(
+		s.ctx,
 		fmt.Sprintf("SELECT %s FROM %s WHERE datetime BETWEEN $1 AND $2", tableColumnsRead, tableName),
 		start,
 		end,
@@ -172,7 +176,8 @@ func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events
 func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
 	event := sqlEvent{}
 
-	err := s.db.QueryRow(
+	err := s.db.QueryRowContext(
+		s.ctx,
 		fmt.Sprintf("SELECT %s FROM %s WHERE datetime=$1", tableColumnsRead, tableName), t,
 	).Scan(
 		&event.ID,
@@ -209,12 +214,13 @@ func (s *PgStorage) Connect(ctx context.Context) error {
 		return fmt.Errorf(ErrConnectFailed.Error()+":%w", openErr)
 	}
 
-	pingErr := db.Ping()
+	pingErr := db.PingContext(ctx)
 	if pingErr != nil {
 		return fmt.Errorf(ErrConnectFailed.Error()+":%w", pingErr)
 	}
 
 	s.db = db
+	s.ctx = ctx
 
 	return nil
 }
@@ -224,6 +230,8 @@ func (s *PgStorage) Close(ctx context.Context) error {
 	if closeErr != nil {
 		return closeErr
 	}
+
+	s.ctx = nil
 
 	return nil
 }
