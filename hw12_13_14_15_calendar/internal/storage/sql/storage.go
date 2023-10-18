@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // driver import
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 )
@@ -27,7 +27,7 @@ type sqlEvent struct {
 	Duration    sql.NullString
 	RemindTime  sql.NullString
 
-	UserId int
+	UserID int
 }
 
 var ErrConnectFailed = errors.New("error connecting to db")
@@ -70,7 +70,7 @@ func (s *PgStorage) GetByID(id string) (*entity.Event, error) {
 		&event.DateTime,
 		&event.Duration,
 		&event.RemindTime,
-		&event.UserId,
+		&event.UserID,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -94,7 +94,15 @@ func (s *PgStorage) GetAll() (*entity.Events, error) {
 
 	for rows.Next() {
 		event := sqlEvent{}
-		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
+		err = rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.Description,
+			&event.DateTime,
+			&event.Duration,
+			&event.RemindTime,
+			&event.UserID,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +121,10 @@ func (s *PgStorage) GetAll() (*entity.Events, error) {
 func (s *PgStorage) Update(event entity.Event) error {
 	_, err := s.db.ExecContext(
 		s.ctx,
-		fmt.Sprintf("UPDATE %s SET title=$1, description=$2, datetime=$3, duration=$4, remind_time=$5, user_id=$6 WHERE id=$7", tableName),
+		fmt.Sprintf(
+			"UPDATE %s SET title=$1, description=$2, datetime=$3, duration=$4, remind_time=$5, user_id=$6 WHERE id=$7",
+			tableName,
+		),
 		event.Title,
 		event.Description,
 		event.DateTime.Format(time.RFC3339),
@@ -154,7 +165,15 @@ func (s *PgStorage) GetForPeriod(start time.Time, end time.Time) (*entity.Events
 
 	for rows.Next() {
 		event := sqlEvent{}
-		err = rows.Scan(&event.ID, &event.Title, &event.Description, &event.DateTime, &event.Duration, &event.RemindTime, &event.UserId)
+		err = rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.Description,
+			&event.DateTime,
+			&event.Duration,
+			&event.RemindTime,
+			&event.UserID,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -183,7 +202,7 @@ func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
 		&event.DateTime,
 		&event.Duration,
 		&event.RemindTime,
-		&event.UserId,
+		&event.UserID,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -222,7 +241,7 @@ func (s *PgStorage) Connect(ctx context.Context) error {
 	return nil
 }
 
-func (s *PgStorage) Close(ctx context.Context) error {
+func (s *PgStorage) Close(_ context.Context) error {
 	closeErr := s.db.Close()
 	if closeErr != nil {
 		return closeErr
@@ -239,7 +258,7 @@ func (s *PgStorage) sqlEventToEvent(sqlEvent *sqlEvent) *entity.Event {
 	event.ID = sqlEvent.ID
 	event.Title = sqlEvent.Title
 	event.DateTime = sqlEvent.DateTime
-	event.UserID = sqlEvent.UserId
+	event.UserID = sqlEvent.UserID
 
 	if sqlEvent.Description.Valid {
 		event.Description = sqlEvent.Description.String
