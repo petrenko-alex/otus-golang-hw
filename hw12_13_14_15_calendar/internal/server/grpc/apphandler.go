@@ -33,29 +33,26 @@ func (h AppHandler) GetDayEvents(ctx context.Context, date *proto.StartDate) (*p
 
 }
 
-// todo: move to another package, fix naming
-func (h AppHandler) entities2Proto(entities *entity.Events) *proto.Events {
-	events := make([]*proto.Event, 0, len(*entities))
+func (h AppHandler) entities2Proto(entityEvents *entity.Events) *proto.Events {
+	protoEvents := make([]*proto.Event, 0, len(*entityEvents))
 
-	for _, event := range *entities {
-		events = append(
-			events,
-			h.entity2Proto(event),
+	for _, entityEvent := range *entityEvents {
+		protoEvents = append(
+			protoEvents,
+			h.entity2Proto(entityEvent),
 		)
 	}
 
-	return &proto.Events{Events: events}
+	return &proto.Events{Events: protoEvents}
 }
 
-func (h AppHandler) entity2Proto(entity entity.Event) *proto.Event {
-	event := proto.Event{
-		Id:          entity.ID,
-		Title:       entity.Title,
-		DateTime:    timestamppb.New(entity.DateTime),
-		Description: entity.Description,
-		Duration:    entity.Duration,
-		RemindTime:  entity.RemindTime,
-	}
-
-	return &event
+func (h AppHandler) entity2Proto(entityEvent entity.Event) *proto.Event {
+	return &(proto.Event{
+		Id:          entityEvent.ID,
+		Title:       entityEvent.Title,
+		DateTime:    timestamppb.New(entityEvent.DateTime),
+		Description: entityEvent.Description,
+		Duration:    entityEvent.Duration,
+		RemindTime:  entityEvent.RemindTime,
+	})
 }
