@@ -42,12 +42,8 @@ message Events {
 }
 
 message Event {
-  string id = 1; // todo: embed event id type
-  string title = 2; // todo: embed event data type
-  google.protobuf.Timestamp date_time = 3;
-  string description = 4;
-  string duration = 5;
-  string remind_time = 6;
+  EventId event_id = 1;
+  EventData event_data = 2;
 }
 
 message EventData {

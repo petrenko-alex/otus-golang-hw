@@ -106,12 +106,14 @@ func (h AppHandler) entities2Proto(entityEvents *entity.Events) *proto.Events {
 
 func (h AppHandler) entity2Proto(entityEvent entity.Event) *proto.Event {
 	return &(proto.Event{
-		Id:          entityEvent.ID,
-		Title:       entityEvent.Title,
-		DateTime:    timestamppb.New(entityEvent.DateTime),
-		Description: entityEvent.Description,
-		Duration:    entityEvent.Duration,
-		RemindTime:  entityEvent.RemindTime,
+		EventId: &proto.EventId{Id: entityEvent.ID},
+		EventData: &proto.EventData{
+			Title:       entityEvent.Title,
+			DateTime:    timestamppb.New(entityEvent.DateTime),
+			Description: entityEvent.Description,
+			Duration:    entityEvent.Duration,
+			RemindTime:  entityEvent.RemindTime,
+		},
 	})
 }
 
