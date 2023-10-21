@@ -86,6 +86,7 @@ func (a *App) UpdateEvent(id string, event entity.Event) error {
 	}
 
 	// update
+	event.ID = existingEvent.ID
 	updateErr := a.storage.Update(event)
 	if updateErr != nil {
 		return updateErr
@@ -120,7 +121,7 @@ func (a *App) DeleteEvent(id string) error {
 // GetDayEvents returns events for passed day. Use UTC time format.
 func (a *App) GetDayEvents(day time.Time) (*entity.Events, error) {
 	events, err := a.storage.GetForPeriod(
-		day.Truncate(time.Hour*24),
+		day.Truncate(time.Hour*24), // todo: change to more predictable or fix (даты до обеда некорректно)
 		day.Round(time.Hour*24),
 	)
 	if err != nil {
