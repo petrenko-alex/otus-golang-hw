@@ -21,6 +21,64 @@ func NewAppHandler(app Application, logger Logger) *AppHandler {
 	}
 }
 
+func (h AppHandler) CreateEvent(ctx context.Context, request *proto.CreateRequest) (*proto.CreateResponse, error) {
+	id, err := h.app.CreateEvent(h.proto2entity(request.GetEventData()))
+	if err != nil {
+		h.logger.Error(err.Error())
+
+		return nil, err
+	}
+
+	return &proto.CreateResponse{EventId: &(proto.EventId{Id: id})}, nil
+}
+
+func (h AppHandler) UpdateEvent(ctx context.Context, request *proto.UpdateRequest) (*proto.UpdateResponse, error) {
+	err := h.app.UpdateEvent(
+		request.GetEventId().GetId(),
+		h.proto2entity(request.GetEventData()),
+	)
+	if err != nil {
+		h.logger.Error(err.Error())
+
+		return nil, err
+	}
+
+	return &proto.UpdateResponse{}, nil
+}
+
+func (h AppHandler) DeleteEvent(ctx context.Context, request *proto.DeleteRequest) (*proto.DeleteResponse, error) {
+	err := h.app.DeleteEvent(request.GetEventId().GetId())
+	if err != nil {
+		h.logger.Error(err.Error())
+
+		return nil, err
+	}
+
+	return &proto.DeleteResponse{}, nil
+}
+
+func (h AppHandler) GetWeekEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
+	events, err := h.app.GetWeekEvents(date.GetStartDate().AsTime())
+	if err != nil {
+		h.logger.Error(err.Error())
+
+		return nil, err
+	}
+
+	return h.entities2Proto(events), nil
+}
+
+func (h AppHandler) GetMonthEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
+	events, err := h.app.GetMonthEvents(date.GetStartDate().AsTime())
+	if err != nil {
+		h.logger.Error(err.Error())
+
+		return nil, err
+	}
+
+	return h.entities2Proto(events), nil
+}
+
 func (h AppHandler) GetDayEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
 	events, err := h.app.GetDayEvents(date.GetStartDate().AsTime())
 	if err != nil {
@@ -55,4 +113,15 @@ func (h AppHandler) entity2Proto(entityEvent entity.Event) *proto.Event {
 		Duration:    entityEvent.Duration,
 		RemindTime:  entityEvent.RemindTime,
 	})
+}
+
+func (h AppHandler) proto2entity(protoEvent *proto.EventData) entity.Event {
+	return entity.Event{
+		Title:       protoEvent.Title,
+		Description: protoEvent.Description,
+		DateTime:    protoEvent.DateTime.AsTime(),
+		Duration:    protoEvent.Duration,
+		RemindTime:  protoEvent.RemindTime,
+		UserID:      int(protoEvent.UserId),
+	}
 }
