@@ -18,11 +18,15 @@ type Config struct {
 	Logger struct {
 		Level string
 	}
-	Server struct {
+	Server struct { // todo:rename to HttpServer
 		Host, Port   string
 		ReadTimeout  time.Duration `yaml:"readTimeout"`
 		WriteTimeout time.Duration `yaml:"writeTimeout"`
 	}
+	GRPCServer struct {
+		Host, Port     string
+		ConnectTimeout time.Duration `yaml:"connectTimeout"`
+	} `yaml:"grpcServer"`
 	DB struct {
 		Dsn           string
 		MigrationsDir string `yaml:"migrationsDir"`
