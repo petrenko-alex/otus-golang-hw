@@ -36,8 +36,13 @@ type Application interface {
 }
 
 func NewServer(options ServerOptions, logger Logger, app Application) *Server {
+	logInterceptor := NewLogHandler(logger)
+
 	server := grpc.NewServer(
 		grpc.ConnectionTimeout(options.ConnectTimeout),
+		grpc.ChainUnaryInterceptor(
+			logInterceptor.GetInterceptor(),
+		),
 	)
 	proto.RegisterEventServiceServer(server, NewAppHandler(app, logger))
 
