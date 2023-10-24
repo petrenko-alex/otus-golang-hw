@@ -5,14 +5,16 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
 type LogHandler struct {
-	logger      Logger
+	logger      logger.Logger
 	nextHandler http.Handler
 }
 
-func NewLogHandler(logger Logger, next http.Handler) http.Handler {
+func NewLogHandler(logger logger.Logger, next http.Handler) http.Handler {
 	return &LogHandler{
 		logger:      logger,
 		nextHandler: next,

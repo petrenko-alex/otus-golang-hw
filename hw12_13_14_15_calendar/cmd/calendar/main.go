@@ -168,7 +168,7 @@ func run() int {
 	return 0
 }
 
-func createLogger(cfg *config.Config) app.Logger {
+func createLogger(cfg *config.Config) logger.Logger {
 	levelMap := map[string]logger.Level{
 		"debug":   logger.Debug,
 		"info":    logger.Info,

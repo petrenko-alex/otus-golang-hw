@@ -6,24 +6,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
 type Server struct {
 	AppHandler
 
 	server http.Server
-	logger Logger
+	logger logger.Logger
 }
 
 type ServerOptions struct {
 	Host, Port                string
 	ReadTimeout, WriteTimeout time.Duration
-}
-
-type Logger interface {
-	app.Logger
 }
 
 type Application interface {
@@ -35,7 +31,7 @@ type Application interface {
 	GetMonthEvents(monthStart time.Time) (*entity.Events, error)
 }
 
-func NewServer(options ServerOptions, logger Logger, app Application) *Server {
+func NewServer(options ServerOptions, logger logger.Logger, app Application) *Server {
 	return &Server{
 		server: http.Server{
 			Addr:         net.JoinHostPort(options.Host, options.Port),

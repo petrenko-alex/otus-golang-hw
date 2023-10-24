@@ -3,8 +3,6 @@ package logger
 import (
 	"io"
 	"log"
-
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 )
 
 type Level int
@@ -15,6 +13,13 @@ const (
 	Warning
 	Error
 )
+
+type Logger interface {
+	Debug(string)
+	Info(string)
+	Warning(string)
+	Error(string)
+}
 
 type SimpleLogger struct {
 	Level Level
@@ -59,7 +64,7 @@ func (l SimpleLogger) log(prefix, msg string) {
 	l.logger.Println(msg)
 }
 
-func New(level Level, dst io.Writer) app.Logger {
+func New(level Level, dst io.Writer) Logger {
 	return SimpleLogger{
 		Level:  level,
 		logger: log.New(dst, "", 0),

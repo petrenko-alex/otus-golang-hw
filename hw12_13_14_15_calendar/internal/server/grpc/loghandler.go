@@ -10,15 +10,17 @@ import (
 	"google.golang.org/grpc/status"
 	"strconv"
 	"time"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
 const unknown = "UNKNOWN"
 
 type LogHandler struct {
-	logger Logger
+	logger logger.Logger
 }
 
-func NewLogHandler(logger Logger) *LogHandler {
+func NewLogHandler(logger logger.Logger) *LogHandler {
 	return &LogHandler{
 		logger: logger,
 	}

@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	proto "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/api"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/grpc"
 	"net"
 	"time"
@@ -12,7 +12,7 @@ import (
 
 type Server struct {
 	server *grpc.Server
-	logger Logger
+	logger logger.Logger
 
 	host, port string
 }
@@ -20,10 +20,6 @@ type Server struct {
 type ServerOptions struct {
 	Host, Port     string
 	ConnectTimeout time.Duration
-}
-
-type Logger interface {
-	app.Logger
 }
 
 type Application interface {
@@ -35,7 +31,7 @@ type Application interface {
 	GetMonthEvents(monthStart time.Time) (*entity.Events, error)
 }
 
-func NewServer(options ServerOptions, logger Logger, app Application) *Server {
+func NewServer(options ServerOptions, logger logger.Logger, app Application) *Server {
 	logInterceptor := NewLogHandler(logger)
 
 	server := grpc.NewServer(

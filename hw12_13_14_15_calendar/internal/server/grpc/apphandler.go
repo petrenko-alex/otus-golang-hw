@@ -4,6 +4,7 @@ import (
 	"context"
 	proto "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/api"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -11,10 +12,10 @@ type AppHandler struct {
 	proto.UnimplementedEventServiceServer
 
 	app    Application
-	logger Logger
+	logger logger.Logger
 }
 
-func NewAppHandler(app Application, logger Logger) *AppHandler {
+func NewAppHandler(app Application, logger logger.Logger) *AppHandler {
 	return &AppHandler{
 		app:    app,
 		logger: logger,
