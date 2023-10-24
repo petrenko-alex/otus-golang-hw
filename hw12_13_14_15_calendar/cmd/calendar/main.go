@@ -2,22 +2,29 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
-	"time"
-
+	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	proto "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/api"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
+
+// TODO
+//  refactoring
+//  make generate
 
 var configFile string
 
@@ -76,7 +83,51 @@ func run() int {
 		return 1
 	}
 
-	server := internalhttp.NewServer(
+	go func() {
+		grpcServer := internalgrpc.NewServer(
+			internalgrpc.ServerOptions{
+				Host:           cfg.GRPCServer.Host,
+				Port:           cfg.GRPCServer.Port,
+				ConnectTimeout: cfg.GRPCServer.ConnectTimeout,
+			},
+			logg,
+			app.New(logg, appStorage),
+		)
+		err := grpcServer.Start(ctx)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	conn, err := grpc.DialContext(
+		ctx,
+		net.JoinHostPort(cfg.GRPCServer.Host, cfg.GRPCServer.Port),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(),
+	)
+	if err != nil {
+		fmt.Println("failed to dial server: %w", err)
+	}
+
+	mux := runtime.NewServeMux()
+
+	err = proto.RegisterEventServiceHandler(ctx, mux, conn)
+	// todo: make closing connection like in RegisterEventServiceHandlerFromEndpoint
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	gwServer := &http.Server{
+		Addr:    net.JoinHostPort(cfg.Server.Host, cfg.Server.Port),
+		Handler: internalhttp.NewLogHandler(logg, mux),
+	}
+
+	err = gwServer.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	/*server := internalhttp.NewServer(
 		internalhttp.ServerOptions{
 			Host:         cfg.Server.Host,
 			Port:         cfg.Server.Port,
@@ -112,7 +163,7 @@ func run() int {
 		return 1
 	}
 
-	wg.Wait()
+	wg.Wait()*/
 
 	return 0
 }
