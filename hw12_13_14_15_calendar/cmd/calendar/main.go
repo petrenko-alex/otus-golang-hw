@@ -19,9 +19,7 @@ import (
 )
 
 // TODO
-//  todo: use logger? as soon as possible (before that - fatal?)
 //  make generate
-//  todos
 
 var configFile string
 
@@ -69,14 +67,14 @@ func run() int {
 
 	appStorage, storageErr := storage.Get(cfg.Storage)
 	if storageErr != nil {
-		log.Println("Error getting storage.")
+		logg.Error("Error getting storage: " + storageErr.Error())
 
 		return 1
 	}
 
 	storageInitErr := appStorage.Connect(ctx)
 	if storageInitErr != nil {
-		log.Println("Error init storage.")
+		logg.Error("Error init storage: " + storageInitErr.Error())
 
 		return 1
 	}
@@ -89,10 +87,10 @@ func run() int {
 				ConnectTimeout: cfg.GRPCServer.ConnectTimeout,
 			},
 			HTTP: server.HTTPOptions{
-				Host:         cfg.Server.Host,
-				Port:         cfg.Server.Port,
-				ReadTimeout:  cfg.Server.ReadTimeout,
-				WriteTimeout: cfg.Server.WriteTimeout,
+				Host:         cfg.HTTPServer.Host,
+				Port:         cfg.HTTPServer.Port,
+				ReadTimeout:  cfg.HTTPServer.ReadTimeout,
+				WriteTimeout: cfg.HTTPServer.WriteTimeout,
 			},
 		},
 		logg,

@@ -39,7 +39,7 @@ func NewServer(options Options, logger logger.Logger, app Application) *Server {
 			log.NewInterceptor(logger).GetInterceptor(),
 		),
 	)
-	proto.RegisterEventServiceServer(grpcServer, NewAppHandler(app, logger))
+	proto.RegisterEventServiceServer(grpcServer, NewService(app, logger))
 
 	return &Server{
 		server:  grpcServer,

@@ -4,7 +4,7 @@ storage: "memory"
 db:
   dsn: "<paste your dsn>"
   migrationsDir: "./migrations/"
-server:
+httpServer:
   host: "localhost"
   port: 4242
   readTimeout: 1s
