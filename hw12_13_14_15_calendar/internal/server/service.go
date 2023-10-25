@@ -22,7 +22,7 @@ func NewService(app Application, logger logger.Logger) *Service {
 	}
 }
 
-func (s Service) CreateEvent(ctx context.Context, request *proto.CreateRequest) (*proto.CreateResponse, error) {
+func (s Service) CreateEvent(_ context.Context, request *proto.CreateRequest) (*proto.CreateResponse, error) {
 	id, err := s.app.CreateEvent(s.proto2entity(request.GetEventData()))
 	if err != nil {
 		s.logger.Error(err.Error())
@@ -33,7 +33,7 @@ func (s Service) CreateEvent(ctx context.Context, request *proto.CreateRequest) 
 	return &proto.CreateResponse{EventId: &(proto.EventId{Id: id})}, nil
 }
 
-func (s Service) UpdateEvent(ctx context.Context, request *proto.UpdateRequest) (*proto.UpdateResponse, error) {
+func (s Service) UpdateEvent(_ context.Context, request *proto.UpdateRequest) (*proto.UpdateResponse, error) {
 	err := s.app.UpdateEvent(
 		request.GetEventId().GetId(),
 		s.proto2entity(request.GetEventData()),
@@ -47,7 +47,7 @@ func (s Service) UpdateEvent(ctx context.Context, request *proto.UpdateRequest) 
 	return &proto.UpdateResponse{}, nil
 }
 
-func (s Service) DeleteEvent(ctx context.Context, request *proto.DeleteRequest) (*proto.DeleteResponse, error) {
+func (s Service) DeleteEvent(_ context.Context, request *proto.DeleteRequest) (*proto.DeleteResponse, error) {
 	err := s.app.DeleteEvent(request.GetEventId().GetId())
 	if err != nil {
 		s.logger.Error(err.Error())
@@ -58,7 +58,7 @@ func (s Service) DeleteEvent(ctx context.Context, request *proto.DeleteRequest) 
 	return &proto.DeleteResponse{}, nil
 }
 
-func (s Service) GetWeekEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
+func (s Service) GetWeekEvents(_ context.Context, date *proto.StartDate) (*proto.Events, error) {
 	events, err := s.app.GetWeekEvents(date.GetStartDate().AsTime())
 	if err != nil {
 		s.logger.Error(err.Error())
@@ -69,7 +69,7 @@ func (s Service) GetWeekEvents(ctx context.Context, date *proto.StartDate) (*pro
 	return s.entities2Proto(events), nil
 }
 
-func (s Service) GetMonthEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
+func (s Service) GetMonthEvents(_ context.Context, date *proto.StartDate) (*proto.Events, error) {
 	events, err := s.app.GetMonthEvents(date.GetStartDate().AsTime())
 	if err != nil {
 		s.logger.Error(err.Error())
@@ -80,7 +80,7 @@ func (s Service) GetMonthEvents(ctx context.Context, date *proto.StartDate) (*pr
 	return s.entities2Proto(events), nil
 }
 
-func (s Service) GetDayEvents(ctx context.Context, date *proto.StartDate) (*proto.Events, error) {
+func (s Service) GetDayEvents(_ context.Context, date *proto.StartDate) (*proto.Events, error) {
 	events, err := s.app.GetDayEvents(date.GetStartDate().AsTime())
 	if err != nil {
 		s.logger.Error(err.Error())

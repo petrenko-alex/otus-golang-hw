@@ -27,9 +27,9 @@ func NewInterceptor(logger logger.Logger) *Interceptor {
 }
 
 func (h *Interceptor) GetInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		start := time.Now()
-		resp, err = handler(ctx, req)
+		resp, err := handler(ctx, req)
 		end := time.Since(start)
 
 		ip := unknown
@@ -72,6 +72,6 @@ func (h *Interceptor) GetInterceptor() grpc.UnaryServerInterceptor {
 
 		h.logger.Info(string(logJSON))
 
-		return
+		return resp, err
 	}
 }

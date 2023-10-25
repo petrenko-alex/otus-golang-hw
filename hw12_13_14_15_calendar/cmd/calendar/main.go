@@ -113,7 +113,7 @@ func run() int {
 		defer wg.Done()
 
 		logg.Info("Starting HTTP server...")
-		err := srv.InitAndStartHttpProxy(ctx)
+		err := srv.InitAndStartHTTPProxy(ctx)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logg.Error("Failed to start HTTP server: " + err.Error())
 			cancel()
@@ -133,7 +133,7 @@ func run() int {
 		}
 
 		logg.Info("Stopping HTTP server...")
-		if err := srv.StopHttpProxy(ctx); err != nil {
+		if err := srv.StopHTTPProxy(ctx); err != nil {
 			logg.Error("Failed to stop HTTP server: " + err.Error())
 		}
 

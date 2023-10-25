@@ -74,7 +74,7 @@ func (s *Server) Stop(_ context.Context) error {
 	return nil
 }
 
-func (s *Server) InitAndStartHttpProxy(ctx context.Context) error {
+func (s *Server) InitAndStartHTTPProxy(ctx context.Context) error {
 	conn, err := grpc.DialContext(
 		ctx,
 		net.JoinHostPort(s.options.GRPC.Host, s.options.GRPC.Port),
@@ -92,8 +92,10 @@ func (s *Server) InitAndStartHttpProxy(ctx context.Context) error {
 	}
 
 	s.httpProxyServer = &http.Server{
-		Addr:    net.JoinHostPort(s.options.HTTP.Host, s.options.HTTP.Port),
-		Handler: log.NewHandler(s.logger, mux),
+		Addr:         net.JoinHostPort(s.options.HTTP.Host, s.options.HTTP.Port),
+		Handler:      log.NewHandler(s.logger, mux),
+		ReadTimeout:  s.options.HTTP.ReadTimeout,
+		WriteTimeout: s.options.HTTP.WriteTimeout,
 	}
 
 	err = s.httpProxyServer.ListenAndServe()
@@ -104,7 +106,7 @@ func (s *Server) InitAndStartHttpProxy(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) StopHttpProxy(ctx context.Context) error {
+func (s *Server) StopHTTPProxy(ctx context.Context) error {
 	if s.httpProxyServer == nil {
 		return nil
 	}
