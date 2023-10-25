@@ -1,4 +1,4 @@
-package grpc
+package log
 
 import (
 	"context"
@@ -16,17 +16,17 @@ import (
 
 const unknown = "UNKNOWN"
 
-type LogHandler struct {
+type Interceptor struct {
 	logger logger.Logger
 }
 
-func NewLogHandler(logger logger.Logger) *LogHandler {
-	return &LogHandler{
+func NewInterceptor(logger logger.Logger) *Interceptor {
+	return &Interceptor{
 		logger: logger,
 	}
 }
 
-func (h *LogHandler) GetInterceptor() grpc.UnaryServerInterceptor {
+func (h *Interceptor) GetInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 		start := time.Now()
 		resp, err = handler(ctx, req)

@@ -1,4 +1,4 @@
-package grpc
+package server
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type AppHandler struct {
+type AppHandler struct { // todo: better name
 	proto.UnimplementedEventServiceServer
 
 	app    Application

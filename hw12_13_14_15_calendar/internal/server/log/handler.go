@@ -1,4 +1,4 @@
-package internalhttp
+package log
 
 import (
 	"encoding/json"
@@ -9,19 +9,19 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 )
 
-type LogHandler struct {
+type Handler struct {
 	logger      logger.Logger
 	nextHandler http.Handler
 }
 
-func NewLogHandler(logger logger.Logger, next http.Handler) http.Handler {
-	return &LogHandler{
+func NewHandler(logger logger.Logger, next http.Handler) http.Handler {
+	return &Handler{
 		logger:      logger,
 		nextHandler: next,
 	}
 }
 
-func (l *LogHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+func (l *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	lrw := NewLoggingResponseWriter(writer)
 
 	start := time.Now()
