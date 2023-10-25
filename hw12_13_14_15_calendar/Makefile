@@ -5,6 +5,18 @@ DOCKER_IMG="calendar:develop"
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
+generate: generate-proto generate-gateway
+
+generate-proto:
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		api/EventService.proto
+
+generate-gateway:
+	protoc --grpc-gateway_out=. --grpc-gateway_opt=paths=source_relative \
+		--grpc-gateway_opt=generate_unbound_methods=true \
+		--openapiv2_out=. --openapiv2_opt=generate_unbound_methods=true \
+		api/EventService.proto
+
 build-migrations:
 	go build -v -o $(BIN_MIGRATE) ./cmd/calendar-migrations
 
