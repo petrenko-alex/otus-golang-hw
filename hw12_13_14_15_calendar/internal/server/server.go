@@ -2,6 +2,10 @@ package server
 
 import (
 	"context"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	proto "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/api"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
@@ -9,9 +13,6 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"net"
-	"net/http"
-	"time"
 )
 
 type Server struct {

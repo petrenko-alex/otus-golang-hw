@@ -4,11 +4,6 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +11,12 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+
 	proto "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/api"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
@@ -89,7 +90,6 @@ func (s Service) GetDayEvents(_ context.Context, date *proto.StartDate) (*proto.
 	}
 
 	return s.entities2Proto(events), nil
-
 }
 
 func (s Service) entities2Proto(entityEvents *entity.Events) *proto.Events {
