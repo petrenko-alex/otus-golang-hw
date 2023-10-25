@@ -18,9 +18,6 @@ import (
 	"time"
 )
 
-// TODO
-//  make generate
-
 var configFile string
 
 func init() {
