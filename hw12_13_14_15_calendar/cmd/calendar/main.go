@@ -81,7 +81,7 @@ func run() int {
 		return 1
 	}
 
-	grpcServer := server.NewServer( // todo: rename to srv?
+	srv := server.NewServer(
 		server.Options{
 			GRPC: server.GRPCOptions{
 				Host:           cfg.GRPCServer.Host,
@@ -106,7 +106,7 @@ func run() int {
 		defer wg.Done()
 
 		logg.Info("Starting GRPC server...")
-		err := grpcServer.Start(ctx)
+		err := srv.Start(ctx)
 		if err != nil {
 			logg.Error("Failed to start GRPC server: " + err.Error())
 			cancel()
@@ -118,7 +118,7 @@ func run() int {
 		defer wg.Done()
 
 		logg.Info("Starting HTTP server...")
-		err := grpcServer.InitAndStartHttpProxy(ctx)
+		err := srv.InitAndStartHttpProxy(ctx)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logg.Error("Failed to start HTTP server: " + err.Error())
 			cancel()
@@ -133,12 +133,12 @@ func run() int {
 		defer cancel()
 
 		logg.Info("Stopping GRPC server...")
-		if err := grpcServer.Stop(ctx); err != nil {
+		if err := srv.Stop(ctx); err != nil {
 			logg.Error("Failed to stop GRPC server: " + err.Error())
 		}
 
 		logg.Info("Stopping HTTP server...")
-		if err := grpcServer.StopHttpProxy(ctx); err != nil {
+		if err := srv.StopHttpProxy(ctx); err != nil {
 			logg.Error("Failed to stop HTTP server: " + err.Error())
 		}
 
