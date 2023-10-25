@@ -2,44 +2,93 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
 	flag.Parse()
 
 	if flag.Arg(0) == "version" {
 		printVersion()
-		return
+		return 0
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
-
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, calendar)
-
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	ctx, cancel := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGHUP,
+	)
 	defer cancel()
 
+	file, fileErr := os.Open(configFile)
+	if fileErr != nil {
+		log.Println("Error opening config file.")
+
+		return 1
+	}
+
+	cfg, configErr := config.New(file)
+	if configErr != nil {
+		log.Println("Error parsing config file.")
+
+		return 1
+	}
+	ctx = cfg.WithContext(ctx)
+
+	logg := createLogger(cfg)
+
+	appStorage, storageErr := storage.Get(cfg.Storage)
+	if storageErr != nil {
+		log.Println("Error getting storage.")
+
+		return 1
+	}
+
+	storageInitErr := appStorage.Connect(ctx)
+	if storageInitErr != nil {
+		log.Println("Error init storage.")
+
+		return 1
+	}
+
+	server := internalhttp.NewServer(
+		internalhttp.ServerOptions{
+			Host:         cfg.Server.Host,
+			Port:         cfg.Server.Port,
+			ReadTimeout:  cfg.Server.ReadTimeout,
+			WriteTimeout: cfg.Server.WriteTimeout,
+		},
+		logg,
+		app.New(logg, appStorage),
+	)
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		<-ctx.Done()
 
@@ -49,13 +98,32 @@ func main() {
 		if err := server.Stop(ctx); err != nil {
 			logg.Error("failed to stop http server: " + err.Error())
 		}
+
+		logg.Info("calendar stopped.")
+		wg.Done()
 	}()
 
 	logg.Info("calendar is running...")
 
-	if err := server.Start(ctx); err != nil {
+	if err := server.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logg.Error("failed to start http server: " + err.Error())
 		cancel()
-		os.Exit(1) //nolint:gocritic
+
+		return 1
 	}
+
+	wg.Wait()
+
+	return 0
+}
+
+func createLogger(cfg *config.Config) app.Logger {
+	levelMap := map[string]logger.Level{
+		"debug":   logger.Debug,
+		"info":    logger.Info,
+		"warning": logger.Warning,
+		"error":   logger.Error,
+	}
+
+	return logger.New(levelMap[cfg.Logger.Level], os.Stdout)
 }

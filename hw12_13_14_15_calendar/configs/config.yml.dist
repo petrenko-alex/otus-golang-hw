@@ -1,0 +1,11 @@
+logger:
+  level: "info"
+storage: "memory"
+db:
+  dsn: "<paste your dsn>"
+  migrationsDir: "./migrations/"
+server:
+  host: "localhost"
+  port: 4242
+  readTimeout: 1s
+  writeTimeout: 1s
