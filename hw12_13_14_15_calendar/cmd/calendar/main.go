@@ -15,7 +15,7 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/app"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/server"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -34,6 +34,7 @@ func run() int {
 
 	if flag.Arg(0) == "version" {
 		printVersion()
+
 		return 0
 	}
 
@@ -64,30 +65,62 @@ func run() int {
 
 	appStorage, storageErr := storage.Get(cfg.Storage)
 	if storageErr != nil {
-		log.Println("Error getting storage.")
+		logg.Error("Error getting storage: " + storageErr.Error())
 
 		return 1
 	}
 
 	storageInitErr := appStorage.Connect(ctx)
 	if storageInitErr != nil {
-		log.Println("Error init storage.")
+		logg.Error("Error init storage: " + storageInitErr.Error())
 
 		return 1
 	}
 
-	server := internalhttp.NewServer(
-		internalhttp.ServerOptions{
-			Host:         cfg.Server.Host,
-			Port:         cfg.Server.Port,
-			ReadTimeout:  cfg.Server.ReadTimeout,
-			WriteTimeout: cfg.Server.WriteTimeout,
+	srv := server.NewServer(
+		server.Options{
+			GRPC: server.GRPCOptions{
+				Host:           cfg.GRPCServer.Host,
+				Port:           cfg.GRPCServer.Port,
+				ConnectTimeout: cfg.GRPCServer.ConnectTimeout,
+			},
+			HTTP: server.HTTPOptions{
+				Host:         cfg.HTTPServer.Host,
+				Port:         cfg.HTTPServer.Port,
+				ReadTimeout:  cfg.HTTPServer.ReadTimeout,
+				WriteTimeout: cfg.HTTPServer.WriteTimeout,
+			},
 		},
 		logg,
 		app.New(logg, appStorage),
 	)
 
 	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		logg.Info("Starting GRPC server...")
+		err := srv.Start(ctx)
+		if err != nil {
+			logg.Error("Failed to start GRPC server: " + err.Error())
+			cancel()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		logg.Info("Starting HTTP server...")
+		err := srv.InitAndStartHTTPProxy(ctx)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logg.Error("Failed to start HTTP server: " + err.Error())
+			cancel()
+		}
+	}()
+
 	wg.Add(1)
 	go func() {
 		<-ctx.Done()
@@ -95,29 +128,26 @@ func run() int {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+		logg.Info("Stopping GRPC server...")
+		if err := srv.Stop(ctx); err != nil {
+			logg.Error("Failed to stop GRPC server: " + err.Error())
 		}
 
-		logg.Info("calendar stopped.")
+		logg.Info("Stopping HTTP server...")
+		if err := srv.StopHTTPProxy(ctx); err != nil {
+			logg.Error("Failed to stop HTTP server: " + err.Error())
+		}
+
+		logg.Info("Calendar stopped.")
 		wg.Done()
 	}()
-
-	logg.Info("calendar is running...")
-
-	if err := server.Start(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-
-		return 1
-	}
 
 	wg.Wait()
 
 	return 0
 }
 
-func createLogger(cfg *config.Config) app.Logger {
+func createLogger(cfg *config.Config) logger.Logger {
 	levelMap := map[string]logger.Level{
 		"debug":   logger.Debug,
 		"info":    logger.Info,

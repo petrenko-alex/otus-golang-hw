@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct {
 	storage storage.Storage
-	logger  Logger
+	logger  logger.Logger
 }
 
 var (
@@ -19,14 +20,7 @@ var (
 	ErrEventIsActive = errors.New("can't modify active event")
 )
 
-type Logger interface {
-	Debug(string)
-	Info(string)
-	Warning(string)
-	Error(string)
-}
-
-func New(logger Logger, storage storage.Storage) *App {
+func New(logger logger.Logger, storage storage.Storage) *App {
 	return &App{
 		logger:  logger,
 		storage: storage,
@@ -86,6 +80,7 @@ func (a *App) UpdateEvent(id string, event entity.Event) error {
 	}
 
 	// update
+	event.ID = existingEvent.ID
 	updateErr := a.storage.Update(event)
 	if updateErr != nil {
 		return updateErr

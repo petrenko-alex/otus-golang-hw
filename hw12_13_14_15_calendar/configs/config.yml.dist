@@ -4,8 +4,12 @@ storage: "memory"
 db:
   dsn: "<paste your dsn>"
   migrationsDir: "./migrations/"
-server:
+httpServer:
   host: "localhost"
   port: 4242
   readTimeout: 1s
   writeTimeout: 1s
+grpcServer:
+  host: "localhost"
+  port: 4042
+  connectTimeout: 1s
