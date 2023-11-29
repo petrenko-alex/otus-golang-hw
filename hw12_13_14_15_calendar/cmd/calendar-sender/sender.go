@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
@@ -81,24 +82,32 @@ func run() int {
 		return 1
 	}
 
-	body := "Hello World!"
-	publishErr := ch.PublishWithContext(
-		ctx,
-		"",
+	messages, consumeErr := ch.Consume(
 		queue.Name,
+		"",
+		true,
 		false,
 		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if publishErr != nil {
-		logg.Error("Error publishing message: " + publishErr.Error())
-
-		return 1
+		false,
+		nil,
+	)
+	if consumeErr != nil {
+		logg.Error("Error registering consumer: " + consumeErr.Error())
 	}
 
-	logg.Info(" [x] Sent " + body)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		for message := range messages {
+			logg.Info("Received message: " + string(message.Body))
+		}
+
+		wg.Done()
+	}()
+
+	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	wg.Wait()
 
 	return 0
 }
