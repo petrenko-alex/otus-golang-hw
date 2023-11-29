@@ -1,6 +1,9 @@
 BIN := "./bin/calendar"
 BIN_MIGRATE := "./bin/migrate"
+BIN_SENDER := "./bin/calendar_sender"
+BIN_SCHEDULER := "./bin/calendar_scheduler"
 DOCKER_IMG="calendar:develop"
+CONFIG_PATH := "./configs/config.yml"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -21,19 +24,27 @@ build-migrations:
 	go build -v -o $(BIN_MIGRATE) ./cmd/calendar-migrations
 
 migrate-status: build-migrations
-	$(BIN_MIGRATE) -config="./configs/config.yml" status
+	$(BIN_MIGRATE) -config=$(CONFIG_PATH) status
 
 migrate-up: build-migrations
-	$(BIN_MIGRATE) -config="./configs/config.yml" up
+	$(BIN_MIGRATE) -config=$(CONFIG_PATH) up
 
 migrate-down: build-migrations
-	$(BIN_MIGRATE) -config="./configs/config.yml" down
+	$(BIN_MIGRATE) -config=$(CONFIG_PATH) down
 
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(BIN_SENDER) ./cmd/calendar-sender
+	go build -v -o $(BIN_SCHEDULER) ./cmd/calendar-scheduler
 
 run: migrate-up build
-	$(BIN) -config ./configs/config.yml
+	$(BIN) -config $(CONFIG_PATH)
+
+run-sender: migrate-up build
+	$(BIN_SENDER) -config $(CONFIG_PATH)
+
+run-scheduler: migrate-up build
+	$(BIN_SCHEDULER) -config $(CONFIG_PATH)
 
 build-img:
 	docker build \
