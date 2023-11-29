@@ -2,5 +2,14 @@ version: "3"
 services:
   rabbitmq:
     image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=alex
+      - RABBITMQ_DEFAULT_PASS=alex
     ports:
       - 15672:15672
+    volumes:
+      - calendar-rabbitmq:/var/lib/rabbitmq
+volumes:
+  calendar-rabbitmq:
