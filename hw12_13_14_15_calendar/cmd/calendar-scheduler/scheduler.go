@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var configFile string
@@ -48,7 +50,64 @@ func run() int {
 	}
 	ctx = cfg.WithContext(ctx)
 
-	createLogger(cfg)
+	logg := createLogger(cfg)
+
+	conn, dialErr := amqp.Dial("amqp://alex:alex@localhost:5672/") // todo: from config
+	if dialErr != nil {
+		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
+
+		return 1
+	}
+	defer conn.Close()
+
+	ch, chanErr := conn.Channel()
+	if chanErr != nil {
+		logg.Error("Error opening channel: " + chanErr.Error())
+
+		return 1
+	}
+	defer ch.Close()
+
+	queue, queueErr := ch.QueueDeclare(
+		"calendar_events",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if queueErr != nil {
+		logg.Error("Error declaring queue: " + queueErr.Error())
+
+		return 1
+	}
+
+	messages, consumeErr := ch.Consume(
+		queue.Name,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if consumeErr != nil {
+		logg.Error("Error registering consumer: " + consumeErr.Error())
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
+	go func() {
+		for message := range messages {
+			logg.Info("Received message: " + string(message.Body))
+		}
+
+		wg.Done()
+	}()
+
+	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+	wg.Wait()
 
 	return 0
 }
