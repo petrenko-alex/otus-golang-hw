@@ -10,6 +10,7 @@ import (
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var configFile string
@@ -48,7 +49,56 @@ func run() int {
 	}
 	ctx = cfg.WithContext(ctx)
 
-	createLogger(cfg)
+	logg := createLogger(cfg)
+
+	conn, dialErr := amqp.Dial("amqp://alex:alex@localhost:5672/") // todo: from config
+	if dialErr != nil {
+		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
+
+		return 1
+	}
+	defer conn.Close()
+
+	ch, chanErr := conn.Channel()
+	if chanErr != nil {
+		logg.Error("Error opening channel: " + chanErr.Error())
+
+		return 1
+	}
+	defer ch.Close()
+
+	queue, queueErr := ch.QueueDeclare(
+		"calendar_events",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if queueErr != nil {
+		logg.Error("Error declaring queue: " + queueErr.Error())
+
+		return 1
+	}
+
+	body := "Hello World!"
+	publishErr := ch.PublishWithContext(
+		ctx,
+		"",
+		queue.Name,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		})
+	if publishErr != nil {
+		logg.Error("Error publishing message: " + publishErr.Error())
+
+		return 1
+	}
+
+	logg.Info(" [x] Sent " + body)
 
 	return 0
 }

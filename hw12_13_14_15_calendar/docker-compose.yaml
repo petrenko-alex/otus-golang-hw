@@ -9,6 +9,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=alex
     ports:
       - 15672:15672
+      - 5672:5672
     volumes:
       - calendar-rabbitmq:/var/lib/rabbitmq
 volumes:
