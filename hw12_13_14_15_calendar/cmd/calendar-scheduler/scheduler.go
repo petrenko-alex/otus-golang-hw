@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,12 +11,16 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/scheduler"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
 
 // todo: process ctrl+C
+// todo: periodic scan
+
+// todo: clean up old events
 
 func init() {
 	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
@@ -87,33 +89,15 @@ func run() int {
 		return 1
 	}
 
-	events, getErr := appStorage.GetForRemind()
-	if getErr != nil {
-		logg.Error("Error getting events for reminder: " + getErr.Error())
-	}
+	eventScheduler := scheduler.New(
+		q.Name,
+		ctx,
+		logg,
+		appStorage,
+		queueManager,
+	)
 
-	if len(*events) == 0 {
-		logg.Info("No events to remind about.")
-	}
-
-	for _, event := range *events {
-		eventMsg := event.ToMsg()
-		jsonMsg, marshalErr := json.Marshal(eventMsg)
-		if marshalErr != nil {
-			logg.Error("Error sending msg to RabbitMQ: " + marshalErr.Error())
-
-			continue
-		}
-
-		produceErr := queueManager.Produce(q.Name, jsonMsg)
-		if produceErr != nil {
-			logg.Error("Error sending msg to RabbitMQ: " + produceErr.Error())
-
-			return 1
-		}
-
-		logg.Info(fmt.Sprintf("Event \"%s\" sent", event.Title))
-	}
+	eventScheduler.SendEvents()
 
 	closeErr := queueManager.Close()
 	if closeErr != nil {
