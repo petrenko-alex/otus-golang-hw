@@ -1,6 +1,9 @@
 logger:
   level: "info"
 storage: "memory"
+app:
+  scheduler:
+    period: 60s
 db:
   dsn: "<paste your dsn>"
   migrationsDir: "./migrations/"
