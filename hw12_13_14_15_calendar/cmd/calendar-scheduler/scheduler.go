@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -53,6 +57,22 @@ func run() int {
 
 	logg := createLogger(cfg)
 
+	// Init storage
+	appStorage, storageErr := storage.Get(cfg.Storage)
+	if storageErr != nil {
+		logg.Error("Error getting storage: " + storageErr.Error())
+
+		return 1
+	}
+
+	storageInitErr := appStorage.Connect(ctx)
+	if storageInitErr != nil {
+		logg.Error("Error init storage: " + storageInitErr.Error())
+
+		return 1
+	}
+
+	// Init RabbitMQ
 	conn, dialErr := amqp.Dial("amqp://alex:alex@localhost:5672/") // todo: from config
 	if dialErr != nil {
 		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
@@ -83,24 +103,48 @@ func run() int {
 		return 1
 	}
 
-	body := "Hello World!"
-	publishErr := ch.PublishWithContext(
-		ctx,
-		"",
-		queue.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(body),
-		})
-	if publishErr != nil {
-		logg.Error("Error publishing message: " + publishErr.Error())
+	fmt.Println(queue)
 
-		return 1
+	st := time.Now().Add(-time.Hour * 24 * 2)
+	start := st.Truncate(time.Hour * 24)
+	end := st.Add(time.Hour * 24 * 7)
+	events, getErr := appStorage.GetForPeriod(start, end)
+	if getErr != nil {
+		logg.Error("Error getting events for reminder: " + getErr.Error())
 	}
 
-	logg.Info(" [x] Sent " + body)
+	if len(*events) == 0 {
+		logg.Info("No events to remind about.")
+	}
+
+	for _, event := range *events {
+		eventMsg := event.ToMsg()
+		jsonMsg, marshalErr := json.Marshal(eventMsg)
+		if marshalErr != nil {
+			logg.Error("Error sending msg to RabbitMQ: " + marshalErr.Error())
+
+			continue
+		}
+
+		publishErr := ch.PublishWithContext(
+			ctx,
+			"",
+			queue.Name,
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        jsonMsg,
+			},
+		)
+		if publishErr != nil {
+			logg.Error("Error sending msg to RabbitMQ: " + publishErr.Error())
+
+			return 1
+		}
+
+		logg.Info(" [x] Sent " + event.Title)
+	}
 
 	return 0
 }

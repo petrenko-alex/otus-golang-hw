@@ -19,3 +19,19 @@ type Event struct {
 
 	UserID int
 }
+
+type EventMsg struct {
+	ID       string
+	Title    string
+	DateTime time.Time
+	UserId   int
+}
+
+func (e Event) ToMsg() EventMsg {
+	return EventMsg{
+		ID:       e.ID,
+		Title:    e.Title,
+		DateTime: e.DateTime,
+		UserId:   e.UserID,
+	}
+}

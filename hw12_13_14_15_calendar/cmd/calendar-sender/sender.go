@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -100,7 +104,21 @@ func run() int {
 
 	go func() {
 		for message := range messages {
-			logg.Info("Received message: " + string(message.Body))
+			eventMsg := entity.EventMsg{}
+
+			unmarshalErr := json.Unmarshal(message.Body, &eventMsg)
+			if unmarshalErr != nil {
+				logg.Error("Error reading msg from RabbitMQ: " + unmarshalErr.Error())
+
+				continue
+			}
+
+			logg.Info(fmt.Sprintf(
+				"Sending reminder about \"%s\" event to #%d user. Event time: %s.",
+				eventMsg.Title,
+				eventMsg.UserId,
+				eventMsg.DateTime.Format(time.RFC822),
+			))
 		}
 
 		wg.Done()
