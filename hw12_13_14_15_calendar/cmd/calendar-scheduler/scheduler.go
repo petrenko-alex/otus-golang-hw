@@ -17,11 +17,6 @@ import (
 
 var configFile string
 
-// todo: process ctrl+C
-// todo: periodic scan
-
-// todo: clean up old events
-
 func init() {
 	flag.StringVar(&configFile, "config", "configs/config.yml", "Path to configuration file")
 }
@@ -90,14 +85,14 @@ func run() int {
 	}
 
 	eventScheduler := scheduler.New(
+		cfg.App.Scheduler.Period,
 		q.Name,
 		ctx,
 		logg,
 		appStorage,
 		queueManager,
 	)
-
-	eventScheduler.SendEvents()
+	eventScheduler.Run()
 
 	closeErr := queueManager.Close()
 	if closeErr != nil {
@@ -105,6 +100,8 @@ func run() int {
 
 		return 1
 	}
+
+	logg.Info("Connection closed.")
 
 	return 0
 }
