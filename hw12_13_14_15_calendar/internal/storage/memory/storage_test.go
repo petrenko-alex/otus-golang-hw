@@ -17,7 +17,7 @@ var event = entity.Event{
 	DateTime:    time.Now(),
 	Description: "this is some event",
 	Duration:    "60",
-	RemindTime:  "15",
+	RemindTime:  time.Now().Add(-time.Hour * 2),
 
 	UserID: 1,
 }
@@ -186,6 +186,22 @@ func TestStorageRead(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, *events, 3)
 		require.Equal(t, []string{"1", "3", "4"}, getKeys(t, events))
+	})
+
+	t.Run("read for remind", func(t *testing.T) {
+		now := time.Now().UTC()
+		date := now.Add(time.Hour * 5)
+		strg := memorystorage.NewWithEvents(map[string]entity.Event{
+			"1": {ID: "1", Title: "1", DateTime: date, UserID: 1, RemindTime: now},
+			"2": {ID: "2", Title: "2", DateTime: date, UserID: 1, RemindTime: now.Add(time.Hour * 1)},
+			"3": {ID: "3", Title: "3", DateTime: date, UserID: 1, RemindTime: now.Add(-time.Hour * 1)},
+		})
+
+		events, err := strg.GetForRemind()
+
+		require.NoError(t, err)
+		require.Len(t, *events, 2)
+		require.Equal(t, []string{"1", "3"}, getKeys(t, events))
 	})
 }
 

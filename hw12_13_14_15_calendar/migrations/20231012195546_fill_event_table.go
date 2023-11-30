@@ -12,12 +12,13 @@ func init() {
 }
 
 func upFillEventTable(ctx context.Context, tx *sql.Tx) error {
+	//nolint:lll
 	query := `INSERT INTO event 
     (title, description, datetime, duration, remind_time, user_id) 
 VALUES 
-    ('golang meetup', 'first ever golang meetup in Russia', '2023-11-10 22:00:00.000000', '02:00:00', '01:00:00', 1), 
-    ('car repair', NULL, '2023-12-12 22:19:05.000000', '01:00:00', '03:00:00', 1),
-    ('swimming pool', NULL, '2023-11-17 22:19:55.000000', '00:45:00', '00:15:00', 2);`
+    ('golang meetup', 'first ever golang meetup in Russia', '2023-11-10 22:00:00.000000', '02:00:00', '2023-11-10 20:00:00.000000', 1), 
+    ('car repair', NULL, '2023-12-12 22:19:05.000000', '01:00:00', '2023-12-12 22:00:00.000000', 1),
+    ('swimming pool', NULL, '2023-11-17 22:19:55.000000', '00:45:00', '2023-11-15 13:00:00.000000', 2);`
 
 	if _, err := tx.ExecContext(ctx, query); err != nil {
 		return err

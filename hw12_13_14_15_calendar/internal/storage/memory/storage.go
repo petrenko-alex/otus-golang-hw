@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"time"
 
@@ -98,6 +99,21 @@ func (s *Storage) GetForPeriod(periodStart time.Time, periodEnd time.Time) (*ent
 	}
 
 	return &periodEvents, nil
+}
+
+func (s *Storage) GetForRemind() (*entity.Events, error) {
+	remindEvents := make(entity.Events, 0)
+
+	for _, event := range s.data {
+		if slices.Contains(
+			[]int{-1, 0},
+			event.RemindTime.Compare(time.Now().UTC()),
+		) {
+			remindEvents = append(remindEvents, event)
+		}
+	}
+
+	return &remindEvents, nil
 }
 
 func (s *Storage) Connect(_ context.Context) error {

@@ -1,6 +1,10 @@
 logger:
   level: "info"
 storage: "memory"
+app:
+  scheduler:
+    period: 60s
+    queue: "calendar_events"
 db:
   dsn: "<paste your dsn>"
   migrationsDir: "./migrations/"
@@ -13,3 +17,8 @@ grpcServer:
   host: "localhost"
   port: 4042
   connectTimeout: 1s
+rabbitMqServer:
+  host: "localhost"
+  port: "5672"
+  login: "<password>"
+  password: "<password>"

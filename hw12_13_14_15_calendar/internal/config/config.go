@@ -18,6 +18,13 @@ type Config struct {
 	Logger struct {
 		Level string
 	}
+	Storage string
+	App     struct {
+		Scheduler struct {
+			Period time.Duration
+			Queue  string
+		}
+	}
 	HTTPServer struct {
 		Host, Port   string
 		ReadTimeout  time.Duration `yaml:"readTimeout"`
@@ -31,7 +38,9 @@ type Config struct {
 		Dsn           string
 		MigrationsDir string `yaml:"migrationsDir"`
 	}
-	Storage string
+	RabbitMQServer struct {
+		Host, Port, Login, Password string
+	} `yaml:"rabbitMqServer"`
 }
 
 func New(configFile io.Reader) (*Config, error) {

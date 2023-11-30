@@ -18,7 +18,7 @@ func upCreateEventTable(ctx context.Context, tx *sql.Tx) error {
     description text,
     datetime    timestamp                      not null,
     duration    varchar(255),
-    remind_time varchar(255),
+    remind_time timestamp,
     user_id     integer                        not null
 );`
 

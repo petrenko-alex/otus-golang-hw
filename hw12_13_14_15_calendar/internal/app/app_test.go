@@ -36,6 +36,7 @@ func createApp(t *testing.T) *app.App {
 func TestApp_CreateEvent(t *testing.T) {
 	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
+	remindDateTime := time.Date(2023, 7, 8, 11, 45, 0, 0, time.UTC)
 
 	id1, err1 := application.CreateEvent(
 		entity.Event{
@@ -43,7 +44,7 @@ func TestApp_CreateEvent(t *testing.T) {
 			Description: "this is event 1",
 			DateTime:    dateTime,
 			Duration:    "02:00:00",
-			RemindTime:  "00:15:00",
+			RemindTime:  remindDateTime,
 			UserID:      1,
 		},
 	)
@@ -57,7 +58,7 @@ func TestApp_CreateEvent(t *testing.T) {
 			Description: "this is event 2",
 			DateTime:    dateTime,
 			Duration:    "03:00:00",
-			RemindTime:  "00:30:00",
+			RemindTime:  remindDateTime,
 			UserID:      1,
 		},
 	)
@@ -68,12 +69,13 @@ func TestApp_CreateEvent(t *testing.T) {
 func TestApp_UpdateEvent(t *testing.T) {
 	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
+	remindDateTime := time.Date(2023, 7, 8, 11, 45, 0, 0, time.UTC)
 	event := entity.Event{
 		Title:       "event 1",
 		Description: "this is event 1",
 		DateTime:    dateTime,
 		Duration:    "02:00:00",
-		RemindTime:  "00:15:00",
+		RemindTime:  remindDateTime,
 		UserID:      1,
 	}
 
@@ -109,6 +111,7 @@ func TestApp_UpdateEvent(t *testing.T) {
 func TestApp_DeleteEvent(t *testing.T) {
 	application := createApp(t)
 	dateTime := time.Date(2023, 7, 8, 12, 0, 0, 0, time.UTC)
+	remindDateTime := time.Date(2023, 7, 8, 11, 45, 0, 0, time.UTC)
 
 	id1, err1 := application.CreateEvent(
 		entity.Event{
@@ -116,7 +119,7 @@ func TestApp_DeleteEvent(t *testing.T) {
 			Description: "this is event 1",
 			DateTime:    dateTime,
 			Duration:    "02:00:00",
-			RemindTime:  "00:15:00",
+			RemindTime:  remindDateTime,
 			UserID:      1,
 		},
 	)
@@ -128,7 +131,7 @@ func TestApp_DeleteEvent(t *testing.T) {
 			Description: "this is event 2",
 			DateTime:    time.Now(),
 			Duration:    "03:00:00",
-			RemindTime:  "00:30:00",
+			RemindTime:  remindDateTime,
 			UserID:      1,
 		},
 	)

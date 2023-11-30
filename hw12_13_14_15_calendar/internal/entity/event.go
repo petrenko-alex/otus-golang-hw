@@ -15,7 +15,23 @@ type Event struct {
 	DateTime    time.Time
 	Description string
 	Duration    string
-	RemindTime  string
+	RemindTime  time.Time
 
 	UserID int
+}
+
+type EventMsg struct {
+	ID       string
+	Title    string
+	DateTime time.Time
+	UserID   int
+}
+
+func (e Event) ToMsg() EventMsg {
+	return EventMsg{
+		ID:       e.ID,
+		Title:    e.Title,
+		DateTime: e.DateTime,
+		UserID:   e.UserID,
+	}
 }

@@ -51,7 +51,7 @@ message EventData {
   google.protobuf.Timestamp date_time = 2;
   string description = 3;
   string duration = 4;
-  string remind_time = 5;
+  google.protobuf.Timestamp remind_time = 5;
   int64 user_id = 6;
 }
 
