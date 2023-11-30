@@ -79,7 +79,7 @@ func run() int {
 	defer ch.Close()
 
 	queue, queueErr := ch.QueueDeclare(
-		"calendar_events",
+		cfg.App.Scheduler.Queue,
 		false,
 		false,
 		false,

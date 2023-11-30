@@ -4,6 +4,7 @@ storage: "memory"
 app:
   scheduler:
     period: 60s
+    queue: "calendar_events"
 db:
   dsn: "<paste your dsn>"
   migrationsDir: "./migrations/"

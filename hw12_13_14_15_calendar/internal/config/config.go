@@ -22,6 +22,7 @@ type Config struct {
 	App     struct {
 		Scheduler struct {
 			Period time.Duration
+			Queue  string
 		}
 	}
 	HTTPServer struct {
