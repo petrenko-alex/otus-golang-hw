@@ -31,6 +31,9 @@ type Config struct {
 		Dsn           string
 		MigrationsDir string `yaml:"migrationsDir"`
 	}
+	RabbitMQServer struct {
+		Host, Port, Login, Password string
+	} `yaml:"rabbitMQServer"`
 	Storage string
 }
 

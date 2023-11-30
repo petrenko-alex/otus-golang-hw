@@ -13,3 +13,8 @@ grpcServer:
   host: "localhost"
   port: 4042
   connectTimeout: 1s
+rabbitServer:
+  host: "localhost"
+  port: "5672"
+  login: "<password>"
+  password: "<password>"

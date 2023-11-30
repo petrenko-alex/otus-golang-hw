@@ -56,7 +56,13 @@ func run() int {
 
 	logg := createLogger(cfg)
 
-	conn, dialErr := amqp.Dial("amqp://alex:alex@localhost:5672/") // todo: from config
+	conn, dialErr := amqp.Dial(fmt.Sprintf(
+		"amqp://%s:%s@%s:%s/",
+		cfg.RabbitMQServer.Login,
+		cfg.RabbitMQServer.Password,
+		cfg.RabbitMQServer.Host,
+		cfg.RabbitMQServer.Port,
+	))
 	if dialErr != nil {
 		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
 
