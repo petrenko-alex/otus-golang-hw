@@ -24,7 +24,7 @@ type EventMsg struct {
 	ID       string
 	Title    string
 	DateTime time.Time
-	UserId   int
+	UserID   int
 }
 
 func (e Event) ToMsg() EventMsg {
@@ -32,6 +32,6 @@ func (e Event) ToMsg() EventMsg {
 		ID:       e.ID,
 		Title:    e.Title,
 		DateTime: e.DateTime,
-		UserId:   e.UserID,
+		UserID:   e.UserID,
 	}
 }

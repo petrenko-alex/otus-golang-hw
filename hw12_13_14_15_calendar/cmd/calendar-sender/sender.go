@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/sender"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/sender"
 )
 
 var configFile string

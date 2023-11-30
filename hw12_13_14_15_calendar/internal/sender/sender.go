@@ -45,7 +45,7 @@ func (s *Sender) Run(channel <-chan amqp.Delivery) {
 			s.logger.Info(fmt.Sprintf(
 				"Sending reminder about \"%s\" event to #%d user. Event time: %s.",
 				eventMsg.Title,
-				eventMsg.UserId,
+				eventMsg.UserID,
 				eventMsg.DateTime.Format(time.RFC822),
 			))
 		}

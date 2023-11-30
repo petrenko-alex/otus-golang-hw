@@ -85,12 +85,12 @@ func run() int {
 	}
 
 	eventScheduler := scheduler.New(
-		cfg.App.Scheduler.Period,
-		q.Name,
 		ctx,
 		logg,
 		appStorage,
 		queueManager,
+		cfg.App.Scheduler.Period,
+		q.Name,
 	)
 	eventScheduler.Run()
 

@@ -23,12 +23,12 @@ type Scheduler struct {
 }
 
 func New(
-	period time.Duration,
-	queueName string,
 	ctx context.Context,
 	logg logger.Logger,
 	storage storage.Storage,
 	manager queue.RabbitManager,
+	period time.Duration,
+	queueName string,
 ) Scheduler {
 	return Scheduler{
 		period:       period,

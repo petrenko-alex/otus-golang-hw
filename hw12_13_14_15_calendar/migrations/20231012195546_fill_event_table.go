@@ -12,6 +12,7 @@ func init() {
 }
 
 func upFillEventTable(ctx context.Context, tx *sql.Tx) error {
+	//nolint:lll
 	query := `INSERT INTO event 
     (title, description, datetime, duration, remind_time, user_id) 
 VALUES 

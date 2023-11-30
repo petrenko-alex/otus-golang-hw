@@ -40,7 +40,7 @@ type Config struct {
 	}
 	RabbitMQServer struct {
 		Host, Port, Login, Password string
-	} `yaml:"rabbitMQServer"`
+	} `yaml:"rabbitMqServer"`
 }
 
 func New(configFile io.Reader) (*Config, error) {
