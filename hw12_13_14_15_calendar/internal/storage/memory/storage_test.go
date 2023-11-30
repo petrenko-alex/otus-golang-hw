@@ -17,7 +17,7 @@ var event = entity.Event{
 	DateTime:    time.Now(),
 	Description: "this is some event",
 	Duration:    "60",
-	RemindTime:  "15",
+	RemindTime:  time.Now().Add(-time.Hour * 2),
 
 	UserID: 1,
 }

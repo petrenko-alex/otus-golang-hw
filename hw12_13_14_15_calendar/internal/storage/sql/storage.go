@@ -25,7 +25,7 @@ type sqlEvent struct {
 	DateTime    time.Time
 	Description sql.NullString
 	Duration    sql.NullString
-	RemindTime  sql.NullString
+	RemindTime  sql.NullTime
 
 	UserID int
 }
@@ -269,7 +269,7 @@ func (s *PgStorage) sqlEventToEvent(sqlEvent *sqlEvent) *entity.Event {
 	}
 
 	if sqlEvent.RemindTime.Valid {
-		event.RemindTime = sqlEvent.RemindTime.String
+		event.RemindTime = sqlEvent.RemindTime.Time
 	}
 
 	return &event

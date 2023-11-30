@@ -113,7 +113,7 @@ func (s Service) entity2Proto(entityEvent entity.Event) *proto.Event {
 			DateTime:    timestamppb.New(entityEvent.DateTime),
 			Description: entityEvent.Description,
 			Duration:    entityEvent.Duration,
-			RemindTime:  entityEvent.RemindTime,
+			RemindTime:  timestamppb.New(entityEvent.RemindTime),
 		},
 	})
 }
@@ -124,7 +124,7 @@ func (s Service) proto2entity(protoEvent *proto.EventData) entity.Event {
 		Description: protoEvent.Description,
 		DateTime:    protoEvent.DateTime.AsTime(),
 		Duration:    protoEvent.Duration,
-		RemindTime:  protoEvent.RemindTime,
+		RemindTime:  protoEvent.RemindTime.AsTime(),
 		UserID:      int(protoEvent.UserId),
 	}
 }
