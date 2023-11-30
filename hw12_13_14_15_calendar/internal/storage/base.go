@@ -34,6 +34,7 @@ type Storage interface {
 	GetByID(string) (*entity.Event, error)
 	GetForPeriod(time.Time, time.Time) (*entity.Events, error)
 	GetForTime(time.Time) (*entity.Event, error)
+	GetForRemind() (*entity.Events, error)
 }
 
 func Get(storageType string) (Storage, error) {

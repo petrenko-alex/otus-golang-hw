@@ -215,6 +215,44 @@ func (s *PgStorage) GetForTime(t time.Time) (*entity.Event, error) {
 	return s.sqlEventToEvent(&event), nil
 }
 
+func (s *PgStorage) GetForRemind() (*entity.Events, error) {
+	events := entity.Events{}
+
+	rows, err := s.db.QueryContext(
+		s.ctx,
+		fmt.Sprintf("SELECT %s FROM %s WHERE now() >= remind_time ", tableColumnsRead, tableName),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		event := sqlEvent{}
+		err = rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.Description,
+			&event.DateTime,
+			&event.Duration,
+			&event.RemindTime,
+			&event.UserID,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		events = append(events, *s.sqlEventToEvent(&event))
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return &events, nil
+}
+
 func New() *PgStorage {
 	return &PgStorage{}
 }

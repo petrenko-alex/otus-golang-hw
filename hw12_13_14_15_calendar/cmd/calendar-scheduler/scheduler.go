@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
@@ -103,12 +101,7 @@ func run() int {
 		return 1
 	}
 
-	fmt.Println(queue)
-
-	st := time.Now().Add(-time.Hour * 24 * 2)
-	start := st.Truncate(time.Hour * 24)
-	end := st.Add(time.Hour * 24 * 7)
-	events, getErr := appStorage.GetForPeriod(start, end)
+	events, getErr := appStorage.GetForRemind()
 	if getErr != nil {
 		logg.Error("Error getting events for reminder: " + getErr.Error())
 	}
