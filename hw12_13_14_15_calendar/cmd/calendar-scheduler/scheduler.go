@@ -12,8 +12,8 @@ import (
 
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/storage"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 var configFile string
@@ -56,6 +56,22 @@ func run() int {
 
 	logg := createLogger(cfg)
 
+	// Init RabbitMQ
+	queueManager := queue.NewRabbitManager(ctx, *cfg, logg)
+	connectErr := queueManager.Connect()
+	if connectErr != nil {
+		logg.Error("Error connecting to RabbitMQ server: " + connectErr.Error())
+
+		return 1
+	}
+
+	q, queueErr := queueManager.CreateQueue(cfg.App.Scheduler.Queue)
+	if queueErr != nil {
+		logg.Error("Error declaring queue: " + queueErr.Error())
+
+		return 1
+	}
+
 	// Init storage
 	appStorage, storageErr := storage.Get(cfg.Storage)
 	if storageErr != nil {
@@ -67,43 +83,6 @@ func run() int {
 	storageInitErr := appStorage.Connect(ctx)
 	if storageInitErr != nil {
 		logg.Error("Error init storage: " + storageInitErr.Error())
-
-		return 1
-	}
-
-	// Init RabbitMQ
-	conn, dialErr := amqp.Dial(fmt.Sprintf(
-		"amqp://%s:%s@%s:%s/",
-		cfg.RabbitMQServer.Login,
-		cfg.RabbitMQServer.Password,
-		cfg.RabbitMQServer.Host,
-		cfg.RabbitMQServer.Port,
-	))
-	if dialErr != nil {
-		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
-
-		return 1
-	}
-	defer conn.Close()
-
-	ch, chanErr := conn.Channel()
-	if chanErr != nil {
-		logg.Error("Error opening channel: " + chanErr.Error())
-
-		return 1
-	}
-	defer ch.Close()
-
-	queue, queueErr := ch.QueueDeclare(
-		cfg.App.Scheduler.Queue,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if queueErr != nil {
-		logg.Error("Error declaring queue: " + queueErr.Error())
 
 		return 1
 	}
@@ -126,24 +105,21 @@ func run() int {
 			continue
 		}
 
-		publishErr := ch.PublishWithContext(
-			ctx,
-			"",
-			queue.Name,
-			false,
-			false,
-			amqp.Publishing{
-				ContentType: "application/json",
-				Body:        jsonMsg,
-			},
-		)
-		if publishErr != nil {
-			logg.Error("Error sending msg to RabbitMQ: " + publishErr.Error())
+		produceErr := queueManager.Produce(q.Name, jsonMsg)
+		if produceErr != nil {
+			logg.Error("Error sending msg to RabbitMQ: " + produceErr.Error())
 
 			return 1
 		}
 
-		logg.Info(" [x] Sent " + event.Title)
+		logg.Info(fmt.Sprintf("Event \"%s\" sent", event.Title))
+	}
+
+	closeErr := queueManager.Close()
+	if closeErr != nil {
+		logg.Error("Error closing RabbitMQ connection: " + closeErr.Error())
+
+		return 1
 	}
 
 	return 0

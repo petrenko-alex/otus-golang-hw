@@ -15,7 +15,7 @@ import (
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
 	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
 )
 
 var configFile string
@@ -56,60 +56,34 @@ func run() int {
 
 	logg := createLogger(cfg)
 
-	conn, dialErr := amqp.Dial(fmt.Sprintf(
-		"amqp://%s:%s@%s:%s/",
-		cfg.RabbitMQServer.Login,
-		cfg.RabbitMQServer.Password,
-		cfg.RabbitMQServer.Host,
-		cfg.RabbitMQServer.Port,
-	))
-	if dialErr != nil {
-		logg.Error("Error connecting to RabbitMQ server: " + dialErr.Error())
+	// Init RabbitMQ
+	queueManager := queue.NewRabbitManager(ctx, *cfg, logg)
+	connectErr := queueManager.Connect()
+	if connectErr != nil {
+		logg.Error("Error connecting to RabbitMQ server: " + connectErr.Error())
 
 		return 1
 	}
-	defer conn.Close()
 
-	ch, chanErr := conn.Channel()
-	if chanErr != nil {
-		logg.Error("Error opening channel: " + chanErr.Error())
-
-		return 1
-	}
-	defer ch.Close()
-
-	queue, queueErr := ch.QueueDeclare(
-		cfg.App.Scheduler.Queue,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
+	q, queueErr := queueManager.CreateQueue(cfg.App.Scheduler.Queue)
 	if queueErr != nil {
 		logg.Error("Error declaring queue: " + queueErr.Error())
 
 		return 1
 	}
 
-	messages, consumeErr := ch.Consume(
-		queue.Name,
-		"",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
+	msgChan, consumeErr := queueManager.Consume(q.Name)
 	if consumeErr != nil {
 		logg.Error("Error registering consumer: " + consumeErr.Error())
+
+		return 1
 	}
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
 	go func() {
-		for message := range messages {
+		for message := range msgChan {
 			eventMsg := entity.EventMsg{}
 
 			unmarshalErr := json.Unmarshal(message.Body, &eventMsg)
