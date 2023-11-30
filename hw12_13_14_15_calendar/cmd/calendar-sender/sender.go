@@ -2,20 +2,15 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
-	"fmt"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
+	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/sender"
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
-	"time"
-
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/config"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/entity"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/logger"
-	"github.com/petrenko-alex/otus-golang-hw/hw12_13_14_15_calendar/internal/queue"
 )
 
 var configFile string
@@ -79,33 +74,17 @@ func run() int {
 		return 1
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
+	eventSender := sender.New(ctx, logg)
+	eventSender.Run(msgChan)
 
-	go func() {
-		for message := range msgChan {
-			eventMsg := entity.EventMsg{}
+	closeErr := queueManager.Close()
+	if closeErr != nil {
+		logg.Error("Error closing RabbitMQ connection: " + closeErr.Error())
 
-			unmarshalErr := json.Unmarshal(message.Body, &eventMsg)
-			if unmarshalErr != nil {
-				logg.Error("Error reading msg from RabbitMQ: " + unmarshalErr.Error())
+		return 1
+	}
 
-				continue
-			}
-
-			logg.Info(fmt.Sprintf(
-				"Sending reminder about \"%s\" event to #%d user. Event time: %s.",
-				eventMsg.Title,
-				eventMsg.UserId,
-				eventMsg.DateTime.Format(time.RFC822),
-			))
-		}
-
-		wg.Done()
-	}()
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	wg.Wait()
+	logg.Info("Connection closed.")
 
 	return 0
 }
