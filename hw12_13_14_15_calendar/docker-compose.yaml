@@ -8,6 +8,22 @@ services:
     ports:
       - "4242:4242"
       - "4042:4042"
+  calendar-scheduler:
+    build:
+      context: .
+      dockerfile: ./deployments/scheduler/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+  calendar-sender:
+    build:
+      context: .
+      dockerfile: ./deployments/sender/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
   db:
     image: postgres:16.0-alpine3.18
     restart: always
@@ -33,10 +49,15 @@ services:
       - RABBITMQ_DEFAULT_USER=alex
       - RABBITMQ_DEFAULT_PASS=alex
     ports:
-      - 15672:15672
-      - 5672:5672
+      - "15672:15672"
+      - "5672:5672"
     volumes:
       - calendar-rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
 volumes:
   calendar-rabbitmq:
   calendar-data:
