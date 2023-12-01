@@ -1,7 +1,9 @@
 version: "3"
 services:
   calendar-server:
-    build: .
+    build:
+      context: .
+      dockerfile: ./deployments/server/Dockerfile
     depends_on:
       db:
         condition: service_healthy
