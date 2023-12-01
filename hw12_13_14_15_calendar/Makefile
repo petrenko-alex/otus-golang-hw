@@ -46,6 +46,12 @@ run-sender: migrate-up build
 run-scheduler: migrate-up build
 	$(BIN_SCHEDULER) -config $(CONFIG_PATH)
 
+up:
+	docker compose up
+
+down:
+	docker compose down
+
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
