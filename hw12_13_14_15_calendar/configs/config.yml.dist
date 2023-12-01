@@ -6,15 +6,15 @@ app:
     period: 60s
     queue: "calendar_events"
 db:
-  dsn: "<paste your dsn>"
+  dsn: "postgres://main:main@db:5432/calendar?sslmode=disable"
   migrationsDir: "./migrations/"
 httpServer:
-  host: "localhost"
+  host: ""
   port: 4242
   readTimeout: 1s
   writeTimeout: 1s
 grpcServer:
-  host: "localhost"
+  host: ""
   port: 4042
   connectTimeout: 1s
 rabbitMqServer:
