@@ -20,7 +20,9 @@ import (
 )
 
 func TestCreateEvent(t *testing.T) {
-	configFile := "../../configs/config.yml"
+	configFile := os.Getenv("CONFIG")
+	require.NotEmpty(t, configFile, "Must provide config with CONFIG env var")
+
 	cfg, cfgErr := getConfig(t, configFile)
 	if cfgErr != nil {
 		require.Fail(t, "Test init error", cfgErr)
@@ -48,10 +50,11 @@ func TestCreateEvent(t *testing.T) {
 		UserId:      1,
 	}}
 	resp, err := client.CreateEvent(ctx, event1Dto)
-	eventId := resp.EventId.Id
 
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.EventId.Id)
+
+	eventId := resp.EventId.Id
 
 	// Date is busy
 	event2Dto := &proto.CreateRequest{EventData: &proto.EventData{
@@ -76,7 +79,9 @@ func TestCreateEvent(t *testing.T) {
 }
 
 func TestGetEvents(t *testing.T) {
-	configFile := "../../configs/config.yml"
+	configFile := os.Getenv("CONFIG")
+	require.NotEmpty(t, configFile, "Must provide config with CONFIG env var")
+
 	cfg, cfgErr := getConfig(t, configFile)
 	if cfgErr != nil {
 		require.Fail(t, "Test init error", cfgErr)
