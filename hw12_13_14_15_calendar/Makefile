@@ -2,7 +2,6 @@ BIN := "./bin/calendar"
 BIN_MIGRATE := "./bin/migrate"
 BIN_SENDER := "./bin/calendar_sender"
 BIN_SCHEDULER := "./bin/calendar_scheduler"
-DOCKER_IMG="calendar:develop"
 CONFIG_PATH := "./configs/config.yml"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -46,20 +45,22 @@ run-sender: migrate-up build
 run-scheduler: migrate-up build
 	$(BIN_SCHEDULER) -config $(CONFIG_PATH)
 
-build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
+up:
+	docker compose -f deployments/docker-compose.yaml up
 
-run-img: build-img
-	docker run $(DOCKER_IMG)
+down:
+	docker compose -f deployments/docker-compose.yaml down
 
 version: build
 	$(BIN) version
 
-test:
+tests:
 	CGO_ENABLED=1 go test --count=1 -race ./internal/...
+
+integration-tests:
+	docker compose -f deployments/docker-compose.test.yaml up \
+		--abort-on-container-exit \
+		--exit-code-from calendar-test
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.54.2

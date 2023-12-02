@@ -3,7 +3,7 @@ logger:
 storage: "db"
 app:
   scheduler:
-    period: 60s
+    period: 10s
     queue: "calendar_events"
 db:
   dsn: "postgres://<login>:<password>@db:5432/calendar?sslmode=disable"
@@ -14,11 +14,11 @@ httpServer:
   readTimeout: 1s
   writeTimeout: 1s
 grpcServer:
-  host: ""
+  host: "calendar-server"
   port: 4042
   connectTimeout: 1s
 rabbitMqServer:
   host: "rabbitmq"
   port: "5672"
-  login: "<password>"
-  password: "<password>"
+  login: "alex"
+  password: "alex"
