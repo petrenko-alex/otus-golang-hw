@@ -1,6 +1,6 @@
 logger:
   level: "info"
-storage: "memory"
+storage: "db"
 app:
   scheduler:
     period: 60s
