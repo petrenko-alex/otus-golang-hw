@@ -46,10 +46,10 @@ run-scheduler: migrate-up build
 	$(BIN_SCHEDULER) -config $(CONFIG_PATH)
 
 up:
-	docker compose up
+	docker compose -f deployments/docker-compose.yaml up
 
 down:
-	docker compose down
+	docker compose -f deployments/docker-compose.yaml down
 
 version: build
 	$(BIN) version

@@ -2,7 +2,7 @@ version: "3"
 services:
   calendar-server:
     build:
-      context: .
+      context: ..
       dockerfile: ./deployments/server/Dockerfile
     depends_on:
       db:
@@ -12,7 +12,7 @@ services:
       - "4042:4042"
   calendar-scheduler:
     build:
-      context: .
+      context: ..
       dockerfile: ./deployments/scheduler/Dockerfile
     depends_on:
       db:
@@ -21,7 +21,7 @@ services:
         condition: service_healthy
   calendar-sender:
     build:
-      context: .
+      context: ..
       dockerfile: ./deployments/sender/Dockerfile
     depends_on:
       rabbitmq:
