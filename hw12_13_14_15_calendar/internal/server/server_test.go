@@ -31,7 +31,7 @@ func TestCreateEvent(t *testing.T) {
 	ctx := context.Background()
 
 	// Set up a connection to the server.
-	conn, connErr := getGRPCConnection(t, ctx, cfg)
+	conn, connErr := getGRPCConnection(ctx, t, cfg)
 	if connErr != nil {
 		require.Fail(t, "Test init error", connErr)
 	}
@@ -54,7 +54,7 @@ func TestCreateEvent(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.EventId.Id)
 
-	eventId := resp.EventId.Id
+	eventID := resp.EventId.Id
 
 	// Date is busy
 	event2Dto := &proto.CreateRequest{EventData: &proto.EventData{
@@ -65,7 +65,7 @@ func TestCreateEvent(t *testing.T) {
 		Duration:    "01:00:00",
 		UserId:      1,
 	}}
-	resp, err = client.CreateEvent(ctx, event2Dto)
+	_, err = client.CreateEvent(ctx, event2Dto)
 
 	require.NotNil(t, err)
 	grpcStatus := status.Convert(err)
@@ -74,7 +74,7 @@ func TestCreateEvent(t *testing.T) {
 	require.Equal(t, app.ErrDateBusy.Error(), grpcStatus.Message())
 
 	// Remove created
-	_, err = client.DeleteEvent(ctx, &proto.DeleteRequest{EventId: &proto.EventId{Id: eventId}})
+	_, err = client.DeleteEvent(ctx, &proto.DeleteRequest{EventId: &proto.EventId{Id: eventID}})
 	require.NoError(t, err)
 }
 
@@ -90,7 +90,7 @@ func TestGetEvents(t *testing.T) {
 	ctx := context.Background()
 
 	// Set up a connection to the server.
-	conn, connErr := getGRPCConnection(t, ctx, cfg)
+	conn, connErr := getGRPCConnection(ctx, t, cfg)
 	if connErr != nil {
 		require.Fail(t, "Test init error", connErr)
 	}
@@ -137,8 +137,8 @@ func TestGetEvents(t *testing.T) {
 	require.Len(t, resp.GetEvents(), 3)
 
 	// Remove created
-	for _, eventId := range createdEventIds {
-		_, err := client.DeleteEvent(ctx, &proto.DeleteRequest{EventId: &proto.EventId{Id: eventId}})
+	for _, eventID := range createdEventIds {
+		_, err := client.DeleteEvent(ctx, &proto.DeleteRequest{EventId: &proto.EventId{Id: eventID}})
 		require.NoError(t, err)
 	}
 }
@@ -159,7 +159,7 @@ func getConfig(t *testing.T, configFilePath string) (*config.Config, error) {
 	return cfg, nil
 }
 
-func getGRPCConnection(t *testing.T, ctx context.Context, config *config.Config) (*grpc.ClientConn, error) {
+func getGRPCConnection(ctx context.Context, t *testing.T, config *config.Config) (*grpc.ClientConn, error) {
 	t.Helper()
 
 	return grpc.DialContext(
