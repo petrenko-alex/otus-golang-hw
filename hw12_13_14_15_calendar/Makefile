@@ -2,7 +2,6 @@ BIN := "./bin/calendar"
 BIN_MIGRATE := "./bin/migrate"
 BIN_SENDER := "./bin/calendar_sender"
 BIN_SCHEDULER := "./bin/calendar_scheduler"
-DOCKER_IMG="calendar:develop"
 CONFIG_PATH := "./configs/config.yml"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
@@ -52,19 +51,10 @@ up:
 down:
 	docker compose down
 
-build-img:
-	docker build \
-		--build-arg=LDFLAGS="$(LDFLAGS)" \
-		-t $(DOCKER_IMG) \
-		-f build/Dockerfile .
-
-run-img: build-img
-	docker run $(DOCKER_IMG)
-
 version: build
 	$(BIN) version
 
-test:
+tests:
 	CGO_ENABLED=1 go test --count=1 -race ./internal/...
 
 integration-tests:
