@@ -67,6 +67,11 @@ version: build
 test:
 	CGO_ENABLED=1 go test --count=1 -race ./internal/...
 
+integration-tests:
+	docker compose -f deployments/docker-compose.test.yaml up \
+		--abort-on-container-exit \
+		--exit-code-from calendar-test
+
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.54.2
 

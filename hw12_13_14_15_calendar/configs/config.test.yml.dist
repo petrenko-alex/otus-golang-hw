@@ -1,0 +1,24 @@
+logger:
+  level: "info"
+storage: "db"
+app:
+  scheduler:
+    period: 10s
+    queue: "calendar_events"
+db:
+  dsn: "postgres://<login>:<password>@db:5432/calendar?sslmode=disable"
+  migrationsDir: "./migrations/"
+httpServer:
+  host: ""
+  port: 4242
+  readTimeout: 1s
+  writeTimeout: 1s
+grpcServer:
+  host: "calendar-server"
+  port: 4042
+  connectTimeout: 1s
+rabbitMqServer:
+  host: "rabbitmq"
+  port: "5672"
+  login: "alex"
+  password: "alex"
